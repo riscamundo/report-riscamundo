@@ -2,14 +2,13 @@ import { useStoreContext } from '@/contexts/StoreContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard, PageHeader } from '@/components/KPICard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   calcFaturamentoMes, calcInvestimentoTotal, calcROI, calcTicketMedio,
   calcConversao, calcCombosPremium, getLeadsPorEtapa, getReceitaPorProcedimento,
   getReceitaPorCanal, getROIPorCampanha, calcAlertas
 } from '@/lib/metrics';
 import { DollarSign, TrendingUp, Target, CreditCard, Users, Award, AlertTriangle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, FunnelChart } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const COLORS = ['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)', 'hsl(280, 50%, 55%)', 'hsl(15, 70%, 55%)'];
 
@@ -25,14 +24,13 @@ export default function ExecutiveDashboard() {
   const alertas = calcAlertas(procedimentos, campanhas, leads, vendas);
   const funilData = getLeadsPorEtapa(leads);
   const receitaProc = getReceitaPorProcedimento(vendas, procedimentos);
-  const receitaCanal = getReceitaPorCanal(vendas, leads);
+  const receitaCanal = getReceitaPorCanal(vendas, leads, campanhas);
   const roiCampanha = getROIPorCampanha(campanhas, vendas, leads);
 
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
 
   return (
     <DashboardLayout>
-      {/* Alertas Banner */}
       {alertas.filter(a => a.severidade === 'critico').length > 0 && (
         <div className="mb-4 p-3 rounded-lg border border-destructive/30 bg-destructive/5 flex items-start gap-2">
           <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
@@ -46,7 +44,6 @@ export default function ExecutiveDashboard() {
 
       <PageHeader title="Visão Executiva" subtitle="Dashboard de performance da clínica" />
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
         <KPICard title="Faturamento" value={fmt(faturamento)} icon={DollarSign} />
         <KPICard title="Investimento Mídia" value={fmt(investimento)} icon={CreditCard} />
@@ -56,9 +53,7 @@ export default function ExecutiveDashboard() {
         <KPICard title="Combos Premium" value={`${combos.toFixed(0)}%`} icon={Award} trend={combos >= 30 ? 'up' : 'down'} />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Funil */}
         <Card>
           <CardHeader><CardTitle className="text-base font-sans">Funil de Vendas</CardTitle></CardHeader>
           <CardContent>
@@ -82,7 +77,6 @@ export default function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        {/* Receita por Procedimento */}
         <Card>
           <CardHeader><CardTitle className="text-base font-sans">Receita por Procedimento</CardTitle></CardHeader>
           <CardContent>
@@ -98,7 +92,6 @@ export default function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        {/* Receita por Canal */}
         <Card>
           <CardHeader><CardTitle className="text-base font-sans">Receita por Canal</CardTitle></CardHeader>
           <CardContent className="flex items-center justify-center">
@@ -113,7 +106,6 @@ export default function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        {/* ROI por Campanha */}
         <Card>
           <CardHeader><CardTitle className="text-base font-sans">ROI por Campanha</CardTitle></CardHeader>
           <CardContent>

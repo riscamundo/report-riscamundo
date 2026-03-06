@@ -10,16 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Procedimento, Categoria, Prioridade } from '@/types';
+import type { Categoria, Prioridade } from '@/types';
 import { Plus, Edit2, ArrowUpDown } from 'lucide-react';
 
-const categoriaLabels: Record<Categoria, string> = { facial: 'Facial', corporal: 'Corporal', capilar: 'Capilar', combo_premium: 'Combo Premium' };
+const categoriaLabels: Record<Categoria, string> = { facial: 'Facial', capilar: 'Capilar', combo_premium: 'Combo Premium' };
 
 export default function ProcedimentosPage() {
   const { procedimentos, vendas, addProcedimento, updateProcedimento } = useStoreContext();
-  const [editItem, setEditItem] = useState<Procedimento | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [sortBy, setSortBy] = useState<'faturamento' | 'nome'>('faturamento');
+
+  const editItem = editId ? procedimentos.find(p => p.id === editId) : null;
 
   const getFaturamento = (id: string) => vendas.filter(v => v.procedimento_vendido === id && v.status === 'fechado').reduce((s, v) => s + v.valor_venda, 0);
   const getVendasCount = (id: string) => vendas.filter(v => v.procedimento_vendido === id && v.status === 'fechado').length;
@@ -28,21 +30,24 @@ export default function ProcedimentosPage() {
     sortBy === 'faturamento' ? getFaturamento(b.id) - getFaturamento(a.id) : a.nome_procedimento.localeCompare(b.nome_procedimento)
   );
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const proc: Procedimento = {
-      id: editItem?.id || `p${Date.now()}`,
+    const data = {
       nome_procedimento: fd.get('nome') as string,
-      categoria: fd.get('categoria') as Categoria,
+      categoria: fd.get('categoria') as string,
       ticket_medio: Number(fd.get('ticket')),
       margem_estimada: Number(fd.get('margem')),
-      status: (fd.get('status') as 'ativo' | 'inativo') || 'ativo',
-      prioridade_vendas: fd.get('prioridade') as Prioridade,
+      prioridade_vendas: fd.get('prioridade') as string,
+      status: (fd.get('status') as string) || 'ativo',
     };
-    editItem ? updateProcedimento(proc) : addProcedimento(proc);
+    if (editItem) {
+      await updateProcedimento(editItem.id, data);
+    } else {
+      await addProcedimento(data);
+    }
     setIsOpen(false);
-    setEditItem(null);
+    setEditId(null);
   };
 
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR')}`;
@@ -53,7 +58,7 @@ export default function ProcedimentosPage() {
         title="Procedimentos"
         subtitle="Gestão de procedimentos e combos"
         action={
-          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditItem(null); }}>
+          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
             <DialogTrigger asChild>
               <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Novo</Button>
             </DialogTrigger>
@@ -114,7 +119,7 @@ export default function ProcedimentosPage() {
               {sorted.map(p => (
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{p.nome_procedimento}</TableCell>
-                  <TableCell><Badge variant="outline" className="text-xs">{categoriaLabels[p.categoria]}</Badge></TableCell>
+                  <TableCell><Badge variant="outline" className="text-xs">{categoriaLabels[p.categoria as Categoria] || p.categoria}</Badge></TableCell>
                   <TableCell>{fmt(p.ticket_medio)}</TableCell>
                   <TableCell>{getVendasCount(p.id)}</TableCell>
                   <TableCell className="font-medium">{fmt(getFaturamento(p.id))}</TableCell>
@@ -124,7 +129,7 @@ export default function ProcedimentosPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => { setEditItem(p); setIsOpen(true); }}>
+                    <Button variant="ghost" size="icon" onClick={() => { setEditId(p.id); setIsOpen(true); }}>
                       <Edit2 className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>

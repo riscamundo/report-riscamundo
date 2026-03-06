@@ -10,15 +10,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Campanha, Canal } from '@/types';
 import { calcInvestimentoTotal, calcCPL, getROIPorCampanha } from '@/lib/metrics';
 import { DollarSign, Users, Target, TrendingUp, Plus, Edit2 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ScatterChart, Scatter } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function MidiaPage() {
   const { campanhas, leads, vendas, procedimentos, addCampanha, updateCampanha } = useStoreContext();
-  const [editItem, setEditItem] = useState<Campanha | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  const editItem = editId ? campanhas.find(c => c.id === editId) : null;
 
   const investimento = calcInvestimentoTotal(campanhas);
   const leadsGerados = leads.length;
@@ -37,22 +38,25 @@ export default function MidiaPage() {
 
   const investVsReceita = campanhas.map(c => ({ nome: c.nome_campanha, investimento: c.investimento, receita: getReceita(c.id) }));
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const camp: Campanha = {
-      id: editItem?.id || `c${Date.now()}`,
-      canal: fd.get('canal') as Canal,
+    const data = {
+      canal: fd.get('canal') as string,
       nome_campanha: fd.get('nome') as string,
       procedimento_foco: fd.get('procedimento') as string,
       investimento: Number(fd.get('investimento')),
       periodo_inicio: fd.get('inicio') as string,
       periodo_fim: fd.get('fim') as string,
-      status: (fd.get('status') as Campanha['status']) || 'ativa',
+      status: (fd.get('status') as string) || 'ativo',
     };
-    editItem ? updateCampanha(camp) : addCampanha(camp);
+    if (editItem) {
+      await updateCampanha(editItem.id, data);
+    } else {
+      await addCampanha(data);
+    }
     setIsOpen(false);
-    setEditItem(null);
+    setEditId(null);
   };
 
   return (
@@ -61,7 +65,7 @@ export default function MidiaPage() {
         title="Mídia & Performance"
         subtitle="Controle de campanhas e ROI"
         action={
-          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditItem(null); }}>
+          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
             <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova Campanha</Button></DialogTrigger>
             <DialogContent className="bg-card">
               <DialogHeader><DialogTitle className="font-display">{editItem ? 'Editar' : 'Nova'} Campanha</DialogTitle></DialogHeader>
@@ -87,8 +91,8 @@ export default function MidiaPage() {
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Início</Label><Input name="inicio" type="date" defaultValue={editItem?.periodo_inicio} required /></div>
-                  <div><Label>Fim</Label><Input name="fim" type="date" defaultValue={editItem?.periodo_fim} required /></div>
+                  <div><Label>Início</Label><Input name="inicio" type="date" defaultValue={editItem?.periodo_inicio || ''} required /></div>
+                  <div><Label>Fim</Label><Input name="fim" type="date" defaultValue={editItem?.periodo_fim || ''} required /></div>
                 </div>
                 <Button type="submit" className="w-full">Salvar</Button>
               </form>
@@ -137,11 +141,11 @@ export default function MidiaPage() {
                     <TableCell>{fmt(rc)}</TableCell>
                     <TableCell className={campRoi < 8 ? 'text-destructive' : 'text-success'}>{campRoi.toFixed(1)}x</TableCell>
                     <TableCell>
-                      <Badge className={c.status === 'ativa' ? 'bg-success/20 text-success border-0' : c.status === 'pausada' ? 'bg-warning/20 text-warning border-0' : 'bg-muted text-muted-foreground border-0'}>
+                      <Badge className={c.status === 'ativo' ? 'bg-success/20 text-success border-0' : c.status === 'pausado' ? 'bg-warning/20 text-warning border-0' : 'bg-muted text-muted-foreground border-0'}>
                         {c.status}
                       </Badge>
                     </TableCell>
-                    <TableCell><Button variant="ghost" size="icon" onClick={() => { setEditItem(c); setIsOpen(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></TableCell>
+                    <TableCell><Button variant="ghost" size="icon" onClick={() => { setEditId(c.id); setIsOpen(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></TableCell>
                   </TableRow>
                 );
               })}

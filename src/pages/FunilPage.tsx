@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { useStoreContext } from '@/contexts/StoreContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { PageHeader } from '@/components/KPICard';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Lead, StatusFunil, NivelInteresse, Canal } from '@/types';
+import type { StatusFunil } from '@/types';
 import { getLeadsPorEtapa } from '@/lib/metrics';
 import { Plus, GripVertical, Clock, DollarSign } from 'lucide-react';
 
@@ -31,31 +31,27 @@ export default function FunilPage() {
 
   const getDaysSince = (date: string) => Math.floor((Date.now() - new Date(date).getTime()) / (1000 * 60 * 60 * 24));
 
-  const handleDrop = (etapa: StatusFunil) => {
+  const handleDrop = async (etapa: StatusFunil) => {
     if (!draggedLead) return;
     const lead = leads.find(l => l.id === draggedLead);
     if (lead && lead.status_funil !== etapa) {
-      updateLead({ ...lead, status_funil: etapa });
+      await updateLead(lead.id, { status_funil: etapa });
     }
     setDraggedLead(null);
   };
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const lead: Lead = {
-      id: `l${Date.now()}`,
+    await addLead({
       nome: fd.get('nome') as string,
       telefone: fd.get('telefone') as string,
-      origem: fd.get('origem') as Canal,
+      origem: fd.get('origem') as string,
       campanha_id: fd.get('campanha') as string,
       procedimento_interesse: fd.get('procedimento') as string,
-      nivel_interesse: fd.get('interesse') as NivelInteresse,
+      nivel_interesse: fd.get('interesse') as string,
       status_funil: 'novo',
-      data_criacao: new Date().toISOString().split('T')[0],
-      valor_potencial: procedimentos.find(p => p.id === fd.get('procedimento'))?.ticket_medio || 0,
-    };
-    addLead(lead);
+    });
     setIsOpen(false);
   };
 
@@ -132,9 +128,6 @@ export default function FunilPage() {
                   <h3 className="text-sm font-semibold">{etapaLabels[etapa]}</h3>
                   <Badge variant="outline" className="text-xs">{data?.count || 0}</Badge>
                 </div>
-                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
-                  <DollarSign className="h-3 w-3" /> {fmt(data?.valor || 0)}
-                </p>
                 <div className="space-y-2">
                   {etapaLeads.map(lead => {
                     const proc = procedimentos.find(p => p.id === lead.procedimento_interesse);
@@ -150,11 +143,11 @@ export default function FunilPage() {
                             <p className="font-medium text-sm">{lead.nome}</p>
                             <GripVertical className="h-3.5 w-3.5 text-muted-foreground" />
                           </div>
-                          <p className="text-xs text-muted-foreground mb-2">{proc?.nome_procedimento}</p>
+                          <p className="text-xs text-muted-foreground mb-2">{proc?.nome_procedimento || '-'}</p>
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-medium text-primary">{fmt(lead.valor_potencial)}</span>
+                            <span className="text-xs font-medium text-primary">{proc ? fmt(proc.ticket_medio) : '-'}</span>
                             <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" /> {getDaysSince(lead.data_criacao)}d
+                              <Clock className="h-3 w-3" /> {getDaysSince(lead.created_at)}d
                             </span>
                           </div>
                         </CardContent>

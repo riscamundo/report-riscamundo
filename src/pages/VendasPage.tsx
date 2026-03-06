@@ -10,10 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Venda, FormaPagamento } from '@/types';
+import type { FormaPagamento } from '@/types';
 import { calcFaturamentoMes, calcTicketMedio, calcConversao, calcForecast } from '@/lib/metrics';
 import { DollarSign, TrendingUp, Target, BarChart3, Plus } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
@@ -37,22 +37,19 @@ export default function VendasPage() {
     { nome: 'Meta (ROI 8x)', valor: forecast.investimentoIdeal * 8 },
   ];
 
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const leadId = fd.get('lead') as string;
     const lead = leads.find(l => l.id === leadId);
-    const venda: Venda = {
-      id: `v${Date.now()}`,
+    await addVenda({
       lead_id: leadId,
-      procedimento_vendido: lead?.procedimento_interesse || '',
+      procedimento_vendido: lead?.procedimento_interesse || null,
       valor_venda: Number(fd.get('valor')),
-      forma_pagamento: fd.get('pagamento') as FormaPagamento,
+      forma_pagamento: fd.get('pagamento') as string,
       data_venda: new Date().toISOString().split('T')[0],
-      vendedor: fd.get('vendedor') as string,
       status: 'fechado',
-    };
-    addVenda(venda);
+    });
     setIsOpen(false);
   };
 
@@ -75,13 +72,12 @@ export default function VendasPage() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>Valor (R$)</Label><Input name="valor" type="number" required /></div>
-                  <div><Label>Vendedor</Label><Input name="vendedor" required /></div>
-                </div>
-                <div><Label>Pagamento</Label>
-                  <Select name="pagamento" defaultValue="pix">
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{Object.entries(pagamentoLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <div><Label>Pagamento</Label>
+                    <Select name="pagamento" defaultValue="pix">
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>{Object.entries(pagamentoLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <Button type="submit" className="w-full">Salvar</Button>
               </form>
@@ -90,7 +86,6 @@ export default function VendasPage() {
         }
       />
 
-      {/* Forecast KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <KPICard title="Faturamento Atual" value={fmt(faturamento)} icon={DollarSign} />
         <KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} />
@@ -98,7 +93,6 @@ export default function VendasPage() {
         <KPICard title="Ponto de Escala" value={fmt(forecast.pontoEscala)} subtitle="Investimento seguro" icon={BarChart3} />
       </div>
 
-      {/* Forecast Chart */}
       <Card className="mb-6">
         <CardHeader><CardTitle className="text-base font-sans">Projeção vs Realizado</CardTitle></CardHeader>
         <CardContent>
@@ -108,17 +102,12 @@ export default function VendasPage() {
               <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={12} />
               <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
               <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
-              <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
-                {forecastChart.map((_, i) => (
-                  <rect key={i} fill={['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)'][i]} />
-                ))}
-              </Bar>
+              <Bar dataKey="valor" fill="hsl(38, 70%, 50%)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
 
-      {/* Vendas Table */}
       <Card>
         <CardHeader><CardTitle className="text-base font-sans">Histórico de Vendas</CardTitle></CardHeader>
         <CardContent className="p-0">
@@ -130,12 +119,11 @@ export default function VendasPage() {
                 <TableHead>Procedimento</TableHead>
                 <TableHead>Valor</TableHead>
                 <TableHead>Pagamento</TableHead>
-                <TableHead>Vendedor</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {vendas.sort((a, b) => new Date(b.data_venda).getTime() - new Date(a.data_venda).getTime()).map(v => {
+              {[...vendas].sort((a, b) => new Date(b.data_venda).getTime() - new Date(a.data_venda).getTime()).map(v => {
                 const lead = leads.find(l => l.id === v.lead_id);
                 const proc = procedimentos.find(p => p.id === v.procedimento_vendido);
                 return (
@@ -144,8 +132,7 @@ export default function VendasPage() {
                     <TableCell className="font-medium">{lead?.nome || '-'}</TableCell>
                     <TableCell>{proc?.nome_procedimento || '-'}</TableCell>
                     <TableCell className="font-medium">{fmt(v.valor_venda)}</TableCell>
-                    <TableCell>{pagamentoLabels[v.forma_pagamento]}</TableCell>
-                    <TableCell>{v.vendedor}</TableCell>
+                    <TableCell>{pagamentoLabels[v.forma_pagamento as FormaPagamento] || v.forma_pagamento || '-'}</TableCell>
                     <TableCell>
                       <Badge className={v.status === 'fechado' ? 'bg-success/20 text-success border-0' : 'bg-destructive/20 text-destructive border-0'}>
                         {v.status}
