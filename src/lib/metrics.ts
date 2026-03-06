@@ -1,4 +1,4 @@
-import { Procedimento, Campanha, Lead, Venda, Alerta } from '@/types';
+import type { Procedimento, Campanha, Lead, Venda, Alerta } from '@/types';
 
 export function calcFaturamentoMes(vendas: Venda[]) {
   const now = new Date();
@@ -10,7 +10,7 @@ export function calcFaturamentoMes(vendas: Venda[]) {
 }
 
 export function calcInvestimentoTotal(campanhas: Campanha[]) {
-  return campanhas.filter(c => c.status === 'ativa').reduce((sum, c) => sum + c.investimento, 0);
+  return campanhas.filter(c => c.status === 'ativo').reduce((sum, c) => sum + c.investimento, 0);
 }
 
 export function calcROI(vendas: Venda[], campanhas: Campanha[]) {
@@ -42,7 +42,7 @@ export function calcCombosPremium(vendas: Venda[], procedimentos: Procedimento[]
 
 export function calcCPL(campanhas: Campanha[], leads: Lead[]) {
   const investimento = calcInvestimentoTotal(campanhas);
-  const totalLeads = leads.filter(l => campanhas.some(c => c.id === l.campanha_id && c.status === 'ativa')).length;
+  const totalLeads = leads.filter(l => campanhas.some(c => c.id === l.campanha_id && c.status === 'ativo')).length;
   return totalLeads > 0 ? investimento / totalLeads : 0;
 }
 
@@ -52,7 +52,10 @@ export function getLeadsPorEtapa(leads: Lead[]) {
     etapa: e,
     label: e === 'avaliacao' ? 'Avaliação' : e.charAt(0).toUpperCase() + e.slice(1),
     count: leads.filter(l => l.status_funil === e).length,
-    valor: leads.filter(l => l.status_funil === e).reduce((s, l) => s + l.valor_potencial, 0),
+    valor: leads.filter(l => l.status_funil === e).reduce((s, l) => {
+      const proc = l.procedimento_interesse;
+      return s + (proc ? 0 : 0); // valor_potencial not in DB, use 0
+    }, 0),
   }));
 }
 
@@ -63,10 +66,11 @@ export function getReceitaPorProcedimento(vendas: Venda[], procedimentos: Proced
   })).filter(x => x.receita > 0).sort((a, b) => b.receita - a.receita);
 }
 
-export function getReceitaPorCanal(vendas: Venda[], leads: Lead[]) {
-  const canais = ['Google Ads', 'Meta Ads', 'Instagram Orgânico', 'Indicação'] as const;
+export function getReceitaPorCanal(vendas: Venda[], leads: Lead[], campanhas: Campanha[]) {
+  const canais = [...new Set(campanhas.map(c => c.canal))];
   return canais.map(canal => {
-    const leadsDoCanal = leads.filter(l => l.origem === canal);
+    const campanhasDoCanal = campanhas.filter(c => c.canal === canal);
+    const leadsDoCanal = leads.filter(l => campanhasDoCanal.some(c => c.id === l.campanha_id));
     const receita = vendas.filter(v => v.status === 'fechado' && leadsDoCanal.some(l => l.id === v.lead_id)).reduce((s, v) => s + v.valor_venda, 0);
     return { canal, receita };
   }).filter(x => x.receita > 0);
@@ -84,13 +88,11 @@ export function calcAlertas(procedimentos: Procedimento[], campanhas: Campanha[]
   const alertas: Alerta[] = [];
   const now = new Date().toISOString();
 
-  // CPL > 20% above average
   const cpl = calcCPL(campanhas, leads);
   if (cpl > 300) {
     alertas.push({ id: 'a1', tipo: 'cpl_alto', mensagem: `CPL atual (R$ ${cpl.toFixed(0)}) está acima do ideal`, severidade: 'atencao', data: now, ativo: true });
   }
 
-  // ROI < 8x
   const roiData = getROIPorCampanha(campanhas, vendas, leads);
   roiData.forEach(r => {
     if (r.roi < 8 && r.roi > 0) {
@@ -98,15 +100,13 @@ export function calcAlertas(procedimentos: Procedimento[], campanhas: Campanha[]
     }
   });
 
-  // Combos premium < 30%
   const comboPct = calcCombosPremium(vendas, procedimentos);
   if (comboPct < 30) {
     alertas.push({ id: 'a-combo', tipo: 'combo_baixo', mensagem: `Vendas de combos premium em ${comboPct.toFixed(0)}% (meta: 30%)`, severidade: 'atencao', data: now, ativo: true });
   }
 
-  // Leads sem contato > 24h (novos há mais de 1 dia)
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-  const leadsParados = leads.filter(l => l.status_funil === 'novo' && new Date(l.data_criacao).getTime() < oneDayAgo);
+  const leadsParados = leads.filter(l => l.status_funil === 'novo' && new Date(l.created_at).getTime() < oneDayAgo);
   if (leadsParados.length > 0) {
     alertas.push({ id: 'a-leads', tipo: 'leads_parados', mensagem: `${leadsParados.length} lead(s) sem contato há mais de 24h`, severidade: 'critico', data: now, ativo: true });
   }
@@ -120,7 +120,7 @@ export function calcForecast(leads: Lead[], vendas: Venda[], procedimentos: Proc
   const ticketMedio = calcTicketMedio(vendas);
   const receitaProjetadaMensal = leadsAtivos.length * taxaConversao * ticketMedio;
   const receitaProjetadaTrimestral = receitaProjetadaMensal * 3;
-  const investimentoIdeal = receitaProjetadaMensal / 8; // ROI 8x target
+  const investimentoIdeal = receitaProjetadaMensal / 8;
 
   return {
     leadsAtivos: leadsAtivos.length,
