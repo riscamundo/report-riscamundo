@@ -14,16 +14,260 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      campanhas: {
+        Row: {
+          canal: string
+          created_at: string
+          id: string
+          investimento: number
+          nome_campanha: string
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          procedimento_foco: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          canal: string
+          created_at?: string
+          id?: string
+          investimento?: number
+          nome_campanha: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          procedimento_foco?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          canal?: string
+          created_at?: string
+          id?: string
+          investimento?: number
+          nome_campanha?: string
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          procedimento_foco?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campanhas_procedimento_foco_fkey"
+            columns: ["procedimento_foco"]
+            isOneToOne: false
+            referencedRelation: "procedimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          campanha_id: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          nivel_interesse: string
+          nome: string
+          origem: string | null
+          procedimento_interesse: string | null
+          status_funil: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          campanha_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nivel_interesse?: string
+          nome: string
+          origem?: string | null
+          procedimento_interesse?: string | null
+          status_funil?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          campanha_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          nivel_interesse?: string
+          nome?: string
+          origem?: string | null
+          procedimento_interesse?: string | null
+          status_funil?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_campanha_id_fkey"
+            columns: ["campanha_id"]
+            isOneToOne: false
+            referencedRelation: "campanhas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_procedimento_interesse_fkey"
+            columns: ["procedimento_interesse"]
+            isOneToOne: false
+            referencedRelation: "procedimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      procedimentos: {
+        Row: {
+          categoria: string
+          created_at: string
+          id: string
+          margem_estimada: number
+          nome_procedimento: string
+          prioridade_vendas: string
+          status: string
+          ticket_medio: number
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          id?: string
+          margem_estimada?: number
+          nome_procedimento: string
+          prioridade_vendas?: string
+          status?: string
+          ticket_medio?: number
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          id?: string
+          margem_estimada?: number
+          nome_procedimento?: string
+          prioridade_vendas?: string
+          status?: string
+          ticket_medio?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vendas: {
+        Row: {
+          created_at: string
+          data_venda: string
+          forma_pagamento: string | null
+          id: string
+          lead_id: string | null
+          procedimento_vendido: string | null
+          status: string
+          updated_at: string
+          valor_venda: number
+          vendedor: string | null
+        }
+        Insert: {
+          created_at?: string
+          data_venda?: string
+          forma_pagamento?: string | null
+          id?: string
+          lead_id?: string | null
+          procedimento_vendido?: string | null
+          status?: string
+          updated_at?: string
+          valor_venda?: number
+          vendedor?: string | null
+        }
+        Update: {
+          created_at?: string
+          data_venda?: string
+          forma_pagamento?: string | null
+          id?: string
+          lead_id?: string | null
+          procedimento_vendido?: string | null
+          status?: string
+          updated_at?: string
+          valor_venda?: number
+          vendedor?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendas_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendas_procedimento_vendido_fkey"
+            columns: ["procedimento_vendido"]
+            isOneToOne: false
+            referencedRelation: "procedimentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "master" | "equipe"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +394,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["master", "equipe"],
+    },
   },
 } as const
