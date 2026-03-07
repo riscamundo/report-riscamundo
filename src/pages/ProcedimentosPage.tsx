@@ -142,7 +142,7 @@ export default function ProcedimentosPage() {
               </Table>
             ) : (
               <div className="p-12 text-center">
-                <Package className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">Nenhum procedimento cadastrado. Clique em "Novo" para começar.</p>
               </div>
             )}

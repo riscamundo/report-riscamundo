@@ -156,7 +156,7 @@ export default function MidiaPage() {
               </Table>
             ) : (
               <div className="p-12 text-center">
-                <Megaphone className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">Nenhuma campanha cadastrada.</p>
               </div>
             )}
