@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStoreContext } from '@/contexts/StoreContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { PageHeader } from '@/components/KPICard';
+import { AnimatedPage } from '@/components/AnimatedPage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,91 +55,100 @@ export default function ProcedimentosPage() {
 
   return (
     <DashboardLayout>
-      <PageHeader
-        title="Procedimentos"
-        subtitle="Gestão de procedimentos e combos"
-        action={
-          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
-            <DialogTrigger asChild>
-              <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Novo</Button>
-            </DialogTrigger>
-            <DialogContent className="bg-card">
-              <DialogHeader><DialogTitle className="font-display">{editItem ? 'Editar' : 'Novo'} Procedimento</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div><Label htmlFor="nome">Nome</Label><Input id="nome" name="nome" defaultValue={editItem?.nome_procedimento} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Categoria</Label>
-                    <Select name="categoria" defaultValue={editItem?.categoria || 'facial'}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{Object.entries(categoriaLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                    </Select>
+      <AnimatedPage>
+        <PageHeader
+          title="Procedimentos"
+          subtitle="Gestão de procedimentos e combos"
+          action={
+            <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
+              <DialogTrigger asChild>
+                <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Novo</Button>
+              </DialogTrigger>
+              <DialogContent className="bg-card">
+                <DialogHeader><DialogTitle className="font-display">{editItem ? 'Editar' : 'Novo'} Procedimento</DialogTitle></DialogHeader>
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div><Label htmlFor="nome">Nome</Label><Input id="nome" name="nome" defaultValue={editItem?.nome_procedimento} required className="mt-1" /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>Categoria</Label>
+                      <Select name="categoria" defaultValue={editItem?.categoria || 'facial'}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>{Object.entries(categoriaLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label>Prioridade</Label>
+                      <Select name="prioridade" defaultValue={editItem?.prioridade_vendas || 'media'}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="alta">Alta</SelectItem><SelectItem value="media">Média</SelectItem><SelectItem value="baixa">Baixa</SelectItem></SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <div><Label>Prioridade</Label>
-                    <Select name="prioridade" defaultValue={editItem?.prioridade_vendas || 'media'}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="alta">Alta</SelectItem><SelectItem value="media">Média</SelectItem><SelectItem value="baixa">Baixa</SelectItem></SelectContent>
-                    </Select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label htmlFor="ticket">Ticket Médio (R$)</Label><Input id="ticket" name="ticket" type="number" defaultValue={editItem?.ticket_medio} required className="mt-1" /></div>
+                    <div><Label htmlFor="margem">Margem (%)</Label><Input id="margem" name="margem" type="number" defaultValue={editItem?.margem_estimada} required className="mt-1" /></div>
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label htmlFor="ticket">Ticket Médio (R$)</Label><Input id="ticket" name="ticket" type="number" defaultValue={editItem?.ticket_medio} required /></div>
-                  <div><Label htmlFor="margem">Margem (%)</Label><Input id="margem" name="margem" type="number" defaultValue={editItem?.margem_estimada} required /></div>
-                </div>
-                {editItem && (
-                  <div><Label>Status</Label>
-                    <Select name="status" defaultValue={editItem.status}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent><SelectItem value="ativo">Ativo</SelectItem><SelectItem value="inativo">Inativo</SelectItem></SelectContent>
-                    </Select>
-                  </div>
-                )}
-                <Button type="submit" className="w-full">Salvar</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        }
-      />
+                  {editItem && (
+                    <div><Label>Status</Label>
+                      <Select name="status" defaultValue={editItem.status}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="ativo">Ativo</SelectItem><SelectItem value="inativo">Inativo</SelectItem></SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <Button type="submit" className="w-full">Salvar</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          }
+        />
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Categoria</TableHead>
-                <TableHead>Ticket Médio</TableHead>
-                <TableHead>Vendas</TableHead>
-                <TableHead className="cursor-pointer" onClick={() => setSortBy(sortBy === 'faturamento' ? 'nome' : 'faturamento')}>
-                  <span className="flex items-center gap-1">Faturamento <ArrowUpDown className="h-3 w-3" /></span>
-                </TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sorted.map(p => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.nome_procedimento}</TableCell>
-                  <TableCell><Badge variant="outline" className="text-xs">{categoriaLabels[p.categoria as Categoria] || p.categoria}</Badge></TableCell>
-                  <TableCell>{fmt(p.ticket_medio)}</TableCell>
-                  <TableCell>{getVendasCount(p.id)}</TableCell>
-                  <TableCell className="font-medium">{fmt(getFaturamento(p.id))}</TableCell>
-                  <TableCell>
-                    <Badge className={p.status === 'ativo' ? 'bg-success/20 text-success border-0' : 'bg-muted text-muted-foreground border-0'}>
-                      {p.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" onClick={() => { setEditId(p.id); setIsOpen(true); }}>
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardContent className="p-0">
+            {sorted.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Categoria</TableHead>
+                    <TableHead>Ticket Médio</TableHead>
+                    <TableHead>Vendas</TableHead>
+                    <TableHead className="cursor-pointer" onClick={() => setSortBy(sortBy === 'faturamento' ? 'nome' : 'faturamento')}>
+                      <span className="flex items-center gap-1">Faturamento <ArrowUpDown className="h-3 w-3" /></span>
+                    </TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {sorted.map(p => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-medium">{p.nome_procedimento}</TableCell>
+                      <TableCell><Badge variant="outline" className="text-xs">{categoriaLabels[p.categoria as Categoria] || p.categoria}</Badge></TableCell>
+                      <TableCell>{fmt(p.ticket_medio)}</TableCell>
+                      <TableCell>{getVendasCount(p.id)}</TableCell>
+                      <TableCell className="font-medium">{fmt(getFaturamento(p.id))}</TableCell>
+                      <TableCell>
+                        <Badge className={p.status === 'ativo' ? 'bg-success/20 text-success border-0' : 'bg-muted text-muted-foreground border-0'}>
+                          {p.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" onClick={() => { setEditId(p.id); setIsOpen(true); }}>
+                          <Edit2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="p-12 text-center">
+                <Plus className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Nenhum procedimento cadastrado. Clique em "Novo" para começar.</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </AnimatedPage>
     </DashboardLayout>
   );
 }
