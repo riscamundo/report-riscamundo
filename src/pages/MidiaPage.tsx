@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStoreContext } from '@/contexts/StoreContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard, PageHeader } from '@/components/KPICard';
+import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,7 +45,7 @@ export default function MidiaPage() {
     const data = {
       canal: fd.get('canal') as string,
       nome_campanha: fd.get('nome') as string,
-      procedimento_foco: fd.get('procedimento') as string,
+      procedimento_foco: (fd.get('procedimento') as string) || null,
       investimento: Number(fd.get('investimento')),
       periodo_inicio: fd.get('inicio') as string,
       periodo_fim: fd.get('fim') as string,
@@ -61,131 +62,142 @@ export default function MidiaPage() {
 
   return (
     <DashboardLayout>
-      <PageHeader
-        title="Mídia & Performance"
-        subtitle="Controle de campanhas e ROI"
-        action={
-          <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
-            <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova Campanha</Button></DialogTrigger>
-            <DialogContent className="bg-card">
-              <DialogHeader><DialogTitle className="font-display">{editItem ? 'Editar' : 'Nova'} Campanha</DialogTitle></DialogHeader>
-              <form onSubmit={handleSave} className="space-y-4">
-                <div><Label>Nome</Label><Input name="nome" defaultValue={editItem?.nome_campanha} required /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Canal</Label>
-                    <Select name="canal" defaultValue={editItem?.canal || 'Meta Ads'}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Google Ads">Google Ads</SelectItem>
-                        <SelectItem value="Meta Ads">Meta Ads</SelectItem>
-                        <SelectItem value="Instagram Orgânico">Instagram Orgânico</SelectItem>
-                      </SelectContent>
+      <AnimatedPage>
+        <PageHeader
+          title="Mídia & Performance"
+          subtitle="Controle de campanhas e ROI"
+          action={
+            <Dialog open={isOpen} onOpenChange={(o) => { setIsOpen(o); if (!o) setEditId(null); }}>
+              <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova Campanha</Button></DialogTrigger>
+              <DialogContent className="bg-card">
+                <DialogHeader><DialogTitle className="font-display">{editItem ? 'Editar' : 'Nova'} Campanha</DialogTitle></DialogHeader>
+                <form onSubmit={handleSave} className="space-y-4">
+                  <div><Label>Nome</Label><Input name="nome" defaultValue={editItem?.nome_campanha} required className="mt-1" /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>Canal</Label>
+                      <Select name="canal" defaultValue={editItem?.canal || 'Meta Ads'}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Google Ads">Google Ads</SelectItem>
+                          <SelectItem value="Meta Ads">Meta Ads</SelectItem>
+                          <SelectItem value="Instagram Orgânico">Instagram Orgânico</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label>Investimento (R$)</Label><Input name="investimento" type="number" defaultValue={editItem?.investimento} required className="mt-1" /></div>
+                  </div>
+                  <div><Label>Procedimento Foco</Label>
+                    <Select name="procedimento" defaultValue={editItem?.procedimento_foco || procedimentos[0]?.id}>
+                      <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                      <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
                     </Select>
                   </div>
-                  <div><Label>Investimento (R$)</Label><Input name="investimento" type="number" defaultValue={editItem?.investimento} required /></div>
-                </div>
-                <div><Label>Procedimento Foco</Label>
-                  <Select name="procedimento" defaultValue={editItem?.procedimento_foco || procedimentos[0]?.id}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Início</Label><Input name="inicio" type="date" defaultValue={editItem?.periodo_inicio || ''} required /></div>
-                  <div><Label>Fim</Label><Input name="fim" type="date" defaultValue={editItem?.periodo_fim || ''} required /></div>
-                </div>
-                <Button type="submit" className="w-full">Salvar</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        }
-      />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label>Início</Label><Input name="inicio" type="date" defaultValue={editItem?.periodo_inicio || ''} required className="mt-1" /></div>
+                    <div><Label>Fim</Label><Input name="fim" type="date" defaultValue={editItem?.periodo_fim || ''} required className="mt-1" /></div>
+                  </div>
+                  <Button type="submit" className="w-full">Salvar</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          }
+        />
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-        <KPICard title="Investimento Total" value={fmt(investimento)} icon={DollarSign} />
-        <KPICard title="Leads Gerados" value={String(leadsGerados)} icon={Users} />
-        <KPICard title="CPL Médio" value={fmt(cpl)} icon={Target} />
-        <KPICard title="Receita Atribuída" value={fmt(receitaTotal)} icon={TrendingUp} />
-        <KPICard title="ROI Geral" value={`${roiGeral.toFixed(1)}x`} icon={TrendingUp} trend={roiGeral >= 8 ? 'up' : 'down'} />
-      </div>
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          <StaggerItem><KPICard title="Investimento Total" value={fmt(investimento)} icon={DollarSign} /></StaggerItem>
+          <StaggerItem><KPICard title="Leads Gerados" value={String(leadsGerados)} icon={Users} /></StaggerItem>
+          <StaggerItem><KPICard title="CPL Médio" value={fmt(cpl)} icon={Target} /></StaggerItem>
+          <StaggerItem><KPICard title="Receita Atribuída" value={fmt(receitaTotal)} icon={TrendingUp} /></StaggerItem>
+          <StaggerItem><KPICard title="ROI Geral" value={`${roiGeral.toFixed(1)}x`} icon={TrendingUp} trend={roiGeral >= 8 ? 'up' : 'down'} /></StaggerItem>
+        </StaggerContainer>
 
-      <Card className="mb-6">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Campanha</TableHead>
-                <TableHead>Canal</TableHead>
-                <TableHead>Investimento</TableHead>
-                <TableHead>Leads</TableHead>
-                <TableHead>CPL</TableHead>
-                <TableHead>Receita</TableHead>
-                <TableHead>ROI</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {campanhas.map(c => {
-                const lc = getLeadsCount(c.id);
-                const rc = getReceita(c.id);
-                const campCpl = lc > 0 ? c.investimento / lc : 0;
-                const campRoi = c.investimento > 0 ? rc / c.investimento : 0;
-                return (
-                  <TableRow key={c.id}>
-                    <TableCell className="font-medium">{c.nome_campanha}</TableCell>
-                    <TableCell><Badge variant="outline" className="text-xs">{c.canal}</Badge></TableCell>
-                    <TableCell>{fmt(c.investimento)}</TableCell>
-                    <TableCell>{lc}</TableCell>
-                    <TableCell>{fmt(campCpl)}</TableCell>
-                    <TableCell>{fmt(rc)}</TableCell>
-                    <TableCell className={campRoi < 8 ? 'text-destructive' : 'text-success'}>{campRoi.toFixed(1)}x</TableCell>
-                    <TableCell>
-                      <Badge className={c.status === 'ativo' ? 'bg-success/20 text-success border-0' : c.status === 'pausado' ? 'bg-warning/20 text-warning border-0' : 'bg-muted text-muted-foreground border-0'}>
-                        {c.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell><Button variant="ghost" size="icon" onClick={() => { setEditId(c.id); setIsOpen(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></TableCell>
+        <Card className="mb-6">
+          <CardContent className="p-0">
+            {campanhas.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Campanha</TableHead>
+                    <TableHead>Canal</TableHead>
+                    <TableHead>Investimento</TableHead>
+                    <TableHead>Leads</TableHead>
+                    <TableHead>CPL</TableHead>
+                    <TableHead>Receita</TableHead>
+                    <TableHead>ROI</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead></TableHead>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader><CardTitle className="text-base font-sans">Receita x Investimento</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={investVsReceita}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
-                <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
-                <Bar dataKey="investimento" fill="hsl(200, 60%, 50%)" radius={[4, 4, 0, 0]} name="Investimento" />
-                <Bar dataKey="receita" fill="hsl(38, 70%, 50%)" radius={[4, 4, 0, 0]} name="Receita" />
-              </BarChart>
-            </ResponsiveContainer>
+                </TableHeader>
+                <TableBody>
+                  {campanhas.map(c => {
+                    const lc = getLeadsCount(c.id);
+                    const rc = getReceita(c.id);
+                    const campCpl = lc > 0 ? c.investimento / lc : 0;
+                    const campRoi = c.investimento > 0 ? rc / c.investimento : 0;
+                    return (
+                      <TableRow key={c.id}>
+                        <TableCell className="font-medium">{c.nome_campanha}</TableCell>
+                        <TableCell><Badge variant="outline" className="text-xs">{c.canal}</Badge></TableCell>
+                        <TableCell>{fmt(c.investimento)}</TableCell>
+                        <TableCell>{lc}</TableCell>
+                        <TableCell>{fmt(campCpl)}</TableCell>
+                        <TableCell>{fmt(rc)}</TableCell>
+                        <TableCell className={campRoi < 8 ? 'text-destructive' : 'text-success'}>{campRoi.toFixed(1)}x</TableCell>
+                        <TableCell>
+                          <Badge className={c.status === 'ativo' ? 'bg-success/20 text-success border-0' : c.status === 'pausado' ? 'bg-warning/20 text-warning border-0' : 'bg-muted text-muted-foreground border-0'}>
+                            {c.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell><Button variant="ghost" size="icon" onClick={() => { setEditId(c.id); setIsOpen(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="p-12 text-center">
+                <Megaphone className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">Nenhuma campanha cadastrada.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle className="text-base font-sans">ROI por Campanha</CardTitle></CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={roiData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
-                <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => `${v.toFixed(1)}x`} />
-                <Bar dataKey="roi" fill="hsl(150, 50%, 45%)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+        {campanhas.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader><CardTitle className="text-base font-sans">Receita x Investimento</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={investVsReceita}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
+                    <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                    <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
+                    <Bar dataKey="investimento" fill="hsl(200, 60%, 50%)" radius={[4, 4, 0, 0]} name="Investimento" />
+                    <Bar dataKey="receita" fill="hsl(38, 70%, 50%)" radius={[4, 4, 0, 0]} name="Receita" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader><CardTitle className="text-base font-sans">ROI por Campanha</CardTitle></CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={roiData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
+                    <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} />
+                    <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => `${v.toFixed(1)}x`} />
+                    <Bar dataKey="roi" fill="hsl(150, 50%, 45%)" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </AnimatedPage>
     </DashboardLayout>
   );
 }

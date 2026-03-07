@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, Megaphone, Users, ShoppingCart, AlertTriangle,
-  ChevronLeft, ChevronRight, Shield, LogOut
+  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X
 } from 'lucide-react';
 
 interface NavItem {
@@ -26,19 +27,23 @@ const allNavItems: NavItem[] = [
 export function AppSidebar() {
   const { isMaster, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const visibleItems = allNavItems.filter(item => !item.masterOnly || isMaster);
 
-  return (
-    <aside className={`${collapsed ? 'w-16' : 'w-64'} min-h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300`}>
+  const sidebarContent = (
+    <>
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
           <div>
             <h1 className="text-lg font-display font-bold gold-text">Estética</h1>
-            <p className="text-xs text-muted-foreground">Premium CRM</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Premium CRM</p>
           </div>
         )}
-        <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground">
+        <button onClick={() => { setCollapsed(!collapsed); setMobileOpen(false); }} className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground hidden md:block">
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+        <button onClick={() => setMobileOpen(false)} className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground md:hidden">
+          <X className="h-4 w-4" />
         </button>
       </div>
 
@@ -48,8 +53,9 @@ export function AppSidebar() {
             key={item.url}
             to={item.url}
             end={item.url === '/'}
+            onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-            activeClassName="bg-sidebar-accent text-primary font-medium"
+            activeClassName="bg-sidebar-accent text-primary font-medium shadow-sm"
           >
             <item.icon className="h-4 w-4 shrink-0" />
             {!collapsed && <span>{item.title}</span>}
@@ -62,22 +68,54 @@ export function AppSidebar() {
           <div className="space-y-2">
             <div className="px-2">
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              <p className="text-xs text-primary font-medium">{isMaster ? 'Master' : 'Equipe'}</p>
+              <p className="text-xs text-primary font-medium">{isMaster ? '👑 Master' : '👤 Equipe'}</p>
             </div>
             <button
               onClick={signOut}
-              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span>Sair</span>
             </button>
           </div>
         ) : (
-          <button onClick={signOut} className="p-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent" title="Sair">
+          <button onClick={signOut} className="p-2 rounded-lg text-sidebar-foreground hover:bg-destructive/10 hover:text-destructive transition-colors" title="Sair">
             <LogOut className="h-4 w-4" />
           </button>
         )}
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-card border border-border shadow-lg md:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-black/60 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+
+      {/* Mobile sidebar */}
+      <motion.aside
+        initial={false}
+        animate={{ x: mobileOpen ? 0 : -280 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="fixed inset-y-0 left-0 w-[280px] bg-sidebar border-r border-sidebar-border flex flex-col z-50 md:hidden"
+      >
+        {sidebarContent}
+      </motion.aside>
+
+      {/* Desktop sidebar */}
+      <aside className={`${collapsed ? 'w-16' : 'w-64'} min-h-screen bg-sidebar border-r border-sidebar-border flex-col transition-all duration-300 hidden md:flex`}>
+        {sidebarContent}
+      </aside>
+    </>
   );
 }
