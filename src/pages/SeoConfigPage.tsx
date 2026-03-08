@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Search, Hash, Link2, MoveUp, MoveDown, Minus } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Hash, Link2, MoveUp, MoveDown, Minus, Sparkles, Loader2 } from 'lucide-react';
 
 interface Cliente { id: string; nome: string; }
 
