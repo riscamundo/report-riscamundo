@@ -51,6 +51,11 @@ export default function TenantsPage() {
   const [boletoVenc, setBoletoVenc] = useState('');
   const [savingBoleto, setSavingBoleto] = useState(false);
 
+  // Procedimentos
+  const [showProcForm, setShowProcForm] = useState(false);
+  const [editProcId, setEditProcId] = useState<string | null>(null);
+  const [savingProc, setSavingProc] = useState(false);
+
   // Report period
   const [reportDays, setReportDays] = useState(30);
 
