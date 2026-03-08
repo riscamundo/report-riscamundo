@@ -746,6 +746,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ SEO TAB ═══════════ */}
             <TabsContent value="seo" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="SEO" /></div>
               {/* Keyword Research Agent - only for master */}
               {isMaster && <KeywordResearchAgent clienteNome={cliente?.nome} />}
 
