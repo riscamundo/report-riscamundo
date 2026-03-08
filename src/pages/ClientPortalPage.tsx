@@ -462,41 +462,6 @@ export default function ClientPortalPage() {
             <TabsContent value="anuncios" className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
-                <Dialog open={showNewAnuncio} onOpenChange={setShowNewAnuncio}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Novo Anúncio</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader><DialogTitle>Novo Anúncio</DialogTitle></DialogHeader>
-                    <div className="space-y-4 pt-2">
-                      <div><Label>Plataforma *</Label>
-                        <Select value={newAnuncio.plataforma} onValueChange={v => setNewAnuncio(p => ({ ...p, plataforma: v as Platform, tipo_anuncio: '' }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>{PLATFORMS.map(p => <SelectItem key={p.id} value={p.id}>{p.icon} {p.label}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                      <div><Label>Tipo de Anúncio *</Label>
-                        <Select value={newAnuncio.tipo_anuncio} onValueChange={v => setNewAnuncio(p => ({ ...p, tipo_anuncio: v }))}>
-                          <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                          <SelectContent>{PLATFORMS.find(p => p.id === newAnuncio.plataforma)?.types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                      <div><Label>Título *</Label><Input value={newAnuncio.titulo} onChange={e => setNewAnuncio(p => ({ ...p, titulo: e.target.value }))} placeholder="Título do anúncio" /></div>
-                      <div><Label>Descrição</Label><Textarea value={newAnuncio.descricao} onChange={e => setNewAnuncio(p => ({ ...p, descricao: e.target.value }))} rows={2} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div><Label>Investimento (R$)</Label><Input type="number" value={newAnuncio.investimento} onChange={e => setNewAnuncio(p => ({ ...p, investimento: e.target.value }))} /></div>
-                        <div><Label>URL Destino</Label><Input value={newAnuncio.url_destino} onChange={e => setNewAnuncio(p => ({ ...p, url_destino: e.target.value }))} /></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div><Label>Data Início</Label><Input type="date" value={newAnuncio.data_inicio} onChange={e => setNewAnuncio(p => ({ ...p, data_inicio: e.target.value }))} /></div>
-                        <div><Label>Data Fim</Label><Input type="date" value={newAnuncio.data_fim} onChange={e => setNewAnuncio(p => ({ ...p, data_fim: e.target.value }))} /></div>
-                      </div>
-                      <Button onClick={handleSaveAnuncio} disabled={savingAnuncio || !newAnuncio.titulo.trim() || !newAnuncio.tipo_anuncio} className="w-full">
-                        {savingAnuncio ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Anúncio'}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </div>
 
               {/* Platform summary cards */}
