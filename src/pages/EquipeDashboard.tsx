@@ -30,7 +30,12 @@ interface SocialAccount { id: string; plataforma: string; username: string | nul
 interface MBProfile { id: string; nome_negocio: string; categoria: string | null; endereco: string | null; cidade: string | null; avaliacao_media: number; total_avaliacoes: number; visualizacoes_busca: number; visualizacoes_maps: number; cliques_site: number; cliques_ligacao: number; cliques_rota: number; fotos_count: number; }
 interface MBCompetitor { id: string; nome_concorrente: string; categoria: string | null; avaliacao_media: number; total_avaliacoes: number; distancia_km: number | null; }
 interface TarefaPendente { id: string; titulo: string; descricao: string | null; status: string; prioridade: string | null; cliente_id: string; updated_at: string; }
+interface VendaRow { id: string; data_venda: string; valor_venda: number; forma_pagamento: string | null; status: string; lead_id: string | null; procedimento_vendido: string | null; }
+interface LeadRow { id: string; nome: string; origem: string | null; campanha_id: string | null; procedimento_interesse: string | null; status_funil: string; }
+interface ProcedimentoRow { id: string; nome_procedimento: string; categoria: string; }
+interface CampanhaRow { id: string; nome_campanha: string; canal: string; }
 
+const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
 // ─── Constants ───
 const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
 const gridStroke = 'hsl(225, 12%, 18%)';
