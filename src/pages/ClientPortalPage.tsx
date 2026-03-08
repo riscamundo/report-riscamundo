@@ -135,10 +135,11 @@ export default function ClientPortalPage() {
   const handleSaveTarefa = async () => {
     if (!cliente || !newTarefa.titulo.trim()) return;
     setSavingTarefa(true);
+    const descricaoFinal = [newTarefa.contexto ? `[${newTarefa.contexto}]` : '', newTarefa.descricao].filter(Boolean).join(' ');
     const { error } = await supabase.from('tarefas_cliente').insert({
       cliente_id: cliente.id,
       titulo: newTarefa.titulo,
-      descricao: newTarefa.descricao || null,
+      descricao: descricaoFinal || null,
       prioridade: newTarefa.prioridade,
       status: 'esperando',
     });
