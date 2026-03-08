@@ -35,6 +35,7 @@ export default function VendasPage() {
   const [search, setSearch] = useState('');
   const [funilSearch, setFunilSearch] = useState('');
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string>('');
 
   const faturamento = calcFaturamentoMes(vendas);
   const ticketMedio = calcTicketMedio(vendas);
