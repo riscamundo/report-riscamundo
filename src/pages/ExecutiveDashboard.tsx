@@ -84,6 +84,7 @@ export default function ExecutiveDashboard() {
       ]);
       setClientes((cRes.data || []) as ClienteResumo[]);
       setFinanceiro((fRes.data || []) as unknown as FinanceiroRow[]);
+      setContatos((ctRes.data || []) as any[]);
 
       if (tRes.data && tRes.data.length > 0) {
         const clienteIds = [...new Set(tRes.data.map(t => t.cliente_id))];
