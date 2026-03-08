@@ -359,15 +359,78 @@ export default function ClientPortalPage() {
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold">Olá, {cliente?.nome || 'Cliente'} 👋</h2>
-            <p className="text-muted-foreground text-sm mt-1">Acompanhe seus procedimentos, anúncios e resultados de marketing.</p>
+            <p className="text-muted-foreground text-sm mt-1">Acompanhe seus resultados de marketing, anúncios e performance digital.</p>
           </div>
 
-          <Tabs defaultValue="tarefas" className="space-y-6">
+          {/* ═══════════ DASHBOARD SUMMARY ═══════════ */}
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <StaggerItem><MktKPI label="Visitas ao Site" value={latestMkt?.visitas_site?.toLocaleString('pt-BR') || '0'} icon={Globe} delta={prevMkt ? calcDelta(latestMkt!.visitas_site, prevMkt.visitas_site) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Leads Gerados" value={latestMkt?.leads_gerados?.toString() || '0'} icon={Target} delta={prevMkt ? calcDelta(latestMkt!.leads_gerados, prevMkt.leads_gerados) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Seguidores" value={latestMkt?.seguidores_total?.toLocaleString('pt-BR') || '0'} icon={Users} delta={prevMkt ? calcDelta(latestMkt!.seguidores_total, prevMkt.seguidores_total) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Palavras Top 10" value={seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length.toString()} icon={Search} /></StaggerItem>
+            <StaggerItem><MktKPI label="Anúncios Ativos" value={anuncios.filter(a => a.status === 'ativo').length.toString()} icon={Megaphone} /></StaggerItem>
+            <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
+          </StaggerContainer>
+
+          {/* Quick summary charts */}
+          {(latestMkt || anuncios.length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {trafegoData.length > 1 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Tráfego Recente</CardTitle></CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={120}>
+                      <AreaChart data={trafegoData.slice(-6)}>
+                        <defs><linearGradient id="dashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3}/><stop offset="95%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0}/></linearGradient></defs>
+                        <Area type="monotone" dataKey="total" stroke="hsl(217, 91%, 60%)" fill="url(#dashGrad)" strokeWidth={2} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+              {leadsData.length > 1 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Target className="h-3.5 w-3.5" /> Leads Recentes</CardTitle></CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={120}>
+                      <BarChart data={leadsData.slice(-6)}>
+                        <Bar dataKey="gerados" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} barSize={14} />
+                        <Bar dataKey="qualificados" fill="hsl(160, 84%, 39%)" radius={[4, 4, 0, 0]} barSize={14} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+              {anuncios.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Investimento Ads</CardTitle></CardHeader>
+                  <CardContent className="flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height={120}>
+                      <PieChart>
+                        <Pie data={platformStats.filter(p => p.totalInvestido > 0)} dataKey="totalInvestido" nameKey="label" cx="50%" cy="50%" outerRadius={50} innerRadius={30} paddingAngle={3} strokeWidth={0} fontSize={9}
+                          label={({ label, percent }) => `${label} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                          {platformStats.filter(p => p.totalInvestido > 0).map((p, i) => <Cell key={i} fill={p.color} />)}
+                        </Pie>
+                        <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          <Tabs defaultValue="marketing" className="space-y-6">
             <TabsList className="flex-wrap">
-              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
               <TabsTrigger value="anuncios" className="gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
               <TabsTrigger value="seo" className="gap-1.5"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
-              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
+              <TabsTrigger value="social" className="gap-1.5"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
+              <TabsTrigger value="mybusiness" className="gap-1.5"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
+              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="financeiro" className="gap-1.5"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
               <TabsTrigger value="dados" className="gap-1.5"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
               <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
