@@ -196,18 +196,6 @@ export default function EquipeDashboard() {
           })()} />
         )}
 
-        {/* ═══ SELETOR DE CLIENTE ═══ */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div />
-          <Select value={selectedClienteId} onValueChange={setSelectedClienteId}>
-            <SelectTrigger className="w-64 h-10">
-              <SelectValue placeholder="Selecione um cliente..." />
-            </SelectTrigger>
-            <SelectContent>
-              {clientes.map(c => (<SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>))}
-            </SelectContent>
-          </Select>
-        </div>
 
         {!selectedClienteId ? (
           <Card><CardContent className="p-16 text-center text-muted-foreground">Selecione um cliente para visualizar os dados.</CardContent></Card>
