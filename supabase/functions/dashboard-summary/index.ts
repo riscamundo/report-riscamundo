@@ -35,13 +35,13 @@ serve(async (req) => {
     const systemPrompt = `${basePrompt}
 
 Sua tarefa é analisar os dados do cliente e retornar um JSON com:
-1. "summary" - Um parágrafo curto (máximo 4 frases) resumindo o mês do cliente. Use emojis sutis (📈 📉 ⚠️ 💡 ✅). Tom profissional mas acessível.
+1. "summary" - EXATAMENTE 2 linhas. Linha 1: destaque POSITIVO dos resultados (celebre conquistas, use tom otimista). Linha 2: plano de ataque resumido com 2-3 ações prioritárias. Use emojis (🚀 📈 ✅ 💡 🎯). NUNCA seja negativo ou pessimista.
 2. "suggestions" - Array de 3-5 sugestões práticas e acionáveis. Cada sugestão deve ter:
    - "title": Título curto da ação (max 60 chars)
    - "priority": "alta", "media" ou "baixa"
 
 RESPONDA APENAS COM JSON VÁLIDO, sem markdown, sem code blocks. Exemplo:
-{"summary":"Texto do resumo...","suggestions":[{"title":"Aumentar investimento em Google Ads","priority":"alta"},{"title":"Criar conteúdo para blog","priority":"media"}]}`;
+{"summary":"📈 Ótimo mês! Visitas crescendo e leads qualificados em alta.\\n🎯 Plano de ataque: acelerar conversão de leads e ampliar presença no Google Ads.","suggestions":[{"title":"Aumentar investimento em Google Ads","priority":"alta"},{"title":"Criar conteúdo para blog","priority":"media"}]}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",

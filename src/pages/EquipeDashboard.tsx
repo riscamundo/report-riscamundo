@@ -174,7 +174,7 @@ export default function EquipeDashboard() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-display">
             {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}{user?.user_metadata?.display_name ? `, ${user.user_metadata.display_name.split(' ')[0]}` : ''} 👋
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Painel da Equipe · Visualização dos dados do cliente</p>
+          <p className="text-sm text-muted-foreground mt-1">Tudo em dia! 🚀 Foco: acompanhar dados dos clientes e manter a operação fluindo.</p>
         </div>
 
         {selectedClienteId && !reportLoading && (

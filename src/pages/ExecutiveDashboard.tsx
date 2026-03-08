@@ -309,16 +309,21 @@ export default function ExecutiveDashboard() {
   const vendasMes = vendas.filter(v => v.status === 'fechado' && new Date(v.data_venda).getMonth() === now.getMonth() && new Date(v.data_venda).getFullYear() === now.getFullYear()).length;
   const leadsAtivos = leads.filter(l => ['novo', 'qualificado', 'avaliacao'].includes(l.status_funil)).length;
 
-  const statusResumo = [
-    faturamento > 0 ? `faturamento de ${fmt(faturamento)}` : null,
-    vendasMes > 0 ? `${vendasMes} venda(s) fechada(s)` : null,
-    leadsAtivos > 0 ? `${leadsAtivos} leads ativos no funil` : null,
-    criticalAlerts.length > 0 ? `${criticalAlerts.length} alerta(s) que precisam de atenção` : null,
+  const positiveParts = [
+    faturamento > 0 ? `${fmt(faturamento)} faturados` : null,
+    vendasMes > 0 ? `${vendasMes} vendas fechadas` : null,
+    leadsAtivos > 0 ? `${leadsAtivos} leads aquecidos` : null,
   ].filter(Boolean);
 
-  const statusText = statusResumo.length > 0
-    ? `Este mês você tem ${statusResumo.join(', ')}.`
-    : 'Ainda não há dados registrados para este mês.';
+  const attackParts = [
+    leadsAtivos > 0 ? 'converter leads pendentes' : 'captar novos leads',
+    criticalAlerts.length > 0 ? 'resolver alertas abertos' : null,
+    conversao < 20 ? 'otimizar taxa de conversão' : null,
+  ].filter(Boolean).slice(0, 2);
+
+  const statusText = positiveParts.length > 0
+    ? `Ótimo progresso! ${positiveParts.join(', ')}. 🚀 Plano de ataque: ${attackParts.join(' e ')}.`
+    : `Novo mês, novas oportunidades! 🚀 Plano de ataque: ${attackParts.join(' e ')}.`;
 
   // Build metrics context for AI summary
   const aiMetricsContext = [
