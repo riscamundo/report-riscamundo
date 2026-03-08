@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FormaPagamento, StatusFunil } from '@/types';
 import { calcFaturamentoMes, calcTicketMedio, calcConversao, calcForecast, getLeadsPorEtapa } from '@/lib/metrics';
-import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2, Brain } from 'lucide-react';
+import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2, Brain, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
 import { LlmMaestroTab } from '@/components/LlmMaestroTab';
