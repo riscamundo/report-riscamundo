@@ -466,6 +466,7 @@ export type Database = {
           campanha_id: string | null
           created_at: string
           created_by: string | null
+          escopo_projeto: string | null
           id: string
           nivel_interesse: string
           nome: string
@@ -479,6 +480,7 @@ export type Database = {
           campanha_id?: string | null
           created_at?: string
           created_by?: string | null
+          escopo_projeto?: string | null
           id?: string
           nivel_interesse?: string
           nome: string
@@ -492,6 +494,7 @@ export type Database = {
           campanha_id?: string | null
           created_at?: string
           created_by?: string | null
+          escopo_projeto?: string | null
           id?: string
           nivel_interesse?: string
           nome?: string

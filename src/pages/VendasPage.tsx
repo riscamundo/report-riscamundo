@@ -35,6 +35,7 @@ export default function VendasPage() {
   const [search, setSearch] = useState('');
   const [funilSearch, setFunilSearch] = useState('');
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string>('');
 
   const faturamento = calcFaturamentoMes(vendas);
   const ticketMedio = calcTicketMedio(vendas);
@@ -42,7 +43,7 @@ export default function VendasPage() {
   const forecast = calcForecast(leads, vendas, procedimentos);
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
 
-  const leadsDisponiveis = leads.filter(l => l.status_funil === 'avaliacao' || l.status_funil === 'venda');
+  
 
   const forecastChart = [
     { nome: 'Realizado', valor: faturamento },
@@ -93,6 +94,7 @@ export default function VendasPage() {
       status: 'fechado',
     });
     setIsOpen(false);
+    setSelectedLeadId('');
   };
 
   const handleSaveLead = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -106,7 +108,8 @@ export default function VendasPage() {
       procedimento_interesse: (fd.get('procedimento') as string) || null,
       nivel_interesse: fd.get('interesse') as string,
       status_funil: 'novo',
-    });
+      escopo_projeto: fd.get('escopo_projeto') as string || null,
+    } as any);
     setIsLeadOpen(false);
   };
 
@@ -137,14 +140,43 @@ export default function VendasPage() {
                   <DialogHeader><DialogTitle className="font-display">Nova Venda</DialogTitle></DialogHeader>
                   <form onSubmit={handleSave} className="space-y-4">
                     <div><Label>Lead</Label>
-                      <Select name="lead" defaultValue={leadsDisponiveis[0]?.id}>
+                      <Select name="lead" value={selectedLeadId} onValueChange={(val) => setSelectedLeadId(val)}>
                         <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o lead..." /></SelectTrigger>
-                        <SelectContent>{leadsDisponiveis.map(l => <SelectItem key={l.id} value={l.id}>{l.nome}</SelectItem>)}</SelectContent>
+                        <SelectContent>
+                          {leads.map(l => {
+                            const proc = procedimentos.find(p => p.id === l.procedimento_interesse);
+                            return (
+                              <SelectItem key={l.id} value={l.id}>
+                                {l.nome} {proc ? `· ${proc.nome_procedimento}` : ''} ({etapaLabels[l.status_funil as StatusFunil] || l.status_funil})
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
                       </Select>
-                      {leadsDisponiveis.length === 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">Nenhum lead em avaliação/venda. Mova leads no funil primeiro.</p>
+                      {leads.length === 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">Nenhum lead cadastrado. Cadastre leads no funil primeiro.</p>
                       )}
                     </div>
+                    {(() => {
+                      const selectedLead = leads.find(l => l.id === selectedLeadId);
+                      const proc = selectedLead ? procedimentos.find(p => p.id === selectedLead.procedimento_interesse) : null;
+                      return selectedLead ? (
+                        <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Serviço:</span>
+                            <span className="font-medium">{proc?.nome_procedimento || '—'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Escopo do Projeto:</span>
+                            <span className="font-medium">{(selectedLead as any).escopo_projeto || '—'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Interesse:</span>
+                            <Badge variant="outline" className="text-[10px]">{selectedLead.nivel_interesse}</Badge>
+                          </div>
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="grid grid-cols-2 gap-4">
                       <div><Label>Valor (R$)</Label><Input name="valor" type="number" required className="mt-1" /></div>
                       <div><Label>Pagamento</Label>
@@ -154,7 +186,7 @@ export default function VendasPage() {
                         </Select>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={leadsDisponiveis.length === 0}>Salvar Venda</Button>
+                    <Button type="submit" className="w-full" disabled={leads.length === 0}>Salvar Venda</Button>
                   </form>
                 </DialogContent>
               </Dialog>
@@ -271,6 +303,7 @@ export default function VendasPage() {
                         <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
+                    <div><Label>Escopo do Projeto</Label><Input name="escopo_projeto" placeholder="Descreva o escopo do projeto..." className="mt-1" /></div>
                     {campanhas.length > 0 && (
                       <div><Label>Campanha</Label>
                         <Select name="campanha" defaultValue={campanhas[0]?.id}>
