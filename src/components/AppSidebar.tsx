@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Package, Megaphone, Users, ShoppingCart, AlertTriangle,
-  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3
+  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search
 } from 'lucide-react';
 
 interface NavItem {
@@ -23,6 +23,7 @@ const allNavItems: NavItem[] = [
   { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },
+  { title: 'SEO & Keywords', url: '/seo', icon: Search, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
 ];
 

@@ -362,6 +362,121 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_keywords: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          dificuldade: string | null
+          id: string
+          palavra_chave: string
+          posicao_anterior: number | null
+          posicao_atual: number | null
+          status: string | null
+          updated_at: string
+          url_rankeada: string | null
+          volume_busca: number | null
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          dificuldade?: string | null
+          id?: string
+          palavra_chave: string
+          posicao_anterior?: number | null
+          posicao_atual?: number | null
+          status?: string | null
+          updated_at?: string
+          url_rankeada?: string | null
+          volume_busca?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          dificuldade?: string | null
+          id?: string
+          palavra_chave?: string
+          posicao_anterior?: number | null
+          posicao_atual?: number | null
+          status?: string | null
+          updated_at?: string
+          url_rankeada?: string | null
+          volume_busca?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_keywords_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_pages: {
+        Row: {
+          cliente_id: string
+          cliques: number | null
+          created_at: string
+          ctr: number | null
+          id: string
+          impressoes: number | null
+          periodo_mes: string
+          posicao_media: number | null
+          status: string | null
+          taxa_rejeicao: number | null
+          tempo_medio_pagina: string | null
+          titulo: string
+          updated_at: string
+          url: string
+          visitas_mes: number | null
+          visitas_mes_anterior: number | null
+        }
+        Insert: {
+          cliente_id: string
+          cliques?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressoes?: number | null
+          periodo_mes?: string
+          posicao_media?: number | null
+          status?: string | null
+          taxa_rejeicao?: number | null
+          tempo_medio_pagina?: string | null
+          titulo: string
+          updated_at?: string
+          url: string
+          visitas_mes?: number | null
+          visitas_mes_anterior?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          cliques?: number | null
+          created_at?: string
+          ctr?: number | null
+          id?: string
+          impressoes?: number | null
+          periodo_mes?: string
+          posicao_media?: number | null
+          status?: string | null
+          taxa_rejeicao?: number | null
+          tempo_medio_pagina?: string | null
+          titulo?: string
+          updated_at?: string
+          url?: string
+          visitas_mes?: number | null
+          visitas_mes_anterior?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_pages_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
