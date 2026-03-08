@@ -350,6 +350,91 @@ export default function TenantsPage() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Procedimentos */}
+                <Card>
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Procedimentos</CardTitle>
+                    <Dialog open={showProcForm} onOpenChange={(o) => { setShowProcForm(o); if (!o) setEditProcId(null); }}>
+                      <DialogTrigger asChild><Button size="sm" variant="outline" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Novo</Button></DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>{editProcId ? 'Editar' : 'Novo'} Procedimento</DialogTitle></DialogHeader>
+                        <form onSubmit={handleSaveProc} className="space-y-4">
+                          <div><Label htmlFor="proc-nome">Nome</Label><Input id="proc-nome" name="nome" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.nome_procedimento : ''} required className="mt-1" /></div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div><Label>Categoria</Label>
+                              <Select name="categoria" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.categoria : 'facial'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="facial">Facial</SelectItem>
+                                  <SelectItem value="capilar">Capilar</SelectItem>
+                                  <SelectItem value="combo_premium">Combo Premium</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div><Label>Prioridade</Label>
+                              <Select name="prioridade" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.prioridade_vendas : 'media'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="alta">Alta</SelectItem>
+                                  <SelectItem value="media">Média</SelectItem>
+                                  <SelectItem value="baixa">Baixa</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div><Label htmlFor="proc-ticket">Ticket Médio (R$)</Label><Input id="proc-ticket" name="ticket" type="number" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.ticket_medio : ''} required className="mt-1" /></div>
+                            <div><Label htmlFor="proc-margem">Margem (%)</Label><Input id="proc-margem" name="margem" type="number" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.margem_estimada : ''} required className="mt-1" /></div>
+                          </div>
+                          {editProcId && (
+                            <div><Label>Status</Label>
+                              <Select name="status" defaultValue={tenantData.procedimentos.find((p: any) => p.id === editProcId)?.status || 'ativo'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent><SelectItem value="ativo">Ativo</SelectItem><SelectItem value="inativo">Inativo</SelectItem></SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                          <Button type="submit" className="w-full" disabled={savingProc}>{savingProc ? 'Salvando...' : 'Salvar'}</Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {tenantData.procedimentos.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead><tr className="border-b bg-muted/30">
+                            <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Nome</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Categoria</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Ticket Médio</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Margem</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Prioridade</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="p-3"></th>
+                          </tr></thead>
+                          <tbody>
+                            {tenantData.procedimentos.map((p: any) => (
+                              <tr key={p.id} className="border-b last:border-0 hover:bg-muted/20">
+                                <td className="p-3 font-medium">{p.nome_procedimento}</td>
+                                <td className="p-3 text-center"><Badge variant="outline" className="text-[10px]">{p.categoria}</Badge></td>
+                                <td className="p-3 text-right">R$ {p.ticket_medio?.toLocaleString('pt-BR')}</td>
+                                <td className="p-3 text-right">{p.margem_estimada}%</td>
+                                <td className="p-3 text-center"><Badge variant="outline" className="text-[10px]">{p.prioridade_vendas}</Badge></td>
+                                <td className="p-3 text-center">
+                                  <Badge variant="outline" className={`text-[10px] ${p.status === 'ativo' ? 'text-accent border-accent' : 'text-muted-foreground'}`}>{p.status}</Badge>
+                                </td>
+                                <td className="p-3"><Button variant="ghost" size="sm" onClick={() => { setEditProcId(p.id); setShowProcForm(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center text-sm text-muted-foreground">Nenhum procedimento cadastrado para este cliente.</div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             )}
           </>
