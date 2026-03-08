@@ -606,6 +606,7 @@ export type Database = {
       procedimentos: {
         Row: {
           categoria: string
+          cliente_id: string | null
           created_at: string
           id: string
           margem_estimada: number
@@ -617,6 +618,7 @@ export type Database = {
         }
         Insert: {
           categoria: string
+          cliente_id?: string | null
           created_at?: string
           id?: string
           margem_estimada?: number
@@ -628,6 +630,7 @@ export type Database = {
         }
         Update: {
           categoria?: string
+          cliente_id?: string | null
           created_at?: string
           id?: string
           margem_estimada?: number
@@ -637,7 +640,15 @@ export type Database = {
           ticket_medio?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "procedimentos_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
