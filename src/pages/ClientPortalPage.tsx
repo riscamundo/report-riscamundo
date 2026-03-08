@@ -294,6 +294,45 @@ export default function ClientPortalPage() {
             <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
           </StaggerContainer>
 
+          {/* ═══════════ TAREFAS RESUMO NO DASHBOARD ═══════════ */}
+          {tarefas.filter(t => t.status !== 'pronta').length > 0 && (
+            <Card className="border-l-4 border-l-warning/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-warning" /> Tarefas Pendentes
+                  <Badge variant="outline" className="ml-auto text-xs">{tarefas.filter(t => t.status !== 'pronta').length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {[...tarefas]
+                    .filter(t => t.status !== 'pronta')
+                    .sort((a, b) => {
+                      const prioOrder: Record<string, number> = { alta: 0, media: 1, baixa: 2 };
+                      return (prioOrder[a.prioridade || 'media'] ?? 1) - (prioOrder[b.prioridade || 'media'] ?? 1);
+                    })
+                    .slice(0, 5)
+                    .map(t => (
+                      <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/50">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${t.prioridade === 'alta' ? 'bg-destructive' : t.prioridade === 'media' ? 'bg-warning' : 'bg-muted-foreground/40'}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{t.titulo}</p>
+                          <p className="text-[11px] text-muted-foreground">{t.status === 'fazendo' ? 'Em andamento' : t.status === 'esperando' ? 'Aguardando' : 'Verificar'}</p>
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] shrink-0 ${t.prioridade === 'alta' ? 'text-destructive border-destructive/40' : t.prioridade === 'media' ? 'text-warning border-warning/40' : ''}`}>
+                          {t.prioridade === 'alta' ? '🔥 Alta' : t.prioridade === 'media' ? '⚡ Média' : 'Baixa'}
+                        </Badge>
+                      </div>
+                    ))
+                  }
+                  {tarefas.filter(t => t.status !== 'pronta').length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">+ {tarefas.filter(t => t.status !== 'pronta').length - 5} tarefas adicionais</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quick summary charts */}
           {(latestMkt || anuncios.length > 0) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -345,16 +384,16 @@ export default function ClientPortalPage() {
           )}
 
           <Tabs defaultValue="marketing" className="space-y-6">
-            <TabsList className="flex-wrap">
-              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
-              <TabsTrigger value="anuncios" className="gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
-              <TabsTrigger value="seo" className="gap-1.5"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
-              <TabsTrigger value="social" className="gap-1.5"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
-              <TabsTrigger value="mybusiness" className="gap-1.5"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
-              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
-              <TabsTrigger value="financeiro" className="gap-1.5"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
-              <TabsTrigger value="dados" className="gap-1.5"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
-              <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
+            <TabsList className="flex-wrap h-auto gap-1 bg-card/80 backdrop-blur-sm border border-border/50 p-1.5 rounded-2xl shadow-sm">
+              <TabsTrigger value="marketing" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><BarChart3 className="h-3.5 w-3.5" /> Marketing</TabsTrigger>
+              <TabsTrigger value="anuncios" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
+              <TabsTrigger value="seo" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
+              <TabsTrigger value="social" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
+              <TabsTrigger value="mybusiness" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
+              <TabsTrigger value="tarefas" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="financeiro" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
+              <TabsTrigger value="dados" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
+              <TabsTrigger value="procedimentos" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
 
             {/* ═══════════ TAREFAS TAB ═══════════ */}
@@ -460,6 +499,60 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ ANÚNCIOS TAB ═══════════ */}
             <TabsContent value="anuncios" className="space-y-6">
+              {/* ── Análise Geral ── */}
+              {anuncios.length > 0 && (() => {
+                const totalInvest = anuncios.reduce((s, a) => s + a.investimento, 0);
+                const totalCusto = anuncios.reduce((s, a) => s + a.custo_total, 0);
+                const totalImp = anuncios.reduce((s, a) => s + a.impressoes, 0);
+                const totalCliq = anuncios.reduce((s, a) => s + a.cliques, 0);
+                const totalConv = anuncios.reduce((s, a) => s + a.conversoes, 0);
+                const ctrGeral = totalImp > 0 ? ((totalCliq / totalImp) * 100).toFixed(2) : '0.00';
+                const cpcGeral = totalCliq > 0 ? (totalCusto / totalCliq).toFixed(2) : '—';
+                const cpaGeral = totalConv > 0 ? (totalCusto / totalConv).toFixed(2) : '—';
+                return (
+                  <Card className="bg-gradient-to-br from-primary/5 via-card to-accent/5 border-primary/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-primary" /> Análise Geral — Todas as Plataformas
+                        <Badge className="ml-auto bg-primary/10 text-primary border-0 text-[10px]">{anuncios.length} anúncios</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Investimento</p>
+                          <p className="text-lg font-bold text-primary">R$ {totalInvest.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Custo Total</p>
+                          <p className="text-lg font-bold">R$ {totalCusto.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Impressões</p>
+                          <p className="text-lg font-bold">{totalImp.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Cliques</p>
+                          <p className="text-lg font-bold">{totalCliq.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">CTR</p>
+                          <p className="text-lg font-bold">{ctrGeral}%</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">CPC Médio</p>
+                          <p className="text-lg font-bold">{cpcGeral !== '—' ? `R$ ${cpcGeral}` : '—'}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Conversões</p>
+                          <p className="text-lg font-bold text-accent">{totalConv}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
               </div>
