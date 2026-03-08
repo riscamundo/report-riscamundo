@@ -554,10 +554,10 @@ export default function ExecutiveDashboard() {
         </Card>
 
         {/* ═══ GRÁFICOS ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Receita mensal */}
-          <Card className="lg:col-span-2 border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Receita Mensal</CardTitle></CardHeader>
+          <Card className="lg:col-span-2 executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita Mensal</CardTitle></CardHeader>
             <CardContent>
               {monthlyRevenue.length > 0 ? (
                 <ResponsiveContainer width="100%" height={240}>
