@@ -649,8 +649,9 @@ export default function ClientPortalPage() {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
                                   <p className="text-sm font-semibold truncate">{ad.titulo}</p>
+                                  {activePlatform === 'all' && <Badge className="text-[10px] shrink-0 bg-muted text-muted-foreground border-0">{PLATFORMS.find(p => p.id === ad.plataforma)?.icon} {PLATFORMS.find(p => p.id === ad.plataforma)?.label}</Badge>}
                                   <Badge variant="outline" className="text-[10px] shrink-0">{ad.tipo_anuncio}</Badge>
                                   <Badge variant={ad.status === 'ativo' ? 'default' : 'secondary'} className="text-[10px] shrink-0">
                                     {ad.status === 'ativo' ? 'Ativo' : ad.status === 'pausado' ? 'Pausado' : 'Finalizado'}
