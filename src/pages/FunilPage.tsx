@@ -135,14 +135,14 @@ export default function FunilPage() {
           />
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
           {etapas.map(etapa => {
             const etapaLeads = filteredLeads.filter(l => l.status_funil === etapa);
             const data = etapaData.find(e => e.etapa === etapa);
             return (
               <div
                 key={etapa}
-                className="min-w-[260px] flex-1"
+                className="min-w-[240px] md:min-w-[260px] flex-1"
                 onDragOver={e => e.preventDefault()}
                 onDrop={() => handleDrop(etapa)}
               >
