@@ -245,12 +245,25 @@ export default function ExecutiveDashboard() {
     });
   });
 
+  const SectionDivider = ({ title, subtitle, icon: SIcon }: { title: string; subtitle: string; icon: typeof Briefcase }) => (
+    <div className="flex items-center gap-4 mb-6 mt-12 first:mt-0">
+      <div className="p-2.5 rounded-xl bg-primary/10 ring-1 ring-primary/20">
+        <SIcon className="h-5 w-5 text-primary" />
+      </div>
+      <div className="flex-1">
+        <h2 className="text-lg font-bold tracking-tight text-foreground font-display">{title}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+      </div>
+      <div className="flex-1 h-px bg-border/40" />
+    </div>
+  );
+
   return (
     <DashboardLayout>
       <AnimatedPage>
         <PageHeader
           title="Dashboard Executivo"
-          subtitle="Visão consolidada de todos os clientes · Pontos críticos e alertas"
+          subtitle="Visão consolidada da agência e dos clientes · Pontos críticos e alertas"
         />
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
@@ -277,24 +290,20 @@ export default function ExecutiveDashboard() {
           </Card>
         )}
 
-        {/* ═══ KPIs CONSOLIDADOS ═══ */}
-        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
-          <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
-          <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
-          <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
-        </StaggerContainer>
+        {/* ╔══════════════════════════════════════════════╗ */}
+        {/* ║  SEÇÃO 1 — AGÊNCIA (Nossos números internos) ║ */}
+        {/* ╚══════════════════════════════════════════════╝ */}
+        <SectionDivider title="Nossa Agência" subtitle="Financeiro, clientes, mensalidades e prospecção" icon={Briefcase} />
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-          <StaggerItem><KPICard title="Clientes Ativos" value={clientesAtivos.toString()} icon={Briefcase} /></StaggerItem>
+          <StaggerItem><KPICard title="Clientes Ativos" value={clientesAtivos.toString()} icon={Briefcase} variant="primary" /></StaggerItem>
           <StaggerItem><KPICard title="Mensalidades/Mês" value={fmt(receitaMensalidades)} icon={Receipt} /></StaggerItem>
           <StaggerItem><KPICard title="A Receber" value={fmt(totalReceber)} subtitle={`${boletosPendentes.length} pendentes`} icon={Wallet} /></StaggerItem>
           <StaggerItem><KPICard title="Ticket Médio" value={fmt(ticketMedio)} icon={CreditCard} /></StaggerItem>
         </StaggerContainer>
 
-        {/* ═══ FINANCEIRO + LEADS PARADOS ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Boletos vencidos por cliente */}
+          {/* Inadimplência */}
           <Card className="executive-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
@@ -322,46 +331,8 @@ export default function ExecutiveDashboard() {
             </CardContent>
           </Card>
 
-          {/* Leads parados >24h */}
+          {/* Tarefas pendentes */}
           <Card className="executive-card">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
-                <Phone className="h-4 w-4 text-warning" /> Leads Sem Contato (&gt;24h)
-                {leadsParados.length > 0 && <Badge className="ml-auto text-[10px] bg-warning/20 text-warning border-0">{leadsParados.length}</Badge>}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {leadsParados.length > 0 ? (
-                <div className="space-y-2">
-                  {leadsParados.slice(0, 8).map(lead => {
-                    const days = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));
-                    const proc = procedimentos.find(p => p.id === lead.procedimento_interesse);
-                    return (
-                      <div key={lead.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-warning/5 border border-warning/10">
-                        <div className="p-1.5 rounded-lg bg-warning/10"><UserX className="h-3.5 w-3.5 text-warning" /></div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{lead.nome}</p>
-                          <p className="text-[11px] text-muted-foreground">{proc?.nome_procedimento || 'Sem serviço'} · {lead.origem || 'Direto'}</p>
-                        </div>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge variant="outline" className={`text-[10px] ${days > 3 ? 'border-destructive text-destructive' : 'border-warning text-warning'}`}>
-                            <Clock className="h-3 w-3 mr-0.5" />{days}d
-                          </Badge>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-sm text-muted-foreground">Todos os leads foram contatados ✅</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* ═══ TAREFAS PENDENTES ═══ */}
-        {tarefasPendentes.length > 0 && (
-          <Card className="mb-8 executive-card">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Clock className="h-4 w-4 text-primary" /> Tarefas Pendentes de Clientes
@@ -369,25 +340,29 @@ export default function ExecutiveDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {tarefasPendentes.slice(0, 10).map(t => (
-                  <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg border hover:bg-muted/20 transition-colors">
-                    <div className={`p-1.5 rounded-lg ${t.prioridade === 'alta' ? 'bg-destructive/10' : 'bg-primary/10'}`}>
-                      <Zap className={`h-3.5 w-3.5 ${t.prioridade === 'alta' ? 'text-destructive' : 'text-primary'}`} />
+              {tarefasPendentes.length > 0 ? (
+                <div className="space-y-2">
+                  {tarefasPendentes.slice(0, 8).map(t => (
+                    <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg border hover:bg-muted/20 transition-colors">
+                      <div className={`p-1.5 rounded-lg ${t.prioridade === 'alta' ? 'bg-destructive/10' : 'bg-primary/10'}`}>
+                        <Zap className={`h-3.5 w-3.5 ${t.prioridade === 'alta' ? 'text-destructive' : 'text-primary'}`} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{t.titulo}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.cliente_nome} · {t.status}</p>
+                      </div>
+                      {t.prioridade === 'alta' && <Badge variant="outline" className="text-[10px] text-destructive border-destructive">Urgente</Badge>}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{t.titulo}</p>
-                      <p className="text-[11px] text-muted-foreground">{t.cliente_nome} · {t.status}</p>
-                    </div>
-                    {t.prioridade === 'alta' && <Badge variant="outline" className="text-[10px] text-destructive border-destructive">Urgente</Badge>}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-sm text-muted-foreground">Sem tarefas pendentes ✅</div>
+              )}
             </CardContent>
           </Card>
-        )}
+        </div>
 
-        {/* ═══ BASE DE CONTATOS PARA ATIVAÇÃO ═══ */}
+        {/* Contatos para ativação */}
         <Card className="mb-8 executive-card">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
@@ -553,9 +528,52 @@ export default function ExecutiveDashboard() {
           </CardContent>
         </Card>
 
-        {/* ═══ GRÁFICOS ═══ */}
+        {/* ╔══════════════════════════════════════════════════════╗ */}
+        {/* ║  SEÇÃO 2 — VENDAS & CRM (Dados dos nossos clientes) ║ */}
+        {/* ╚══════════════════════════════════════════════════════╝ */}
+        <SectionDivider title="Vendas & Performance dos Clientes" subtitle="Faturamento, leads, funil e receita dos serviços prestados" icon={BarChart3} />
+
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
+          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
+          <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
+          <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
+          <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
+        </StaggerContainer>
+
+        {/* Leads parados */}
+        {leadsParados.length > 0 && (
+          <Card className="mb-8 executive-card">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
+                <Phone className="h-4 w-4 text-warning" /> Leads Sem Contato (&gt;24h)
+                <Badge className="ml-auto text-[10px] bg-warning/20 text-warning border-0">{leadsParados.length}</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {leadsParados.slice(0, 8).map(lead => {
+                  const days = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));
+                  const proc = procedimentos.find(p => p.id === lead.procedimento_interesse);
+                  return (
+                    <div key={lead.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-warning/5 border border-warning/10">
+                      <div className="p-1.5 rounded-lg bg-warning/10"><UserX className="h-3.5 w-3.5 text-warning" /></div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{lead.nome}</p>
+                        <p className="text-[11px] text-muted-foreground">{proc?.nome_procedimento || 'Sem serviço'} · {lead.origem || 'Direto'}</p>
+                      </div>
+                      <Badge variant="outline" className={`text-[10px] ${days > 3 ? 'border-destructive text-destructive' : 'border-warning text-warning'}`}>
+                        <Clock className="h-3 w-3 mr-0.5" />{days}d
+                      </Badge>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Gráficos de vendas */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Receita mensal */}
           <Card className="lg:col-span-2 executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita Mensal</CardTitle></CardHeader>
             <CardContent>
@@ -574,7 +592,6 @@ export default function ExecutiveDashboard() {
             </CardContent>
           </Card>
 
-          {/* Leads por Origem */}
           <Card className="executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Leads por Origem</CardTitle></CardHeader>
             <CardContent className="flex items-center justify-center">
@@ -594,7 +611,6 @@ export default function ExecutiveDashboard() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Funil */}
           <Card className="executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Funil de Vendas</CardTitle></CardHeader>
             <CardContent>
@@ -621,7 +637,6 @@ export default function ExecutiveDashboard() {
             </CardContent>
           </Card>
 
-          {/* Receita por Serviço */}
           <Card className="executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita por Serviço</CardTitle></CardHeader>
             <CardContent>
