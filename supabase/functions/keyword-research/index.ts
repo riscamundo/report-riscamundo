@@ -82,7 +82,7 @@ Retorne entre 8-15 palavras-chave, 5-8 variações long tail e 5-8 perguntas fre
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3-flash-preview',
         messages: [
           { role: 'system', content: 'Você é um especialista em SEO brasileiro. Sempre responda APENAS com JSON válido, sem markdown.' },
           { role: 'user', content: prompt },
@@ -92,8 +92,20 @@ Retorne entre 8-15 palavras-chave, 5-8 variações long tail e 5-8 perguntas fre
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Limite de requisições excedido. Tente novamente em alguns minutos.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Créditos insuficientes. Entre em contato com o suporte.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       const errText = await response.text();
-      console.error('AI Gateway error:', errText);
+      console.error('AI Gateway error:', response.status, errText);
       return new Response(
         JSON.stringify({ success: false, error: `AI request failed: ${response.status}` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
