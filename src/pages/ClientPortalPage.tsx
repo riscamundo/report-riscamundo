@@ -237,7 +237,18 @@ export default function ClientPortalPage() {
     );
   }
 
-  const MktKPI = ({ label, value, icon: Icon, delta, prefix }: { label: string; value: string; icon: React.ElementType; delta?: number; prefix?: string }) => (
+  // Helper: open create task dialog with context
+  const openCreateTarefa = (contexto: string) => {
+    setNewTarefa({ titulo: '', descricao: '', prioridade: 'media', contexto });
+    setShowNewTarefa(true);
+  };
+
+  const CreateTaskButton = ({ contexto }: { contexto: string }) => (
+    <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openCreateTarefa(contexto)}>
+      <Plus className="h-3.5 w-3.5" /> Criar Tarefa
+    </Button>
+  );
+
     <Card>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
