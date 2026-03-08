@@ -33,6 +33,7 @@ interface TenantData {
   tarefas: any[];
   financeiro: any[];
   socialAccounts: any[];
+  procedimentos: any[];
 }
 
 export default function TenantsPage() {
