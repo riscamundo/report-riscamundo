@@ -20,6 +20,7 @@ import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
 import TenantsPage from "./pages/TenantsPage";
 import ContatosEmpresasPage from "./pages/ContatosEmpresasPage";
+import { AiAdvisorFab } from "./components/AiAdvisorFab";
 
 const queryClient = new QueryClient();
 
