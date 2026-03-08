@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface KPICardProps {
   title: string;
@@ -12,18 +12,31 @@ interface KPICardProps {
 }
 
 export function KPICard({ title, value, subtitle, icon: Icon, trend, variant = 'default' }: KPICardProps) {
-  const borderClass = variant === 'primary' ? 'border-glow-primary' : variant === 'success' ? 'border-glow-success' : '';
+  const iconBg = variant === 'success' 
+    ? 'bg-accent/10 text-accent' 
+    : variant === 'primary' 
+      ? 'bg-primary/10 text-primary' 
+      : 'bg-primary/8 text-primary';
   
   return (
-    <Card className={`card-glow border-border/50 bg-card hover:shadow-lg hover:shadow-primary/5 transition-shadow duration-300 ${borderClass}`}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <CardTitle className="text-xs font-medium text-muted-foreground tracking-wide uppercase">{title}</CardTitle>
-        <Icon className={`h-4 w-4 ${variant === 'success' ? 'text-accent' : 'text-primary'}`} />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold tracking-tight">{value}</div>
+    <Card className="card-glow border-border/60 bg-card overflow-hidden">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-3">
+          <div className={`p-2 rounded-xl ${iconBg}`}>
+            <Icon className="h-4 w-4" />
+          </div>
+          {trend && trend !== 'neutral' && (
+            <div className={`flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
+              trend === 'up' ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'
+            }`}>
+              {trend === 'up' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            </div>
+          )}
+        </div>
+        <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
+        <p className="text-xs text-muted-foreground mt-1 tracking-wide uppercase">{title}</p>
         {subtitle && (
-          <p className={`text-xs mt-1 ${
+          <p className={`text-xs mt-1.5 ${
             trend === 'up' ? 'text-accent' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
           }`}>
             {subtitle}
@@ -38,8 +51,8 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   return (
     <div className="flex items-center justify-between mb-8">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-        {subtitle && <p className="text-base text-muted-foreground mt-1">{subtitle}</p>}
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
       </div>
       {action}
     </div>
