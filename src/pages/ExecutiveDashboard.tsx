@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useStoreContext } from '@/contexts/StoreContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
 import { toast } from 'sonner';
 import {
@@ -23,11 +24,14 @@ import {
   DollarSign, TrendingUp, Target, CreditCard, Users, AlertTriangle,
   Clock, Briefcase, Wallet, ShieldAlert, UserX, Receipt,
   ArrowUpRight, ArrowDownRight, Phone, BarChart3, Zap,
-  Plus, Edit2, UserPlus, PhoneCall, CalendarDays, Search
+  Plus, Edit2, UserPlus, PhoneCall, CalendarDays, Search,
+  Globe, Megaphone, Share2, Store, Eye, MousePointerClick,
+  Hash, Percent, ExternalLink, MoveUp, MoveDown, Minus, Link2,
+  Star, MapPin, Activity
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, AreaChart, Area
+  PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend
 } from 'recharts';
 
 const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
