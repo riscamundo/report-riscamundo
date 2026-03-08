@@ -16,6 +16,7 @@ const COLORS = ['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)',
 
 export default function ExecutiveDashboard() {
   const { procedimentos, campanhas, leads, vendas, loading } = useStoreContext();
+  const { isMaster } = useAuth();
 
   const faturamento = calcFaturamentoMes(vendas);
   const investimento = calcInvestimentoTotal(campanhas);
