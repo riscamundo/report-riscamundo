@@ -1,14 +1,50 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { MessageSquare, X, Send, Trash2, Sparkles } from 'lucide-react';
+import { X, Send, Trash2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-advisor`;
+const WHATSAPP_NUMBER = '5511941646249';
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
+
+// WhatsApp SVG icon
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+    </svg>
+  );
+}
 
 export function AiAdvisorFab() {
+  const { isMaster } = useAuth();
+
+  // Non-master users: WhatsApp button
+  if (!isMaster) {
+    return (
+      <motion.a
+        href={WHATSAPP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/30 flex items-center justify-center hover:shadow-xl hover:shadow-[#25D366]/40 transition-shadow"
+      >
+        <WhatsAppIcon className="h-7 w-7" />
+      </motion.a>
+    );
+  }
+
+  // Master: Maestro BI chat
+  return <MaestroBIChat />;
+}
+
+function MaestroBIChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -22,13 +58,8 @@ export function AiAdvisorFab() {
     }
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
-
-  useEffect(() => {
-    if (open && inputRef.current) inputRef.current.focus();
-  }, [open]);
+  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
+  useEffect(() => { if (open && inputRef.current) inputRef.current.focus(); }, [open]);
 
   const send = async () => {
     const text = input.trim();
@@ -102,7 +133,6 @@ export function AiAdvisorFab() {
         }
       }
 
-      // Flush remaining
       if (textBuffer.trim()) {
         for (let raw of textBuffer.split('\n')) {
           if (!raw) continue;
@@ -119,7 +149,6 @@ export function AiAdvisorFab() {
         }
       }
 
-      // Save conversation to archive
       if (assistantSoFar && !assistantSoFar.startsWith('❌')) {
         try {
           await fetch(CHAT_URL, {
@@ -148,15 +177,11 @@ export function AiAdvisorFab() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   };
 
   return (
     <>
-      {/* Floating Action Button */}
       <AnimatePresence>
         {!open && (
           <motion.button
@@ -173,7 +198,6 @@ export function AiAdvisorFab() {
         )}
       </AnimatePresence>
 
-      {/* Chat Panel */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -183,7 +207,6 @@ export function AiAdvisorFab() {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-3rem)] bg-card border border-border/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-primary/10 to-primary/5 border-b border-border/50">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
@@ -195,23 +218,15 @@ export function AiAdvisorFab() {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setMessages([])}
-                  className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-                  title="Limpar conversa"
-                >
+                <button onClick={() => setMessages([])} className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Limpar conversa">
                   <Trash2 className="h-4 w-4" />
                 </button>
-                <button
-                  onClick={() => setOpen(false)}
-                  className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <button onClick={() => setOpen(false)} className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors">
                   <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
               {messages.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-full text-center px-4">
@@ -223,16 +238,8 @@ export function AiAdvisorFab() {
                     Seu advisor de marketing e crescimento. Pergunte sobre campanhas, ROI, funil de vendas, SEO ou qualquer dado do portal.
                   </p>
                   <div className="mt-4 grid grid-cols-1 gap-2 w-full max-w-[300px]">
-                    {[
-                      'Analise o desempenho das campanhas',
-                      'Como reduzir o CAC?',
-                      'Quais procedimentos priorizar?',
-                    ].map(q => (
-                      <button
-                        key={q}
-                        onClick={() => { setInput(q); }}
-                        className="text-left text-[11px] px-3 py-2 rounded-xl border border-border/50 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                      >
+                    {['Analise o desempenho das campanhas', 'Como reduzir o CAC?', 'Quais procedimentos priorizar?'].map(q => (
+                      <button key={q} onClick={() => setInput(q)} className="text-left text-[11px] px-3 py-2 rounded-xl border border-border/50 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
                         {q}
                       </button>
                     ))}
@@ -242,20 +249,12 @@ export function AiAdvisorFab() {
 
               {messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'bg-primary text-primary-foreground rounded-br-md'
-                        : 'bg-muted/50 text-foreground rounded-bl-md'
-                    }`}
-                  >
+                  <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${msg.role === 'user' ? 'bg-primary text-primary-foreground rounded-br-md' : 'bg-muted/50 text-foreground rounded-bl-md'}`}>
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:my-1.5 [&_li]:my-0.5 [&_h1]:text-sm [&_h2]:text-[13px] [&_h3]:text-[13px] [&_table]:text-[11px]">
                         <ReactMarkdown>{msg.content}</ReactMarkdown>
                       </div>
-                    ) : (
-                      msg.content
-                    )}
+                    ) : msg.content}
                   </div>
                 </div>
               ))}
@@ -273,7 +272,6 @@ export function AiAdvisorFab() {
               )}
             </div>
 
-            {/* Input */}
             <div className="px-3 pb-3 pt-1">
               <div className="flex items-end gap-2 bg-muted/30 border border-border/50 rounded-xl px-3 py-2">
                 <textarea
@@ -291,11 +289,7 @@ export function AiAdvisorFab() {
                     t.style.height = Math.min(t.scrollHeight, 96) + 'px';
                   }}
                 />
-                <button
-                  onClick={send}
-                  disabled={!input.trim() || isLoading}
-                  className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/90 transition-colors shrink-0"
-                >
+                <button onClick={send} disabled={!input.trim() || isLoading} className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 hover:bg-primary/90 transition-colors shrink-0">
                   <Send className="h-4 w-4" />
                 </button>
               </div>
