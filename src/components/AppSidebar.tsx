@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Megaphone, Users, ShoppingCart, AlertTriangle,
-  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase
+  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase, Share2
 } from 'lucide-react';
 
 interface NavItem {
@@ -15,9 +16,8 @@ interface NavItem {
   gestorAllowed?: boolean;
 }
 
-const allNavItems: NavItem[] = [
+const masterNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
-  
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },
@@ -28,14 +28,34 @@ const allNavItems: NavItem[] = [
   { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
 ];
 
-export function AppSidebar() {
+// Equipe sidebar items map to tabs on EquipeDashboard
+interface EquipeTabItem {
+  title: string;
+  tab: string;
+  icon: typeof LayoutDashboard;
+}
+
+const equipeTabItems: EquipeTabItem[] = [
+  { title: 'Visão Executiva', tab: 'visao', icon: LayoutDashboard },
+  { title: 'Marketing Digital', tab: 'marketing', icon: BarChart3 },
+  { title: 'Social Media', tab: 'social', icon: Share2 },
+  { title: 'Anúncios', tab: 'anuncios', icon: Megaphone },
+  { title: 'SEO', tab: 'seo', icon: Search },
+  { title: 'Tarefas', tab: 'tarefas', icon: ListTodo },
+];
+
+export function AppSidebar({ onEquipeTabChange }: { onEquipeTabChange?: (tab: string) => void }) {
   const { isMaster, isGestor, role, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const visibleItems = allNavItems.filter(item => {
-    if (item.masterOnly) return isMaster;
-    return true;
-  });
+  const [activeEquipeTab, setActiveEquipeTab] = useState('visao');
+  const location = useLocation();
+
+  const isMasterUser = isMaster;
+
+  const visibleItems = isMasterUser
+    ? masterNavItems.filter(item => !item.masterOnly || isMaster)
+    : [];
 
   const sidebarContent = (
     <>
@@ -64,19 +84,46 @@ export function AppSidebar() {
 
       <nav className="flex-1 px-3 space-y-0.5">
         {!collapsed && <p className="text-[10px] uppercase tracking-widest text-sidebar-foreground/40 font-medium px-3 mb-2">Menu</p>}
-        {visibleItems.map(item => (
-          <NavLink
-            key={item.url}
-            to={item.url}
-            end={item.url === '/'}
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-150"
-            activeClassName="bg-primary/15 text-primary font-semibold shadow-sm"
-          >
-            <item.icon className="h-[18px] w-[18px] shrink-0" />
-            {!collapsed && <span>{item.title}</span>}
-          </NavLink>
-        ))}
+        
+        {isMasterUser ? (
+          // Master: regular nav links
+          visibleItems.map(item => (
+            <NavLink
+              key={item.url}
+              to={item.url}
+              end={item.url === '/'}
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-150"
+              activeClassName="bg-primary/15 text-primary font-semibold shadow-sm"
+            >
+              <item.icon className="h-[18px] w-[18px] shrink-0" />
+              {!collapsed && <span>{item.title}</span>}
+            </NavLink>
+          ))
+        ) : (
+          // Equipe: tab buttons that control EquipeDashboard tabs
+          equipeTabItems.map(item => {
+            const isActive = activeEquipeTab === item.tab;
+            return (
+              <button
+                key={item.tab}
+                onClick={() => {
+                  setActiveEquipeTab(item.tab);
+                  onEquipeTabChange?.(item.tab);
+                  setMobileOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 ${
+                  isActive
+                    ? 'bg-primary/15 text-primary font-semibold shadow-sm'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                }`}
+              >
+                <item.icon className="h-[18px] w-[18px] shrink-0" />
+                {!collapsed && <span>{item.title}</span>}
+              </button>
+            );
+          })
+        )}
       </nav>
 
       <div className="p-3 mx-3 mb-3 rounded-xl bg-sidebar-accent/50">

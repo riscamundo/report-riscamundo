@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -42,6 +42,13 @@ export default function EquipeDashboard() {
   const [clientes, setClientes] = useState<ClienteResumo[]>([]);
   const [selectedClienteId, setSelectedClienteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('visao');
+
+  // Listen for sidebar tab changes
+  useEffect(() => {
+    const handler = (e: CustomEvent) => setActiveTab(e.detail);
+    window.addEventListener('equipe-tab-change', handler as EventListener);
+    return () => window.removeEventListener('equipe-tab-change', handler as EventListener);
+  }, []);
 
   // Data per selected client
   const [clientMarketing, setClientMarketing] = useState<MarketingReport[]>([]);
