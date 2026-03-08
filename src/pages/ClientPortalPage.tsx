@@ -81,7 +81,7 @@ export default function ClientPortalPage() {
   const [showNewTarefa, setShowNewTarefa] = useState(false);
   
   
-  const [activePlatform, setActivePlatform] = useState<Platform>('google');
+  const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
   const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
