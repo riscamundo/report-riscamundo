@@ -288,6 +288,7 @@ export default function ClientPortalPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:block">{cliente?.nome || user?.email}</span>
+            <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
           </div>
         </div>
