@@ -374,6 +374,11 @@ export default function VendasPage() {
               })}
             </div>
           </TabsContent>
+
+          {/* ═══════ CONTATOS & EMPRESAS TAB ═══════ */}
+          <TabsContent value="contatos" className="space-y-4">
+            <ContatosEmpresasTab />
+          </TabsContent>
         </Tabs>
       </AnimatedPage>
     </DashboardLayout>

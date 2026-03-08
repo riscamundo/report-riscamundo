@@ -24,7 +24,7 @@ const allNavItems: NavItem[] = [
   { title: 'SEO & Keywords', url: '/seo', icon: Search, masterOnly: true },
   { title: 'Tarefas Clientes', url: '/tarefas', icon: ListTodo, masterOnly: true },
   { title: 'Tenants', url: '/tenants', icon: Briefcase, masterOnly: true },
-  { title: 'Contatos & Empresas', url: '/contatos-empresas', icon: Building2, masterOnly: true },
+  { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
   { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
 ];
