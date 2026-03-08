@@ -255,9 +255,9 @@ export default function ExecutiveDashboard() {
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (
-          <Card className="mb-6 border-destructive/20 bg-destructive/[0.02]">
+          <Card className="mb-8 border-destructive/15 bg-destructive/[0.03] executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <AlertTriangle className="h-4 w-4 text-destructive" /> Alertas Críticos
                 <Badge variant="destructive" className="ml-auto text-[10px]">{criticalAlerts.length}</Badge>
               </CardTitle>
