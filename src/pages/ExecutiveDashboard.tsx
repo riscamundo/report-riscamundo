@@ -353,6 +353,9 @@ export default function ExecutiveDashboard() {
           <p className="text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">{statusText}</p>
         </div>
 
+        {/* ═══ RESUMO IA MAESTRO BI ═══ */}
+        <DashboardAiSummary metricsContext={aiMetricsContext} />
+
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (
           <Card className="mb-8 border-destructive/15 bg-destructive/[0.03] executive-card">
