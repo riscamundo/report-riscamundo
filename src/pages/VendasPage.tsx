@@ -117,11 +117,11 @@ export default function VendasPage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={forecastChart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
-                <Bar dataKey="valor" fill="hsl(38, 70%, 50%)" radius={[4, 4, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 30%, 18%)" />
+                <XAxis dataKey="nome" stroke="hsl(220, 15%, 55%)" fontSize={12} />
+                <YAxis stroke="hsl(220, 15%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                <Tooltip contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} formatter={(v: number) => fmt(v)} />
+                <Bar dataKey="valor" fill="hsl(217, 91%, 60%)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
