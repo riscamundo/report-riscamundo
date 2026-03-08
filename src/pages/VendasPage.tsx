@@ -43,7 +43,7 @@ export default function VendasPage() {
   const forecast = calcForecast(leads, vendas, procedimentos);
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
 
-  const leadsDisponiveis = leads.filter(l => l.status_funil === 'avaliacao' || l.status_funil === 'venda');
+  
 
   const forecastChart = [
     { nome: 'Realizado', valor: faturamento },
