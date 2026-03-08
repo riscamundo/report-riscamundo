@@ -553,44 +553,6 @@ export default function ClientPortalPage() {
                 </CardContent>
               </Card>
 
-              {/* ── AI Generator inline per platform ── */}
-              <Card className="border-primary/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary" /> Gerador IA — {currentPlatformInfo.label}
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Especialista em mídia paga analisa SEO, volumes de busca e gera sugestões otimizadas para {currentPlatformInfo.label}.</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div><Label className="text-xs">Segmento / Nicho</Label><Input value={aiForm.segmento} onChange={e => setAiForm(p => ({ ...p, segmento: e.target.value }))} placeholder="Ex: Clínica de estética" className="h-9 text-sm" /></div>
-                    <div><Label className="text-xs">Produto / Serviço</Label><Input value={aiForm.produto} onChange={e => setAiForm(p => ({ ...p, produto: e.target.value }))} placeholder="Ex: Harmonização facial" className="h-9 text-sm" /></div>
-                    <div><Label className="text-xs">Objetivo</Label>
-                      <Select value={aiForm.objetivo} onValueChange={v => setAiForm(p => ({ ...p, objetivo: v }))}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Conversão">Conversão</SelectItem>
-                          <SelectItem value="Tráfego">Tráfego</SelectItem>
-                          <SelectItem value="Reconhecimento de marca">Reconhecimento de marca</SelectItem>
-                          <SelectItem value="Geração de leads">Geração de leads</SelectItem>
-                          <SelectItem value="Vendas">Vendas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <Button onClick={handleAiGenerate} disabled={aiLoading} size="sm" className="gap-2">
-                    {aiLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando sugestões...</> : <><Send className="h-4 w-4" /> Gerar Sugestões</>}
-                  </Button>
-                  {aiResult && (
-                    <Card className="bg-muted/30 border-primary/10">
-                      <CardContent className="p-4">
-                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Última Geração</h4>
-                        <div className="prose prose-sm max-w-none text-sm whitespace-pre-wrap">{aiResult}</div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </CardContent>
-              </Card>
 
               {/* ── Saved AI studies for this platform ── */}
               {studiesByPlatform[activePlatform].length > 0 && (
