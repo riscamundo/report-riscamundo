@@ -816,6 +816,238 @@ export default function ClientPortalPage() {
               )}
             </TabsContent>
 
+            {/* ═══════════ SEO TAB ═══════════ */}
+            <TabsContent value="seo" className="space-y-6">
+              {seoKeywords.length === 0 && seoPages.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Search className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                    <h3 className="text-sm font-semibold mb-1">SEO & Palavras-Chave</h3>
+                    <p className="text-sm text-muted-foreground">Seus dados de SEO aparecerão aqui em breve.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  {/* SEO KPIs */}
+                  {(() => {
+                    const kwTop10 = seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length;
+                    const kwTop3 = seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length;
+                    const kwTotal = seoKeywords.length;
+                    const avgPos = seoKeywords.filter(k => k.posicao_atual).length > 0
+                      ? seoKeywords.filter(k => k.posicao_atual).reduce((s, k) => s + (k.posicao_atual || 0), 0) / seoKeywords.filter(k => k.posicao_atual).length
+                      : 0;
+                    const improved = seoKeywords.filter(k => k.posicao_atual && k.posicao_anterior && k.posicao_atual < k.posicao_anterior).length;
+                    const declined = seoKeywords.filter(k => k.posicao_atual && k.posicao_anterior && k.posicao_atual > k.posicao_anterior).length;
+
+                    return (
+                      <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <StaggerItem><MktKPI label="Palavras Rastreadas" value={kwTotal.toString()} icon={Hash} /></StaggerItem>
+                        <StaggerItem><MktKPI label="Top 3" value={kwTop3.toString()} icon={Target} /></StaggerItem>
+                        <StaggerItem><MktKPI label="Top 10" value={kwTop10.toString()} icon={TrendingUp} /></StaggerItem>
+                        <StaggerItem><MktKPI label="Posição Média" value={avgPos.toFixed(1)} icon={BarChart3} /></StaggerItem>
+                        <StaggerItem><MktKPI label="Subiram" value={improved.toString()} icon={ArrowUpRight} /></StaggerItem>
+                        <StaggerItem><MktKPI label="Caíram" value={declined.toString()} icon={ArrowDownRight} /></StaggerItem>
+                      </StaggerContainer>
+                    );
+                  })()}
+
+                  {/* Keywords Position Distribution Chart */}
+                  {seoKeywords.length > 0 && (() => {
+                    const distribution = [
+                      { range: '1-3', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length },
+                      { range: '4-10', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 3 && k.posicao_atual <= 10).length },
+                      { range: '11-20', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 10 && k.posicao_atual <= 20).length },
+                      { range: '21-50', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 20 && k.posicao_atual <= 50).length },
+                      { range: '50+', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 50).length },
+                    ].filter(d => d.count > 0);
+
+                    return (
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <Card className="lg:col-span-2">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                              <BarChart3 className="h-4 w-4 text-primary" /> Distribuição de Posições
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={220}>
+                              <BarChart data={distribution}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 93%)" vertical={false} />
+                                <XAxis dataKey="range" fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                                <YAxis fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => [`${v} palavras`, 'Quantidade']} />
+                                <Bar dataKey="count" name="Palavras" fill="hsl(217, 91%, 60%)" radius={[6, 6, 0, 0]} barSize={40} />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                              <Search className="h-4 w-4 text-primary" /> Por Dificuldade
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="flex items-center justify-center">
+                            {(() => {
+                              const diffData = [
+                                { name: 'Fácil', value: seoKeywords.filter(k => k.dificuldade === 'facil').length },
+                                { name: 'Média', value: seoKeywords.filter(k => k.dificuldade === 'media').length },
+                                { name: 'Difícil', value: seoKeywords.filter(k => k.dificuldade === 'dificil').length },
+                              ].filter(d => d.value > 0);
+                              return diffData.length > 0 ? (
+                                <ResponsiveContainer width="100%" height={200}>
+                                  <PieChart>
+                                    <Pie data={diffData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={75} innerRadius={45} paddingAngle={4} strokeWidth={0} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
+                                      {diffData.map((_, i) => <Cell key={i} fill={[COLORS[1], COLORS[3], COLORS[0]][i]} />)}
+                                    </Pie>
+                                    <Tooltip contentStyle={tooltipStyle} />
+                                  </PieChart>
+                                </ResponsiveContainer>
+                              ) : <p className="text-xs text-muted-foreground">Sem dados</p>;
+                            })()}
+                          </CardContent>
+                        </Card>
+                      </div>
+                    );
+                  })()}
+
+                  {/* Keywords Table */}
+                  {seoKeywords.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <Hash className="h-4 w-4 text-primary" /> Palavras-Chave Monitoradas
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b bg-muted/30">
+                                <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Palavra-Chave</th>
+                                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Posição</th>
+                                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Variação</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Volume</th>
+                                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Dificuldade</th>
+                                <th className="text-left p-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">URL</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {seoKeywords.map(kw => {
+                                const diff = kw.posicao_anterior && kw.posicao_atual ? kw.posicao_anterior - kw.posicao_atual : 0;
+                                const diffColor = diff > 0 ? 'text-accent' : diff < 0 ? 'text-destructive' : 'text-muted-foreground';
+                                const DiffIcon = diff > 0 ? MoveUp : diff < 0 ? MoveDown : Minus;
+                                const diffLabels: Record<string, { label: string; color: string }> = {
+                                  facil: { label: 'Fácil', color: 'bg-accent/10 text-accent border-accent/30' },
+                                  media: { label: 'Média', color: 'bg-warning/10 text-warning border-warning/30' },
+                                  dificil: { label: 'Difícil', color: 'bg-destructive/10 text-destructive border-destructive/30' },
+                                };
+                                const d = diffLabels[kw.dificuldade] || diffLabels.media;
+                                return (
+                                  <tr key={kw.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                                    <td className="p-3 font-medium">{kw.palavra_chave}</td>
+                                    <td className="p-3 text-center">
+                                      {kw.posicao_atual ? (
+                                        <Badge variant="outline" className={`text-xs ${kw.posicao_atual <= 3 ? 'text-accent border-accent' : kw.posicao_atual <= 10 ? 'text-primary border-primary' : ''}`}>
+                                          #{kw.posicao_atual}
+                                        </Badge>
+                                      ) : <span className="text-muted-foreground">—</span>}
+                                    </td>
+                                    <td className="p-3 text-center">
+                                      <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${diffColor}`}>
+                                        <DiffIcon className="h-3 w-3" />
+                                        {Math.abs(diff)}
+                                      </span>
+                                    </td>
+                                    <td className="p-3 text-right text-muted-foreground">{kw.volume_busca.toLocaleString('pt-BR')}/mês</td>
+                                    <td className="p-3 text-center">
+                                      <Badge variant="outline" className={`text-[10px] ${d.color}`}>{d.label}</Badge>
+                                    </td>
+                                    <td className="p-3 hidden md:table-cell">
+                                      {kw.url_rankeada ? (
+                                        <a href={kw.url_rankeada} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 max-w-[200px] truncate">
+                                          <ExternalLink className="h-3 w-3 shrink-0" />
+                                          {kw.url_rankeada.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}
+                                        </a>
+                                      ) : <span className="text-xs text-muted-foreground">—</span>}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Pages Table */}
+                  {seoPages.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <Link2 className="h-4 w-4 text-primary" /> Principais Páginas do Site
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b bg-muted/30">
+                                <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Página</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Visitas</th>
+                                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Variação</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Impressões</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Cliques</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground hidden lg:table-cell">CTR</th>
+                                <th className="text-right p-3 text-xs font-semibold text-muted-foreground hidden lg:table-cell">Pos. Média</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {seoPages.map(pg => {
+                                const delta = pg.visitas_mes_anterior > 0 ? ((pg.visitas_mes - pg.visitas_mes_anterior) / pg.visitas_mes_anterior) * 100 : 0;
+                                return (
+                                  <tr key={pg.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                                    <td className="p-3">
+                                      <div className="font-medium text-sm truncate max-w-[250px]">{pg.titulo}</div>
+                                      <a href={pg.url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-primary hover:underline flex items-center gap-1 mt-0.5 max-w-[250px] truncate">
+                                        <ExternalLink className="h-2.5 w-2.5 shrink-0" />
+                                        {pg.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 50)}
+                                      </a>
+                                    </td>
+                                    <td className="p-3 text-right font-semibold">{pg.visitas_mes.toLocaleString('pt-BR')}</td>
+                                    <td className="p-3 text-center">
+                                      {delta !== 0 && (
+                                        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${delta > 0 ? 'text-accent' : 'text-destructive'}`}>
+                                          {delta > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                                          {Math.abs(delta).toFixed(0)}%
+                                        </span>
+                                      )}
+                                    </td>
+                                    <td className="p-3 text-right hidden md:table-cell text-muted-foreground">{pg.impressoes.toLocaleString('pt-BR')}</td>
+                                    <td className="p-3 text-right hidden md:table-cell text-muted-foreground">{pg.cliques.toLocaleString('pt-BR')}</td>
+                                    <td className="p-3 text-right hidden lg:table-cell">
+                                      <Badge variant="outline" className={`text-[10px] ${pg.ctr >= 5 ? 'text-accent border-accent' : ''}`}>{Number(pg.ctr).toFixed(1)}%</Badge>
+                                    </td>
+                                    <td className="p-3 text-right hidden lg:table-cell">
+                                      <Badge variant="outline" className={`text-[10px] ${Number(pg.posicao_media) <= 10 ? 'text-primary border-primary' : ''}`}>
+                                        #{Number(pg.posicao_media).toFixed(1)}
+                                      </Badge>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
             {/* ═══════════ MARKETING TAB ═══════════ */}
             <TabsContent value="marketing" className="space-y-6">
               {marketing.length === 0 ? (
