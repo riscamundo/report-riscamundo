@@ -12,6 +12,7 @@ import FunilPage from "./pages/FunilPage";
 import VendasPage from "./pages/VendasPage";
 import AlertasPage from "./pages/AlertasPage";
 import AdminPage from "./pages/AdminPage";
+import MarketingConfigPage from "./pages/MarketingConfigPage";
 import LoginPage from "./pages/LoginPage";
 import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
