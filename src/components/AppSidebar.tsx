@@ -37,6 +37,7 @@ interface EquipeTabItem {
 
 const equipeTabItems: EquipeTabItem[] = [
   { title: 'Visão Executiva', tab: 'visao', icon: LayoutDashboard },
+  { title: 'Vendas', tab: 'vendas', icon: ShoppingCart },
   { title: 'Marketing Digital', tab: 'marketing', icon: BarChart3 },
   { title: 'Social Media', tab: 'social', icon: Share2 },
   { title: 'Anúncios', tab: 'anuncios', icon: Megaphone },
