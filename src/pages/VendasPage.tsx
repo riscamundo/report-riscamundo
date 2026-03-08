@@ -139,14 +139,43 @@ export default function VendasPage() {
                   <DialogHeader><DialogTitle className="font-display">Nova Venda</DialogTitle></DialogHeader>
                   <form onSubmit={handleSave} className="space-y-4">
                     <div><Label>Lead</Label>
-                      <Select name="lead" defaultValue={leadsDisponiveis[0]?.id}>
+                      <Select name="lead" value={selectedLeadId} onValueChange={(val) => setSelectedLeadId(val)}>
                         <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o lead..." /></SelectTrigger>
-                        <SelectContent>{leadsDisponiveis.map(l => <SelectItem key={l.id} value={l.id}>{l.nome}</SelectItem>)}</SelectContent>
+                        <SelectContent>
+                          {leads.map(l => {
+                            const proc = procedimentos.find(p => p.id === l.procedimento_interesse);
+                            return (
+                              <SelectItem key={l.id} value={l.id}>
+                                {l.nome} {proc ? `· ${proc.nome_procedimento}` : ''} ({etapaLabels[l.status_funil as StatusFunil] || l.status_funil})
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
                       </Select>
-                      {leadsDisponiveis.length === 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">Nenhum lead em avaliação/venda. Mova leads no funil primeiro.</p>
+                      {leads.length === 0 && (
+                        <p className="text-xs text-muted-foreground mt-1">Nenhum lead cadastrado. Cadastre leads no funil primeiro.</p>
                       )}
                     </div>
+                    {(() => {
+                      const selectedLead = leads.find(l => l.id === selectedLeadId);
+                      const proc = selectedLead ? procedimentos.find(p => p.id === selectedLead.procedimento_interesse) : null;
+                      return selectedLead ? (
+                        <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Serviço:</span>
+                            <span className="font-medium">{proc?.nome_procedimento || '—'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Escopo do Projeto:</span>
+                            <span className="font-medium">{(selectedLead as any).escopo_projeto || '—'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-muted-foreground">Interesse:</span>
+                            <Badge variant="outline" className="text-[10px]">{selectedLead.nivel_interesse}</Badge>
+                          </div>
+                        </div>
+                      ) : null;
+                    })()}
                     <div className="grid grid-cols-2 gap-4">
                       <div><Label>Valor (R$)</Label><Input name="valor" type="number" required className="mt-1" /></div>
                       <div><Label>Pagamento</Label>
@@ -156,7 +185,7 @@ export default function VendasPage() {
                         </Select>
                       </div>
                     </div>
-                    <Button type="submit" className="w-full" disabled={leadsDisponiveis.length === 0}>Salvar Venda</Button>
+                    <Button type="submit" className="w-full" disabled={leads.length === 0}>Salvar Venda</Button>
                   </form>
                 </DialogContent>
               </Dialog>
