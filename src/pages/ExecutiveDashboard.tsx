@@ -71,7 +71,7 @@ export default function ExecutiveDashboard() {
 
         <PageHeader 
           title={isMaster ? "Dashboard Executivo" : isGestor ? "Visão da Equipe" : "Meu Dashboard"} 
-          subtitle={isMaster ? "Clínica Sablier · Performance consolidada" : isGestor ? "Dados da sua equipe" : "Seus leads e vendas"} 
+          subtitle={isMaster ? "REPORTS · Performance consolidada" : isGestor ? "Dados da sua equipe" : "Seus leads e vendas"} 
         />
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
