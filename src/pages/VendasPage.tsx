@@ -254,7 +254,7 @@ export default function VendasPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div><Label>Interesse</Label>
+                      <div><Label>Nível de Interesse</Label>
                         <Select name="interesse" defaultValue="medio">
                           <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                           <SelectContent>
@@ -265,9 +265,9 @@ export default function VendasPage() {
                         </Select>
                       </div>
                     </div>
-                    <div><Label>Procedimento de Interesse</Label>
-                      <Select name="procedimento" defaultValue={procedimentos[0]?.id}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                    <div><Label>Serviço de Interesse</Label>
+                      <Select name="procedimento" defaultValue={procedimentos.filter(p => p.status === 'ativo')[0]?.id}>
+                        <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o serviço..." /></SelectTrigger>
                         <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
