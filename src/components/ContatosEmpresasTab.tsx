@@ -137,7 +137,81 @@ export function ContatosEmpresasTab() {
 
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground animate-pulse text-sm">Carregando...</div>;
 
+  const contatoDialog = (
+    <Dialog open={contatoOpen} onOpenChange={(o) => { setContatoOpen(o); if (!o) setEditContato(null); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader><DialogTitle>{editContato?.id ? 'Editar' : 'Novo'} Contato</DialogTitle></DialogHeader>
+        <form onSubmit={handleSaveContato} className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Nome *</Label><Input name="nome" defaultValue={editContato?.nome || ''} required className="mt-1" /></div>
+            <div><Label>Empresa</Label>
+              <Select name="empresa_id" defaultValue={editContato?.empresa_id || 'none'}>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  {empresas.map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Telefone</Label><Input name="telefone" defaultValue={editContato?.telefone || ''} placeholder="(00) 00000-0000" className="mt-1" /></div>
+            <div>
+              <Label>WhatsApp</Label>
+              <div className="flex gap-1.5 mt-1">
+                <Input name="whatsapp" defaultValue={editContato?.whatsapp || ''} placeholder="5500000000000" className="flex-1" />
+                {editContato?.whatsapp && (
+                  <Button type="button" variant="outline" size="icon" className="shrink-0 h-9 w-9 text-accent border-accent/30 hover:bg-accent/10" onClick={() => window.open(`https://wa.me/${editContato.whatsapp!.replace(/\D/g, '')}`, '_blank')} title="WhatsApp">
+                    <WhatsAppIcon />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>E-mail</Label><Input name="email" type="email" defaultValue={editContato?.email || ''} className="mt-1" /></div>
+            <div><Label>Site</Label><Input name="site" defaultValue={editContato?.site || ''} placeholder="https://..." className="mt-1" /></div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Origem</Label>
+              <Select name="origem" defaultValue={editContato?.origem || 'manual'}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">Manual</SelectItem>
+                  <SelectItem value="indicacao">Indicação</SelectItem>
+                  <SelectItem value="ex_cliente">Ex-cliente</SelectItem>
+                  <SelectItem value="campanha">Campanha</SelectItem>
+                  <SelectItem value="rede_social">Rede Social</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div><Label>Status</Label>
+              <Select name="status" defaultValue={editContato?.status || 'pendente'}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="contatado">Contatado</SelectItem>
+                  <SelectItem value="ativado">Ativado</SelectItem>
+                  <SelectItem value="descartado">Descartado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div><Label>Motivo Inatividade</Label><Input name="motivo" defaultValue={editContato?.motivo_inatividade || ''} className="mt-1" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div><Label>Último Contato</Label><Input name="ultimo_contato" type="date" defaultValue={editContato?.ultimo_contato || ''} className="mt-1" /></div>
+            <div><Label>Próximo Contato</Label><Input name="proximo_contato" type="date" defaultValue={editContato?.proximo_contato || ''} className="mt-1" /></div>
+          </div>
+          <div><Label>Observações</Label><Textarea name="observacoes" defaultValue={editContato?.observacoes || ''} className="mt-1" rows={2} /></div>
+          <Button type="submit" className="w-full">Salvar</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
+    <>
+    {contatoDialog}
     <Tabs defaultValue="empresas" className="space-y-4">
       <TabsList>
         <TabsTrigger value="empresas" className="gap-1.5"><Building2 className="h-3.5 w-3.5" /> Empresas ({empresas.length})</TabsTrigger>
