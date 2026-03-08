@@ -294,6 +294,35 @@ export default function ClientPortalPage() {
             <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
           </StaggerContainer>
 
+          <Tabs defaultValue="marketing" className="space-y-6">
+            <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
+              <TabsList className="inline-flex h-auto gap-0.5 bg-transparent p-0 border-b border-border/40 w-full min-w-max">
+                {[
+                  { value: 'marketing', icon: BarChart3, label: 'Marketing' },
+                  { value: 'anuncios', icon: Megaphone, label: 'Anúncios' },
+                  { value: 'seo', icon: Search, label: 'SEO' },
+                  { value: 'social', icon: Share2, label: 'Mídias Sociais' },
+                  { value: 'mybusiness', icon: Store, label: 'MyBusiness' },
+                  { value: 'tarefas', icon: ListTodo, label: 'Tarefas' },
+                  { value: 'financeiro', icon: Wallet, label: 'Financeiro' },
+                  { value: 'dados', icon: User, label: 'Meus Dados' },
+                  { value: 'procedimentos', icon: ShoppingBag, label: 'Procedimentos' },
+                ].map(tab => {
+                  const TabIcon = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="relative gap-2 rounded-none border-b-2 border-transparent px-4 py-3 text-[13px] font-medium text-muted-foreground/70 transition-all duration-200 hover:text-foreground hover:bg-muted/30 data-[state=active]:border-b-primary data-[state=active]:text-primary data-[state=active]:font-semibold data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                    >
+                      <TabIcon className="h-4 w-4" />
+                      <span className="whitespace-nowrap">{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
+
           {/* ═══════════ TAREFAS RESUMO NO DASHBOARD ═══════════ */}
           {tarefas.filter(t => t.status !== 'pronta').length > 0 && (
             <Card className="border-l-4 border-l-warning/80">
