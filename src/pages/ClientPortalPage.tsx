@@ -168,6 +168,7 @@ export default function ClientPortalPage() {
   };
 
   const handleAiGenerate = async () => {
+    if (!cliente) return;
     setAiLoading(true);
     setAiResult('');
     try {
@@ -187,13 +188,38 @@ export default function ClientPortalPage() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setAiResult(data.suggestions || 'Nenhuma sugestão gerada.');
+      const suggestions = data.suggestions || 'Nenhuma sugestão gerada.';
+      setAiResult(suggestions);
+
+      // Save to ad_studies
+      const { error: saveErr } = await supabase.from('ad_studies' as any).insert({
+        cliente_id: cliente.id,
+        plataforma: activePlatform,
+        segmento: aiForm.segmento || null,
+        produto: aiForm.produto || null,
+        objetivo: aiForm.objetivo,
+        resultado: suggestions,
+      } as any);
+      if (saveErr) { console.error('Error saving study:', saveErr); }
+      else {
+        // Refresh studies
+        const { data: newStudies } = await supabase.from('ad_studies' as any).select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false });
+        setAdStudies((newStudies || []) as unknown as AdStudy[]);
+        toast.success('Estudo salvo com sucesso!');
+      }
     } catch (e: any) {
       toast.error(e.message || 'Erro ao gerar sugestões');
       console.error(e);
     }
     setAiLoading(false);
   };
+
+  // Studies per platform
+  const studiesByPlatform = useMemo(() => {
+    const map: Record<Platform, AdStudy[]> = { google: [], meta: [], linkedin: [], tiktok: [] };
+    adStudies.forEach(s => { if (map[s.plataforma as Platform]) map[s.plataforma as Platform].push(s); });
+    return map;
+  }, [adStudies]);
 
   // ─── Derived metrics ───
   const concluidos = vendas.filter(v => v.status === 'fechado');
