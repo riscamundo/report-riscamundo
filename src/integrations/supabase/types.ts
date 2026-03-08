@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_studies: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          id: string
+          objetivo: string | null
+          plataforma: string
+          produto: string | null
+          resultado: string
+          segmento: string | null
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          id?: string
+          objetivo?: string | null
+          plataforma: string
+          produto?: string | null
+          resultado: string
+          segmento?: string | null
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          id?: string
+          objetivo?: string | null
+          plataforma?: string
+          produto?: string | null
+          resultado?: string
+          segmento?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_studies_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anuncios: {
         Row: {
           cliente_id: string
