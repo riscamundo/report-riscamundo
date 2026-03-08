@@ -297,9 +297,7 @@ export default function ClientPortalPage() {
       <AnimatedPage>
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
           <div>
-            <h2 className="text-2xl font-bold">
-              {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}, {cliente?.nome || 'Cliente'} 👋
-            </h2>
+            <h2 className="text-2xl font-bold">Olá, {cliente?.nome || 'Cliente'} 👋</h2>
             <p className="text-muted-foreground text-sm mt-1">Acompanhe seus resultados de marketing, anúncios e performance digital.</p>
           </div>
 
