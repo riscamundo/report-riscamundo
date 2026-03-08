@@ -20,7 +20,8 @@ import {
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
   Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
   Search, ExternalLink, MoveUp, MoveDown, Minus, Link2,
-  ListTodo, Circle, Loader2, CheckCircle, AlertTriangle, Plus, Sparkles, Send
+  ListTodo, Circle, Loader2, CheckCircle, AlertTriangle, Plus, Sparkles, Send,
+  MapPin, Star, Phone, Share2, Store, Activity, Wallet, Receipt, Lock, Unlock
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -36,6 +37,10 @@ interface SeoPage { id: string; url: string; titulo: string; visitas_mes: number
 interface TarefaCliente { id: string; titulo: string; descricao: string | null; status: string; prioridade: string; created_at: string; updated_at: string; }
 interface Anuncio { id: string; plataforma: string; tipo_anuncio: string; titulo: string; descricao: string | null; palavras_chave: string[] | null; investimento: number; impressoes: number; cliques: number; conversoes: number; custo_total: number; status: string; data_inicio: string | null; data_fim: string | null; url_destino: string | null; observacoes: string | null; created_at: string; }
 interface AdStudy { id: string; plataforma: string; segmento: string | null; produto: string | null; objetivo: string | null; resultado: string; created_at: string; }
+interface SocialMediaAccount { id: string; plataforma: string; username: string | null; url_perfil: string | null; seguidores: number; seguindo: number; posts_total: number; engajamento_medio: number; alcance_medio: number; impressoes_mes: number; cliques_mes: number; novos_seguidores_mes: number; observacoes: string | null; }
+interface MyBusinessProfile { id: string; nome_negocio: string; categoria: string | null; endereco: string | null; cidade: string | null; estado: string | null; telefone: string | null; website: string | null; avaliacao_media: number; total_avaliacoes: number; visualizacoes_busca: number; visualizacoes_maps: number; cliques_site: number; cliques_ligacao: number; cliques_rota: number; fotos_count: number; posts_count: number; periodo_mes: string; }
+interface MyBusinessCompetitor { id: string; nome_concorrente: string; categoria: string | null; avaliacao_media: number; total_avaliacoes: number; endereco: string | null; distancia_km: number | null; observacoes: string | null; }
+interface FinanceiroRecord { id: string; tipo: string; descricao: string | null; valor: number; data_vencimento: string; data_pagamento: string | null; status: string; metodo_pagamento: string | null; numero_boleto: string | null; observacoes: string | null; created_at: string; }
 
 // ─── Constants ───
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
@@ -66,6 +71,10 @@ export default function ClientPortalPage() {
   const [tarefas, setTarefas] = useState<TarefaCliente[]>([]);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [adStudies, setAdStudies] = useState<AdStudy[]>([]);
+  const [socialAccounts, setSocialAccounts] = useState<SocialMediaAccount[]>([]);
+  const [mybusiness, setMybusiness] = useState<MyBusinessProfile | null>(null);
+  const [competitors, setCompetitors] = useState<MyBusinessCompetitor[]>([]);
+  const [financeiro, setFinanceiro] = useState<FinanceiroRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialogs
@@ -99,13 +108,18 @@ export default function ClientPortalPage() {
       setVendas((vendasRes.data || []) as VendaCliente[]);
 
       if (clienteRes.data?.id) {
-        const [mktRes, kwRes, pgRes, tarefasRes, anunciosRes, studiesRes] = await Promise.all([
-          supabase.from('marketing_reports').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: true }),
-          supabase.from('seo_keywords').select('*').eq('cliente_id', clienteRes.data.id).order('posicao_atual', { ascending: true }),
-          supabase.from('seo_pages').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: false }),
-          supabase.from('tarefas_cliente').select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
-          supabase.from('anuncios').select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
-          supabase.from('ad_studies' as any).select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
+        const cid = clienteRes.data.id;
+        const [mktRes, kwRes, pgRes, tarefasRes, anunciosRes, studiesRes, socialRes, mbRes, compRes, finRes] = await Promise.all([
+          supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
+          supabase.from('seo_keywords').select('*').eq('cliente_id', cid).order('posicao_atual', { ascending: true }),
+          supabase.from('seo_pages').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }),
+          supabase.from('tarefas_cliente').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('anuncios').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('ad_studies' as any).select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('social_media_accounts' as any).select('*').eq('cliente_id', cid),
+          supabase.from('mybusiness_profiles' as any).select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }).limit(1).maybeSingle(),
+          supabase.from('mybusiness_competitors' as any).select('*').eq('cliente_id', cid),
+          supabase.from('financeiro' as any).select('*').eq('cliente_id', cid).order('data_vencimento', { ascending: false }),
         ]);
         setMarketing((mktRes.data || []) as MarketingReport[]);
         setSeoKeywords((kwRes.data || []) as SeoKeyword[]);
@@ -113,6 +127,10 @@ export default function ClientPortalPage() {
         setTarefas((tarefasRes.data || []) as TarefaCliente[]);
         setAnuncios((anunciosRes.data || []) as Anuncio[]);
         setAdStudies((studiesRes.data || []) as unknown as AdStudy[]);
+        setSocialAccounts((socialRes.data || []) as unknown as SocialMediaAccount[]);
+        setMybusiness((mbRes.data as unknown as MyBusinessProfile) || null);
+        setCompetitors((compRes.data || []) as unknown as MyBusinessCompetitor[]);
+        setFinanceiro((finRes.data || []) as unknown as FinanceiroRecord[]);
       }
       setLoading(false);
     };
@@ -341,15 +359,78 @@ export default function ClientPortalPage() {
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
           <div>
             <h2 className="text-2xl font-bold">Olá, {cliente?.nome || 'Cliente'} 👋</h2>
-            <p className="text-muted-foreground text-sm mt-1">Acompanhe seus procedimentos, anúncios e resultados de marketing.</p>
+            <p className="text-muted-foreground text-sm mt-1">Acompanhe seus resultados de marketing, anúncios e performance digital.</p>
           </div>
 
-          <Tabs defaultValue="tarefas" className="space-y-6">
+          {/* ═══════════ DASHBOARD SUMMARY ═══════════ */}
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <StaggerItem><MktKPI label="Visitas ao Site" value={latestMkt?.visitas_site?.toLocaleString('pt-BR') || '0'} icon={Globe} delta={prevMkt ? calcDelta(latestMkt!.visitas_site, prevMkt.visitas_site) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Leads Gerados" value={latestMkt?.leads_gerados?.toString() || '0'} icon={Target} delta={prevMkt ? calcDelta(latestMkt!.leads_gerados, prevMkt.leads_gerados) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Seguidores" value={latestMkt?.seguidores_total?.toLocaleString('pt-BR') || '0'} icon={Users} delta={prevMkt ? calcDelta(latestMkt!.seguidores_total, prevMkt.seguidores_total) : undefined} /></StaggerItem>
+            <StaggerItem><MktKPI label="Palavras Top 10" value={seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length.toString()} icon={Search} /></StaggerItem>
+            <StaggerItem><MktKPI label="Anúncios Ativos" value={anuncios.filter(a => a.status === 'ativo').length.toString()} icon={Megaphone} /></StaggerItem>
+            <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
+          </StaggerContainer>
+
+          {/* Quick summary charts */}
+          {(latestMkt || anuncios.length > 0) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {trafegoData.length > 1 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Globe className="h-3.5 w-3.5" /> Tráfego Recente</CardTitle></CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={120}>
+                      <AreaChart data={trafegoData.slice(-6)}>
+                        <defs><linearGradient id="dashGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3}/><stop offset="95%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0}/></linearGradient></defs>
+                        <Area type="monotone" dataKey="total" stroke="hsl(217, 91%, 60%)" fill="url(#dashGrad)" strokeWidth={2} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+              {leadsData.length > 1 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Target className="h-3.5 w-3.5" /> Leads Recentes</CardTitle></CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={120}>
+                      <BarChart data={leadsData.slice(-6)}>
+                        <Bar dataKey="gerados" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} barSize={14} />
+                        <Bar dataKey="qualificados" fill="hsl(160, 84%, 39%)" radius={[4, 4, 0, 0]} barSize={14} />
+                        <Tooltip contentStyle={tooltipStyle} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+              {anuncios.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-2"><CardTitle className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Investimento Ads</CardTitle></CardHeader>
+                  <CardContent className="flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height={120}>
+                      <PieChart>
+                        <Pie data={platformStats.filter(p => p.totalInvestido > 0)} dataKey="totalInvestido" nameKey="label" cx="50%" cy="50%" outerRadius={50} innerRadius={30} paddingAngle={3} strokeWidth={0} fontSize={9}
+                          label={({ label, percent }) => `${label} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+                          {platformStats.filter(p => p.totalInvestido > 0).map((p, i) => <Cell key={i} fill={p.color} />)}
+                        </Pie>
+                        <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => `R$ ${v.toLocaleString('pt-BR')}`} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+
+          <Tabs defaultValue="marketing" className="space-y-6">
             <TabsList className="flex-wrap">
-              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
               <TabsTrigger value="anuncios" className="gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
               <TabsTrigger value="seo" className="gap-1.5"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
-              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
+              <TabsTrigger value="social" className="gap-1.5"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
+              <TabsTrigger value="mybusiness" className="gap-1.5"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
+              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="financeiro" className="gap-1.5"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
               <TabsTrigger value="dados" className="gap-1.5"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
               <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
@@ -723,6 +804,36 @@ export default function ClientPortalPage() {
                     );
                   })()}
 
+                  {/* Word Cloud */}
+                  {seoKeywords.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Hash className="h-4 w-4 text-primary" /> Nuvem de Palavras-Chave</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap items-center justify-center gap-2 py-4">
+                          {seoKeywords.map(kw => {
+                            const maxVol = Math.max(...seoKeywords.map(k => k.volume_busca || 1));
+                            const ratio = (kw.volume_busca || 1) / maxVol;
+                            const fontSize = Math.max(0.7, 0.7 + ratio * 1.8);
+                            const opacity = Math.max(0.4, 0.3 + ratio * 0.7);
+                            const posColor = !kw.posicao_atual ? 'text-muted-foreground' : kw.posicao_atual <= 3 ? 'text-accent' : kw.posicao_atual <= 10 ? 'text-primary' : kw.posicao_atual <= 20 ? 'text-foreground' : 'text-muted-foreground';
+                            return (
+                              <span key={kw.id} className={`${posColor} font-semibold cursor-default transition-transform hover:scale-110`} style={{ fontSize: `${fontSize}rem`, opacity }} title={`Posição: ${kw.posicao_atual || '—'} | Volume: ${kw.volume_busca}/mês`}>
+                                {kw.palavra_chave}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground border-t pt-2 mt-2">
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> Top 3</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Top 10</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-foreground" /> Top 20</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-muted-foreground" /> 20+</span>
+                          <span className="ml-2">Tamanho = volume de busca</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   {seoKeywords.length > 0 && (() => {
                     const distribution = [
                       { range: '1-3', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length },
@@ -941,7 +1052,223 @@ export default function ClientPortalPage() {
               )}
             </TabsContent>
 
-            {/* ═══════════ DADOS TAB ═══════════ */}
+            {/* ═══════════ MÍDIAS SOCIAIS TAB ═══════════ */}
+            <TabsContent value="social" className="space-y-6">
+              {socialAccounts.length === 0 ? (
+                <Card><CardContent className="p-12 text-center"><Share2 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Mídias Sociais</h3><p className="text-sm text-muted-foreground">Suas contas de mídias sociais aparecerão aqui quando cadastradas pela equipe.</p></CardContent></Card>
+              ) : (
+                <>
+                  <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {socialAccounts.map(acc => {
+                      const platformIcons: Record<string, string> = { instagram: '📸', facebook: '📘', linkedin: '💼', tiktok: '🎵', youtube: '▶️', twitter: '🐦', pinterest: '📌' };
+                      return (
+                        <StaggerItem key={acc.id}>
+                          <Card className="hover:shadow-md transition-shadow">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <span className="text-lg">{platformIcons[acc.plataforma.toLowerCase()] || '🌐'}</span>
+                                {acc.plataforma}
+                                {acc.username && <Badge variant="outline" className="text-[10px]">@{acc.username}</Badge>}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Seguidores</p><p className="font-bold">{acc.seguidores.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Novos/mês</p><p className="font-bold text-accent">+{acc.novos_seguidores_mes.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Engajamento</p><p className="font-bold">{acc.engajamento_medio}%</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Posts</p><p className="font-bold">{acc.posts_total}</p></div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1 text-[11px] text-center">
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Alcance</p><p className="font-semibold">{acc.alcance_medio.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Impressões</p><p className="font-semibold">{acc.impressoes_mes.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Cliques</p><p className="font-semibold">{acc.cliques_mes.toLocaleString('pt-BR')}</p></div>
+                              </div>
+                              {acc.url_perfil && <a href={acc.url_perfil} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Ver perfil</a>}
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                      );
+                    })}
+                  </StaggerContainer>
+
+                  {/* Combined social chart */}
+                  {socialAccounts.length > 1 && (
+                    <Card>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> Comparativo entre Plataformas</CardTitle></CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={220}>
+                          <BarChart data={socialAccounts.map(a => ({ nome: a.plataforma, seguidores: a.seguidores, engajamento: a.engajamento_medio }))}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 93%)" vertical={false} />
+                            <XAxis dataKey="nome" fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                            <YAxis fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Legend fontSize={10} />
+                            <Bar dataKey="seguidores" name="Seguidores" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} barSize={20} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* ═══════════ MYBUSINESS TAB ═══════════ */}
+            <TabsContent value="mybusiness" className="space-y-6">
+              {!mybusiness ? (
+                <Card><CardContent className="p-12 text-center"><Store className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Google MyBusiness</h3><p className="text-sm text-muted-foreground">Dados do seu perfil MyBusiness aparecerão aqui quando configurados pela equipe.</p></CardContent></Card>
+              ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2"><Store className="h-4 w-4 text-primary" /> {mybusiness.nome_negocio}</CardTitle>
+                      {mybusiness.categoria && <p className="text-xs text-muted-foreground">{mybusiness.categoria}</p>}
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        {mybusiness.endereco && <span className="flex items-center gap-1.5 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {mybusiness.endereco}{mybusiness.cidade ? `, ${mybusiness.cidade}` : ''}{mybusiness.estado ? ` - ${mybusiness.estado}` : ''}</span>}
+                        {mybusiness.telefone && <span className="flex items-center gap-1.5 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {mybusiness.telefone}</span>}
+                        {mybusiness.website && <a href={mybusiness.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline"><Globe className="h-3.5 w-3.5" /> Website</a>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map(i => <Star key={i} className={`h-4 w-4 ${i <= Math.round(mybusiness.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}
+                        </div>
+                        <span className="text-sm font-bold">{mybusiness.avaliacao_media.toFixed(1)}</span>
+                        <span className="text-xs text-muted-foreground">({mybusiness.total_avaliacoes} avaliações)</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <StaggerItem><MktKPI label="Visualiz. Busca" value={mybusiness.visualizacoes_busca.toLocaleString('pt-BR')} icon={Search} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Visualiz. Maps" value={mybusiness.visualizacoes_maps.toLocaleString('pt-BR')} icon={MapPin} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Cliques Site" value={mybusiness.cliques_site.toLocaleString('pt-BR')} icon={Globe} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Ligações" value={mybusiness.cliques_ligacao.toLocaleString('pt-BR')} icon={Phone} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Rotas" value={mybusiness.cliques_rota.toLocaleString('pt-BR')} icon={MapPin} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Fotos" value={mybusiness.fotos_count.toString()} icon={Eye} /></StaggerItem>
+                  </StaggerContainer>
+
+                  {/* Competitors box */}
+                  {competitors.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> Concorrentes</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {/* Your business vs competitors */}
+                          <div className="p-3 rounded-lg border-2 border-primary/20 bg-primary/5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2"><Store className="h-4 w-4 text-primary" /><span className="text-sm font-semibold">{mybusiness.nome_negocio}</span><Badge className="text-[10px]">Você</Badge></div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className={`h-3 w-3 ${i <= Math.round(mybusiness.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}</div>
+                                <span className="text-sm font-bold">{mybusiness.avaliacao_media.toFixed(1)}</span>
+                                <span className="text-xs text-muted-foreground">({mybusiness.total_avaliacoes})</span>
+                              </div>
+                            </div>
+                          </div>
+                          {competitors.map(comp => (
+                            <div key={comp.id} className="p-3 rounded-lg border hover:bg-muted/20 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium">{comp.nome_concorrente}</p>
+                                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                    {comp.categoria && <span>{comp.categoria}</span>}
+                                    {comp.distancia_km != null && <span>· {comp.distancia_km.toFixed(1)} km</span>}
+                                    {comp.endereco && <span>· {comp.endereco}</span>}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className={`h-3 w-3 ${i <= Math.round(comp.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}</div>
+                                  <span className="text-sm font-bold">{comp.avaliacao_media.toFixed(1)}</span>
+                                  <span className="text-xs text-muted-foreground">({comp.total_avaliacoes})</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {/* Rating comparison chart */}
+                        <div className="mt-4">
+                          <ResponsiveContainer width="100%" height={180}>
+                            <BarChart data={[{ nome: mybusiness.nome_negocio.slice(0, 15), nota: mybusiness.avaliacao_media, avaliacoes: mybusiness.total_avaliacoes }, ...competitors.map(c => ({ nome: c.nome_concorrente.slice(0, 15), nota: c.avaliacao_media, avaliacoes: c.total_avaliacoes }))]} layout="vertical">
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 93%)" horizontal={false} />
+                              <XAxis type="number" domain={[0, 5]} fontSize={10} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="nome" width={100} fontSize={10} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                              <Tooltip contentStyle={tooltipStyle} formatter={(v: number, name: string) => [name === 'nota' ? `${v.toFixed(1)} ⭐` : v, name === 'nota' ? 'Nota' : 'Avaliações']} />
+                              <Bar dataKey="nota" fill="hsl(38, 92%, 50%)" radius={[0, 6, 6, 0]} barSize={16} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* ═══════════ FINANCEIRO TAB ═══════════ */}
+            <TabsContent value="financeiro" className="space-y-6">
+              {financeiro.length === 0 ? (
+                <Card><CardContent className="p-12 text-center"><Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Financeiro</h3><p className="text-sm text-muted-foreground">Nenhum registro financeiro encontrado.</p></CardContent></Card>
+              ) : (
+                <>
+                  {(() => {
+                    const total = financeiro.reduce((s, f) => s + f.valor, 0);
+                    const pago = financeiro.filter(f => f.status === 'pago').reduce((s, f) => s + f.valor, 0);
+                    const pendente = financeiro.filter(f => f.status === 'pendente').reduce((s, f) => s + f.valor, 0);
+                    const vencido = financeiro.filter(f => f.status === 'pendente' && new Date(f.data_vencimento) < new Date()).length;
+                    return (
+                      <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <StaggerItem><MktKPI label="Total" value={total.toLocaleString('pt-BR')} icon={Receipt} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><MktKPI label="Pago" value={pago.toLocaleString('pt-BR')} icon={CheckCircle2} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><MktKPI label="Pendente" value={pendente.toLocaleString('pt-BR')} icon={Clock} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><Card className={vencido > 0 ? 'border-destructive/30' : ''}><CardContent className="p-4"><div className="flex items-start justify-between"><div className="p-2 rounded-xl bg-destructive/10"><AlertTriangle className="h-4 w-4 text-destructive" /></div></div><div className="mt-3"><p className="text-xs text-muted-foreground">Vencidos</p><p className="text-xl font-bold text-destructive">{vencido}</p></div></CardContent></Card></StaggerItem>
+                      </StaggerContainer>
+                    );
+                  })()}
+
+                  <Card>
+                    <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Receipt className="h-4 w-4 text-primary" /> Histórico de Cobranças</CardTitle></CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead><tr className="border-b bg-muted/30">
+                            <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Descrição</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Valor</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Vencimento</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Pagamento</th>
+                          </tr></thead>
+                          <tbody>
+                            {financeiro.map(f => {
+                              const isOverdue = f.status === 'pendente' && new Date(f.data_vencimento) < new Date();
+                              const statusMap: Record<string, { label: string; color: string }> = {
+                                pago: { label: 'Pago', color: 'bg-accent/10 text-accent border-accent/30' },
+                                pendente: { label: isOverdue ? 'Vencido' : 'Pendente', color: isOverdue ? 'bg-destructive/10 text-destructive border-destructive/30' : 'bg-warning/10 text-warning border-warning/30' },
+                                cancelado: { label: 'Cancelado', color: 'bg-muted text-muted-foreground' },
+                              };
+                              const st = statusMap[f.status] || statusMap.pendente;
+                              return (
+                                <tr key={f.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                                  <td className="p-3">
+                                    <p className="font-medium">{f.descricao || f.tipo}</p>
+                                    {f.numero_boleto && <p className="text-[10px] text-muted-foreground">Boleto: {f.numero_boleto}</p>}
+                                  </td>
+                                  <td className="p-3 text-right font-semibold">R$ {f.valor.toLocaleString('pt-BR')}</td>
+                                  <td className="p-3 text-center text-muted-foreground">{new Date(f.data_vencimento).toLocaleDateString('pt-BR')}</td>
+                                  <td className="p-3 text-center"><Badge variant="outline" className={`text-[10px] ${st.color}`}>{st.label}</Badge></td>
+                                  <td className="p-3 text-center hidden md:table-cell text-muted-foreground text-xs">{f.data_pagamento ? new Date(f.data_pagamento).toLocaleDateString('pt-BR') : '—'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+
             <TabsContent value="dados">
               {cliente && (
                 <Card>

@@ -18,6 +18,7 @@ import TarefasConfigPage from "./pages/TarefasConfigPage";
 import LoginPage from "./pages/LoginPage";
 import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
+import TenantsPage from "./pages/TenantsPage";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const AppRoutes = () => {
       <Route path="/seo" element={<ProtectedRoute masterOnly><SeoConfigPage /></ProtectedRoute>} />
       <Route path="/tarefas" element={<ProtectedRoute masterOnly><TarefasConfigPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute masterOnly><AdminPage /></ProtectedRoute>} />
+      <Route path="/tenants" element={<ProtectedRoute masterOnly><TenantsPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

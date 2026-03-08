@@ -178,6 +178,7 @@ export type Database = {
       }
       clientes: {
         Row: {
+          acesso_liberado: boolean | null
           cidade: string | null
           cnpj: string | null
           created_at: string
@@ -185,6 +186,7 @@ export type Database = {
           endereco: string | null
           estado: string | null
           id: string
+          mensalidade_valor: number | null
           nome: string
           observacoes: string | null
           razao_social: string | null
@@ -194,6 +196,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          acesso_liberado?: boolean | null
           cidade?: string | null
           cnpj?: string | null
           created_at?: string
@@ -201,6 +204,7 @@ export type Database = {
           endereco?: string | null
           estado?: string | null
           id?: string
+          mensalidade_valor?: number | null
           nome: string
           observacoes?: string | null
           razao_social?: string | null
@@ -210,6 +214,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          acesso_liberado?: boolean | null
           cidade?: string | null
           cnpj?: string | null
           created_at?: string
@@ -217,6 +222,7 @@ export type Database = {
           endereco?: string | null
           estado?: string | null
           id?: string
+          mensalidade_valor?: number | null
           nome?: string
           observacoes?: string | null
           razao_social?: string | null
@@ -279,6 +285,62 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      financeiro: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string
+          descricao: string | null
+          id: string
+          metodo_pagamento: string | null
+          numero_boleto: string | null
+          observacoes: string | null
+          status: string
+          tipo: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento: string
+          descricao?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          numero_boleto?: string | null
+          observacoes?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string
+          descricao?: string | null
+          id?: string
+          metodo_pagamento?: string | null
+          numero_boleto?: string | null
+          observacoes?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financeiro_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
@@ -407,6 +469,133 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "marketing_reports_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mybusiness_competitors: {
+        Row: {
+          avaliacao_media: number | null
+          categoria: string | null
+          cliente_id: string
+          created_at: string
+          distancia_km: number | null
+          endereco: string | null
+          id: string
+          nome_concorrente: string
+          observacoes: string | null
+          total_avaliacoes: number | null
+        }
+        Insert: {
+          avaliacao_media?: number | null
+          categoria?: string | null
+          cliente_id: string
+          created_at?: string
+          distancia_km?: number | null
+          endereco?: string | null
+          id?: string
+          nome_concorrente: string
+          observacoes?: string | null
+          total_avaliacoes?: number | null
+        }
+        Update: {
+          avaliacao_media?: number | null
+          categoria?: string | null
+          cliente_id?: string
+          created_at?: string
+          distancia_km?: number | null
+          endereco?: string | null
+          id?: string
+          nome_concorrente?: string
+          observacoes?: string | null
+          total_avaliacoes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mybusiness_competitors_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mybusiness_profiles: {
+        Row: {
+          avaliacao_media: number | null
+          categoria: string | null
+          cidade: string | null
+          cliente_id: string
+          cliques_ligacao: number | null
+          cliques_rota: number | null
+          cliques_site: number | null
+          created_at: string
+          endereco: string | null
+          estado: string | null
+          fotos_count: number | null
+          id: string
+          nome_negocio: string
+          periodo_mes: string | null
+          posts_count: number | null
+          telefone: string | null
+          total_avaliacoes: number | null
+          updated_at: string
+          visualizacoes_busca: number | null
+          visualizacoes_maps: number | null
+          website: string | null
+        }
+        Insert: {
+          avaliacao_media?: number | null
+          categoria?: string | null
+          cidade?: string | null
+          cliente_id: string
+          cliques_ligacao?: number | null
+          cliques_rota?: number | null
+          cliques_site?: number | null
+          created_at?: string
+          endereco?: string | null
+          estado?: string | null
+          fotos_count?: number | null
+          id?: string
+          nome_negocio: string
+          periodo_mes?: string | null
+          posts_count?: number | null
+          telefone?: string | null
+          total_avaliacoes?: number | null
+          updated_at?: string
+          visualizacoes_busca?: number | null
+          visualizacoes_maps?: number | null
+          website?: string | null
+        }
+        Update: {
+          avaliacao_media?: number | null
+          categoria?: string | null
+          cidade?: string | null
+          cliente_id?: string
+          cliques_ligacao?: number | null
+          cliques_rota?: number | null
+          cliques_site?: number | null
+          created_at?: string
+          endereco?: string | null
+          estado?: string | null
+          fotos_count?: number | null
+          id?: string
+          nome_negocio?: string
+          periodo_mes?: string | null
+          posts_count?: number | null
+          telefone?: string | null
+          total_avaliacoes?: number | null
+          updated_at?: string
+          visualizacoes_busca?: number | null
+          visualizacoes_maps?: number | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mybusiness_profiles_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
@@ -585,6 +774,71 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "seo_pages_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_media_accounts: {
+        Row: {
+          alcance_medio: number | null
+          cliente_id: string
+          cliques_mes: number | null
+          created_at: string
+          engajamento_medio: number | null
+          id: string
+          impressoes_mes: number | null
+          novos_seguidores_mes: number | null
+          observacoes: string | null
+          plataforma: string
+          posts_total: number | null
+          seguidores: number | null
+          seguindo: number | null
+          updated_at: string
+          url_perfil: string | null
+          username: string | null
+        }
+        Insert: {
+          alcance_medio?: number | null
+          cliente_id: string
+          cliques_mes?: number | null
+          created_at?: string
+          engajamento_medio?: number | null
+          id?: string
+          impressoes_mes?: number | null
+          novos_seguidores_mes?: number | null
+          observacoes?: string | null
+          plataforma: string
+          posts_total?: number | null
+          seguidores?: number | null
+          seguindo?: number | null
+          updated_at?: string
+          url_perfil?: string | null
+          username?: string | null
+        }
+        Update: {
+          alcance_medio?: number | null
+          cliente_id?: string
+          cliques_mes?: number | null
+          created_at?: string
+          engajamento_medio?: number | null
+          id?: string
+          impressoes_mes?: number | null
+          novos_seguidores_mes?: number | null
+          observacoes?: string | null
+          plataforma?: string
+          posts_total?: number | null
+          seguidores?: number | null
+          seguindo?: number | null
+          updated_at?: string
+          url_perfil?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_media_accounts_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
