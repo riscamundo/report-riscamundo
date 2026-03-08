@@ -19,14 +19,13 @@ const allNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
   { title: 'Procedimentos', url: '/procedimentos', icon: Package, masterOnly: true },
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
-  { title: 'Funil de Vendas', url: '/funil', icon: Users, gestorAllowed: true },
-  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },
   { title: 'SEO & Keywords', url: '/seo', icon: Search, masterOnly: true },
   { title: 'Tarefas Clientes', url: '/tarefas', icon: ListTodo, masterOnly: true },
   { title: 'Tenants', url: '/tenants', icon: Briefcase, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
+  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
 ];
 
 export function AppSidebar() {

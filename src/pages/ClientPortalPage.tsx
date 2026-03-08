@@ -79,7 +79,7 @@ export default function ClientPortalPage() {
 
   // Dialogs
   const [showNewTarefa, setShowNewTarefa] = useState(false);
-  const [showNewAnuncio, setShowNewAnuncio] = useState(false);
+  
   
   const [activePlatform, setActivePlatform] = useState<Platform>('google');
 
@@ -87,14 +87,7 @@ export default function ClientPortalPage() {
   const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
   const [savingTarefa, setSavingTarefa] = useState(false);
 
-  // New anuncio form
-  const [newAnuncio, setNewAnuncio] = useState({ plataforma: 'google' as Platform, tipo_anuncio: '', titulo: '', descricao: '', investimento: '', data_inicio: '', data_fim: '', url_destino: '' });
-  const [savingAnuncio, setSavingAnuncio] = useState(false);
-
-  // AI generator
-  const [aiForm, setAiForm] = useState({ segmento: '', produto: '', objetivo: 'Conversão' });
-  const [aiResult, setAiResult] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
+  // Anuncio form removed — clients only view ads
 
   useEffect(() => {
     if (!user) return;
@@ -160,77 +153,6 @@ export default function ClientPortalPage() {
     setSavingTarefa(false);
   };
 
-  const handleSaveAnuncio = async () => {
-    if (!cliente || !newAnuncio.titulo.trim() || !newAnuncio.tipo_anuncio) return;
-    setSavingAnuncio(true);
-    const { error } = await supabase.from('anuncios').insert({
-      cliente_id: cliente.id,
-      plataforma: newAnuncio.plataforma,
-      tipo_anuncio: newAnuncio.tipo_anuncio,
-      titulo: newAnuncio.titulo,
-      descricao: newAnuncio.descricao || null,
-      investimento: parseFloat(newAnuncio.investimento) || 0,
-      data_inicio: newAnuncio.data_inicio || null,
-      data_fim: newAnuncio.data_fim || null,
-      url_destino: newAnuncio.url_destino || null,
-    });
-    if (error) { toast.error('Erro ao criar anúncio'); console.error(error); }
-    else {
-      toast.success('Anúncio criado!');
-      setShowNewAnuncio(false);
-      setNewAnuncio({ plataforma: 'google', tipo_anuncio: '', titulo: '', descricao: '', investimento: '', data_inicio: '', data_fim: '', url_destino: '' });
-      const { data } = await supabase.from('anuncios').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false });
-      setAnuncios((data || []) as Anuncio[]);
-    }
-    setSavingAnuncio(false);
-  };
-
-  const handleAiGenerate = async () => {
-    if (!cliente) return;
-    setAiLoading(true);
-    setAiResult('');
-    try {
-      const platformAds = anuncios.filter(a => a.plataforma === activePlatform);
-      const existingKeywords = platformAds.flatMap(a => a.palavras_chave || []);
-      const platformInfo = PLATFORMS.find(p => p.id === activePlatform);
-
-      const { data, error } = await supabase.functions.invoke('ad-generator', {
-        body: {
-          plataforma: activePlatform,
-          tipo_anuncio: platformInfo?.types[0] || '',
-          segmento: aiForm.segmento,
-          produto: aiForm.produto,
-          objetivo: aiForm.objetivo,
-          palavras_chave_atuais: existingKeywords,
-        },
-      });
-      if (error) throw error;
-      if (data?.error) throw new Error(data.error);
-      const suggestions = data.suggestions || 'Nenhuma sugestão gerada.';
-      setAiResult(suggestions);
-
-      // Save to ad_studies
-      const { error: saveErr } = await supabase.from('ad_studies' as any).insert({
-        cliente_id: cliente.id,
-        plataforma: activePlatform,
-        segmento: aiForm.segmento || null,
-        produto: aiForm.produto || null,
-        objetivo: aiForm.objetivo,
-        resultado: suggestions,
-      } as any);
-      if (saveErr) { console.error('Error saving study:', saveErr); }
-      else {
-        // Refresh studies
-        const { data: newStudies } = await supabase.from('ad_studies' as any).select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false });
-        setAdStudies((newStudies || []) as unknown as AdStudy[]);
-        toast.success('Estudo salvo com sucesso!');
-      }
-    } catch (e: any) {
-      toast.error(e.message || 'Erro ao gerar sugestões');
-      console.error(e);
-    }
-    setAiLoading(false);
-  };
 
   // Studies per platform
   const studiesByPlatform = useMemo(() => {
@@ -540,41 +462,6 @@ export default function ClientPortalPage() {
             <TabsContent value="anuncios" className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
-                <Dialog open={showNewAnuncio} onOpenChange={setShowNewAnuncio}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Novo Anúncio</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader><DialogTitle>Novo Anúncio</DialogTitle></DialogHeader>
-                    <div className="space-y-4 pt-2">
-                      <div><Label>Plataforma *</Label>
-                        <Select value={newAnuncio.plataforma} onValueChange={v => setNewAnuncio(p => ({ ...p, plataforma: v as Platform, tipo_anuncio: '' }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>{PLATFORMS.map(p => <SelectItem key={p.id} value={p.id}>{p.icon} {p.label}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                      <div><Label>Tipo de Anúncio *</Label>
-                        <Select value={newAnuncio.tipo_anuncio} onValueChange={v => setNewAnuncio(p => ({ ...p, tipo_anuncio: v }))}>
-                          <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                          <SelectContent>{PLATFORMS.find(p => p.id === newAnuncio.plataforma)?.types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                      <div><Label>Título *</Label><Input value={newAnuncio.titulo} onChange={e => setNewAnuncio(p => ({ ...p, titulo: e.target.value }))} placeholder="Título do anúncio" /></div>
-                      <div><Label>Descrição</Label><Textarea value={newAnuncio.descricao} onChange={e => setNewAnuncio(p => ({ ...p, descricao: e.target.value }))} rows={2} /></div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div><Label>Investimento (R$)</Label><Input type="number" value={newAnuncio.investimento} onChange={e => setNewAnuncio(p => ({ ...p, investimento: e.target.value }))} /></div>
-                        <div><Label>URL Destino</Label><Input value={newAnuncio.url_destino} onChange={e => setNewAnuncio(p => ({ ...p, url_destino: e.target.value }))} /></div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div><Label>Data Início</Label><Input type="date" value={newAnuncio.data_inicio} onChange={e => setNewAnuncio(p => ({ ...p, data_inicio: e.target.value }))} /></div>
-                        <div><Label>Data Fim</Label><Input type="date" value={newAnuncio.data_fim} onChange={e => setNewAnuncio(p => ({ ...p, data_fim: e.target.value }))} /></div>
-                      </div>
-                      <Button onClick={handleSaveAnuncio} disabled={savingAnuncio || !newAnuncio.titulo.trim() || !newAnuncio.tipo_anuncio} className="w-full">
-                        {savingAnuncio ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Anúncio'}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </div>
 
               {/* Platform summary cards */}
@@ -615,7 +502,7 @@ export default function ClientPortalPage() {
                     <div className="text-center py-8 text-muted-foreground">
                       <Megaphone className="h-8 w-8 mx-auto mb-2 opacity-40" />
                       <p className="text-sm">Nenhum anúncio em {currentPlatformInfo.label} ainda.</p>
-                      <p className="text-xs mt-1">Clique em "Novo Anúncio" para criar ou use o Gerador IA abaixo.</p>
+                      <p className="text-xs mt-1">Seus anúncios aparecerão aqui quando cadastrados.</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -666,44 +553,6 @@ export default function ClientPortalPage() {
                 </CardContent>
               </Card>
 
-              {/* ── AI Generator inline per platform ── */}
-              <Card className="border-primary/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-primary" /> Gerador IA — {currentPlatformInfo.label}
-                  </CardTitle>
-                  <p className="text-xs text-muted-foreground">Especialista em mídia paga analisa SEO, volumes de busca e gera sugestões otimizadas para {currentPlatformInfo.label}.</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div><Label className="text-xs">Segmento / Nicho</Label><Input value={aiForm.segmento} onChange={e => setAiForm(p => ({ ...p, segmento: e.target.value }))} placeholder="Ex: Clínica de estética" className="h-9 text-sm" /></div>
-                    <div><Label className="text-xs">Produto / Serviço</Label><Input value={aiForm.produto} onChange={e => setAiForm(p => ({ ...p, produto: e.target.value }))} placeholder="Ex: Harmonização facial" className="h-9 text-sm" /></div>
-                    <div><Label className="text-xs">Objetivo</Label>
-                      <Select value={aiForm.objetivo} onValueChange={v => setAiForm(p => ({ ...p, objetivo: v }))}>
-                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Conversão">Conversão</SelectItem>
-                          <SelectItem value="Tráfego">Tráfego</SelectItem>
-                          <SelectItem value="Reconhecimento de marca">Reconhecimento de marca</SelectItem>
-                          <SelectItem value="Geração de leads">Geração de leads</SelectItem>
-                          <SelectItem value="Vendas">Vendas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <Button onClick={handleAiGenerate} disabled={aiLoading} size="sm" className="gap-2">
-                    {aiLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando sugestões...</> : <><Send className="h-4 w-4" /> Gerar Sugestões</>}
-                  </Button>
-                  {aiResult && (
-                    <Card className="bg-muted/30 border-primary/10">
-                      <CardContent className="p-4">
-                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Última Geração</h4>
-                        <div className="prose prose-sm max-w-none text-sm whitespace-pre-wrap">{aiResult}</div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </CardContent>
-              </Card>
 
               {/* ── Saved AI studies for this platform ── */}
               {studiesByPlatform[activePlatform].length > 0 && (
