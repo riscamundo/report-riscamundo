@@ -54,7 +54,7 @@ const AppRoutes = () => {
       <Route path="/procedimentos" element={<ProtectedRoute masterOnly><ProcedimentosPage /></ProtectedRoute>} />
       <Route path="/midia" element={<ProtectedRoute masterOnly><MidiaPage /></ProtectedRoute>} />
       <Route path="/funil" element={<ProtectedRoute><Navigate to="/vendas" replace /></ProtectedRoute>} />
-      <Route path="/vendas" element={<ProtectedRoute><VendasPage /></ProtectedRoute>} />
+      <Route path="/vendas" element={<ProtectedRoute masterOnly><VendasPage /></ProtectedRoute>} />
       <Route path="/alertas" element={<ProtectedRoute masterOnly><AlertasPage /></ProtectedRoute>} />
       <Route path="/marketing" element={<ProtectedRoute masterOnly><MarketingConfigPage /></ProtectedRoute>} />
       <Route path="/seo" element={<ProtectedRoute masterOnly><SeoConfigPage /></ProtectedRoute>} />
