@@ -64,6 +64,10 @@ export default function EquipeDashboard() {
   const [clientMB, setClientMB] = useState<MBProfile | null>(null);
   const [clientComp, setClientComp] = useState<MBCompetitor[]>([]);
   const [clientTarefas, setClientTarefas] = useState<TarefaPendente[]>([]);
+  const [vendas, setVendas] = useState<VendaRow[]>([]);
+  const [allLeads, setAllLeads] = useState<LeadRow[]>([]);
+  const [allProcedimentos, setAllProcedimentos] = useState<ProcedimentoRow[]>([]);
+  const [allCampanhas, setAllCampanhas] = useState<CampanhaRow[]>([]);
   const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
