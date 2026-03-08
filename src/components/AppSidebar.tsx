@@ -25,7 +25,6 @@ const allNavItems: NavItem[] = [
   { title: 'Tarefas Clientes', url: '/tarefas', icon: ListTodo, masterOnly: true },
   { title: 'Tenants', url: '/tenants', icon: Briefcase, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
-  { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
   { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
 ];
 
