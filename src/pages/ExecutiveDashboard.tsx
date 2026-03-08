@@ -68,7 +68,7 @@ interface TarefaPendente {
 
 export default function ExecutiveDashboard() {
   const { procedimentos, campanhas, leads, vendas, loading } = useStoreContext();
-  const { isMaster } = useAuth();
+  const { isMaster, user } = useAuth();
   const [clientes, setClientes] = useState<ClienteResumo[]>([]);
   const [financeiro, setFinanceiro] = useState<FinanceiroRow[]>([]);
   const [tarefasPendentes, setTarefasPendentes] = useState<TarefaPendente[]>([]);
