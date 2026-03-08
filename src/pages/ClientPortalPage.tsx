@@ -63,7 +63,7 @@ const PLATFORMS: { id: Platform; label: string; color: string; icon: string; typ
 ];
 
 export default function ClientPortalPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isMaster } = useAuth();
   const [cliente, setCliente] = useState<ClienteData | null>(null);
   const [vendas, setVendas] = useState<VendaCliente[]>([]);
   const [marketing, setMarketing] = useState<MarketingReport[]>([]);
@@ -85,7 +85,7 @@ export default function ClientPortalPage() {
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
-  const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
+  const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media', contexto: '' });
   const [savingTarefa, setSavingTarefa] = useState(false);
 
   // Anuncio form removed — clients only view ads
@@ -135,10 +135,11 @@ export default function ClientPortalPage() {
   const handleSaveTarefa = async () => {
     if (!cliente || !newTarefa.titulo.trim()) return;
     setSavingTarefa(true);
+    const descricaoFinal = [newTarefa.contexto ? `[${newTarefa.contexto}]` : '', newTarefa.descricao].filter(Boolean).join(' ');
     const { error } = await supabase.from('tarefas_cliente').insert({
       cliente_id: cliente.id,
       titulo: newTarefa.titulo,
-      descricao: newTarefa.descricao || null,
+      descricao: descricaoFinal || null,
       prioridade: newTarefa.prioridade,
       status: 'esperando',
     });
@@ -146,7 +147,7 @@ export default function ClientPortalPage() {
     else {
       toast.success('Tarefa criada!');
       setShowNewTarefa(false);
-      setNewTarefa({ titulo: '', descricao: '', prioridade: 'media' });
+      setNewTarefa({ titulo: '', descricao: '', prioridade: 'media', contexto: '' });
       // Refresh
       const { data } = await supabase.from('tarefas_cliente').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false });
       setTarefas((data || []) as TarefaCliente[]);
@@ -236,6 +237,18 @@ export default function ClientPortalPage() {
     );
   }
 
+  // Helper: open create task dialog with context
+  const openCreateTarefa = (contexto: string) => {
+    setNewTarefa({ titulo: '', descricao: '', prioridade: 'media', contexto });
+    setShowNewTarefa(true);
+  };
+
+  const CreateTaskButton = ({ contexto }: { contexto: string }) => (
+    <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => openCreateTarefa(contexto)}>
+      <Plus className="h-3.5 w-3.5" /> Criar Tarefa
+    </Button>
+  );
+
   const MktKPI = ({ label, value, icon: Icon, delta, prefix }: { label: string; value: string; icon: React.ElementType; delta?: number; prefix?: string }) => (
     <Card>
       <CardContent className="p-4">
@@ -324,45 +337,6 @@ export default function ClientPortalPage() {
               </TabsList>
             </div>
 
-          {/* ═══════════ TAREFAS RESUMO NO DASHBOARD ═══════════ */}
-          {tarefas.filter(t => t.status !== 'pronta').length > 0 && (
-            <Card className="border-l-4 border-l-warning/80">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-warning" /> Tarefas Pendentes
-                  <Badge variant="outline" className="ml-auto text-xs">{tarefas.filter(t => t.status !== 'pronta').length}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {[...tarefas]
-                    .filter(t => t.status !== 'pronta')
-                    .sort((a, b) => {
-                      const prioOrder: Record<string, number> = { alta: 0, media: 1, baixa: 2 };
-                      return (prioOrder[a.prioridade || 'media'] ?? 1) - (prioOrder[b.prioridade || 'media'] ?? 1);
-                    })
-                    .slice(0, 5)
-                    .map(t => (
-                      <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/50">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${t.prioridade === 'alta' ? 'bg-destructive' : t.prioridade === 'media' ? 'bg-warning' : 'bg-muted-foreground/40'}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{t.titulo}</p>
-                          <p className="text-[11px] text-muted-foreground">{t.status === 'fazendo' ? 'Em andamento' : t.status === 'esperando' ? 'Aguardando' : 'Verificar'}</p>
-                        </div>
-                        <Badge variant="outline" className={`text-[10px] shrink-0 ${t.prioridade === 'alta' ? 'text-destructive border-destructive/40' : t.prioridade === 'media' ? 'text-warning border-warning/40' : ''}`}>
-                          {t.prioridade === 'alta' ? '🔥 Alta' : t.prioridade === 'media' ? '⚡ Média' : 'Baixa'}
-                        </Badge>
-                      </div>
-                    ))
-                  }
-                  {tarefas.filter(t => t.status !== 'pronta').length > 5 && (
-                    <p className="text-xs text-muted-foreground text-center pt-1">+ {tarefas.filter(t => t.status !== 'pronta').length - 5} tarefas adicionais</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
           {/* Quick summary charts */}
           {(latestMkt || anuncios.length > 0) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -418,31 +392,7 @@ export default function ClientPortalPage() {
             <TabsContent value="tarefas" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Suas Tarefas</h3>
-                <Dialog open={showNewTarefa} onOpenChange={setShowNewTarefa}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Nova Tarefa</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader><DialogTitle>Nova Tarefa</DialogTitle></DialogHeader>
-                    <div className="space-y-4 pt-2">
-                      <div><Label>Título *</Label><Input value={newTarefa.titulo} onChange={e => setNewTarefa(p => ({ ...p, titulo: e.target.value }))} placeholder="Ex: Enviar material atualizado" /></div>
-                      <div><Label>Descrição</Label><Textarea value={newTarefa.descricao} onChange={e => setNewTarefa(p => ({ ...p, descricao: e.target.value }))} placeholder="Detalhes opcionais..." rows={3} /></div>
-                      <div><Label>Prioridade</Label>
-                        <Select value={newTarefa.prioridade} onValueChange={v => setNewTarefa(p => ({ ...p, prioridade: v }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="baixa">Baixa</SelectItem>
-                            <SelectItem value="media">Média</SelectItem>
-                            <SelectItem value="alta">Alta</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button onClick={handleSaveTarefa} disabled={savingTarefa || !newTarefa.titulo.trim()} className="w-full">
-                        {savingTarefa ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Tarefa'}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button size="sm" className="gap-1.5" onClick={() => openCreateTarefa('Tarefas')}><Plus className="h-4 w-4" /> Nova Tarefa</Button>
               </div>
 
               {tarefas.length === 0 ? (
@@ -517,6 +467,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ ANÚNCIOS TAB ═══════════ */}
             <TabsContent value="anuncios" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Anúncios" /></div>
               {/* ── Análise Geral ── */}
               {anuncios.length > 0 && (() => {
                 const totalInvest = anuncios.reduce((s, a) => s + a.investimento, 0);
@@ -771,8 +722,9 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ SEO TAB ═══════════ */}
             <TabsContent value="seo" className="space-y-6">
-              {/* Keyword Research Agent */}
-              <KeywordResearchAgent clienteNome={cliente?.nome} />
+              <div className="flex justify-end"><CreateTaskButton contexto="SEO" /></div>
+              {/* Keyword Research Agent - only for master */}
+              {isMaster && <KeywordResearchAgent clienteNome={cliente?.nome} />}
 
               {seoKeywords.length === 0 && seoPages.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Search className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">SEO & Palavras-Chave</h3><p className="text-sm text-muted-foreground">Seus dados de SEO aparecerão aqui em breve.</p></CardContent></Card>
@@ -957,6 +909,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MARKETING TAB ═══════════ */}
             <TabsContent value="marketing" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Marketing" /></div>
               {marketing.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><BarChart3 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Marketing Digital</h3><p className="text-sm text-muted-foreground">Seus relatórios de marketing aparecerão aqui em breve.</p></CardContent></Card>
               ) : (
@@ -1047,6 +1000,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MÍDIAS SOCIAIS TAB ═══════════ */}
             <TabsContent value="social" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Mídias Sociais" /></div>
               {socialAccounts.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Share2 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Mídias Sociais</h3><p className="text-sm text-muted-foreground">Suas contas de mídias sociais aparecerão aqui quando cadastradas pela equipe.</p></CardContent></Card>
               ) : (
@@ -1108,6 +1062,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MYBUSINESS TAB ═══════════ */}
             <TabsContent value="mybusiness" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="MyBusiness" /></div>
               {!mybusiness ? (
                 <Card><CardContent className="p-12 text-center"><Store className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Google MyBusiness</h3><p className="text-sm text-muted-foreground">Dados do seu perfil MyBusiness aparecerão aqui quando configurados pela equipe.</p></CardContent></Card>
               ) : (
@@ -1200,6 +1155,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ FINANCEIRO TAB ═══════════ */}
             <TabsContent value="financeiro" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Financeiro" /></div>
               {financeiro.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Financeiro</h3><p className="text-sm text-muted-foreground">Nenhum registro financeiro encontrado.</p></CardContent></Card>
               ) : (
@@ -1289,6 +1245,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ PROCEDIMENTOS TAB ═══════════ */}
             <TabsContent value="procedimentos" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Procedimentos" /></div>
               <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StaggerItem><Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2.5 rounded-xl bg-primary/10"><ShoppingBag className="h-5 w-5 text-primary" /></div><div><p className="text-xs text-muted-foreground">Procedimentos</p><p className="text-xl font-bold">{totalProcedimentos}</p></div></CardContent></Card></StaggerItem>
                 <StaggerItem><Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2.5 rounded-xl bg-accent/10"><DollarSign className="h-5 w-5 text-accent" /></div><div><p className="text-xs text-muted-foreground">Total Investido</p><p className="text-xl font-bold">R$ {totalGasto.toLocaleString('pt-BR')}</p></div></CardContent></Card></StaggerItem>
@@ -1404,6 +1361,35 @@ export default function ClientPortalPage() {
           </Tabs>
         </div>
       </AnimatedPage>
+
+      {/* ── Create Task Dialog (global) ── */}
+      <Dialog open={showNewTarefa} onOpenChange={setShowNewTarefa}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              Nova Tarefa
+              {newTarefa.contexto && <Badge variant="outline" className="text-xs text-primary border-primary/40">{newTarefa.contexto}</Badge>}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div><Label>Título *</Label><Input value={newTarefa.titulo} onChange={e => setNewTarefa(p => ({ ...p, titulo: e.target.value }))} placeholder="Ex: Enviar material atualizado" /></div>
+            <div><Label>Descrição</Label><Textarea value={newTarefa.descricao} onChange={e => setNewTarefa(p => ({ ...p, descricao: e.target.value }))} placeholder="Detalhes opcionais..." rows={3} /></div>
+            <div><Label>Prioridade</Label>
+              <Select value={newTarefa.prioridade} onValueChange={v => setNewTarefa(p => ({ ...p, prioridade: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="baixa">Baixa</SelectItem>
+                  <SelectItem value="media">Média</SelectItem>
+                  <SelectItem value="alta">Alta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={handleSaveTarefa} disabled={savingTarefa || !newTarefa.titulo.trim()} className="w-full">
+              {savingTarefa ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Tarefa'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ── Floating WhatsApp Button ── */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
