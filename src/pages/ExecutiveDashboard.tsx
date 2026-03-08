@@ -78,6 +78,17 @@ export default function ExecutiveDashboard() {
   const [contatoSearch, setContatoSearch] = useState('');
   const [contatoFilter, setContatoFilter] = useState('all');
 
+  // ─── Client Reports State ───
+  const [selectedClienteId, setSelectedClienteId] = useState<string>('');
+  const [clientMarketing, setClientMarketing] = useState<any[]>([]);
+  const [clientSeoKeywords, setClientSeoKeywords] = useState<any[]>([]);
+  const [clientSeoPages, setClientSeoPages] = useState<any[]>([]);
+  const [clientAnuncios, setClientAnuncios] = useState<any[]>([]);
+  const [clientSocial, setClientSocial] = useState<any[]>([]);
+  const [clientMybusiness, setClientMybusiness] = useState<any | null>(null);
+  const [clientCompetitors, setClientCompetitors] = useState<any[]>([]);
+  const [reportLoading, setReportLoading] = useState(false);
+
   useEffect(() => {
     const fetchExtra = async () => {
       const [cRes, fRes, tRes, ctRes] = await Promise.all([
