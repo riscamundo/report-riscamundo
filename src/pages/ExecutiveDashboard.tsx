@@ -132,7 +132,7 @@ export default function ExecutiveDashboard() {
                       <Pie data={receitaCanal} dataKey="receita" nameKey="canal" cx="50%" cy="50%" outerRadius={90} innerRadius={50} paddingAngle={3} label={({ canal, percent }) => `${canal} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={11}>
                         {receitaCanal.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
-                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} />
+                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: '#fff', border: '1px solid hsl(220, 15%, 88%)', borderRadius: '10px' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
