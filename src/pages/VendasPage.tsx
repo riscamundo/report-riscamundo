@@ -94,6 +94,7 @@ export default function VendasPage() {
       status: 'fechado',
     });
     setIsOpen(false);
+    setSelectedLeadId('');
   };
 
   const handleSaveLead = async (e: React.FormEvent<HTMLFormElement>) => {
