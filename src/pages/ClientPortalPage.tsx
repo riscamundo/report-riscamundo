@@ -85,7 +85,7 @@ export default function ClientPortalPage() {
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
-  const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
+  const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media', contexto: '' });
   const [savingTarefa, setSavingTarefa] = useState(false);
 
   // Anuncio form removed — clients only view ads
