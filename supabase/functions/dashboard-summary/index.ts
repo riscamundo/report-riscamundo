@@ -34,13 +34,14 @@ serve(async (req) => {
 
     const systemPrompt = `${basePrompt}
 
-Sua tarefa agora é criar um RESUMO EXECUTIVO DO MÊS em 1 parágrafo curto (máximo 4 frases).
-- Analise os dados fornecidos e destaque pontos positivos e negativos.
-- No final, dê 2-3 sugestões rápidas e práticas para melhorar os resultados.
-- Use tom profissional mas acessível, em português brasileiro.
-- Use emojis de forma sutil para destacar pontos (📈 📉 ⚠️ 💡 ✅).
-- NÃO use markdown com headers (#), apenas texto corrido e bullet points simples com •.
-- Seja direto e objetivo.`;
+Sua tarefa é analisar os dados do cliente e retornar um JSON com:
+1. "summary" - Um parágrafo curto (máximo 4 frases) resumindo o mês do cliente. Use emojis sutis (📈 📉 ⚠️ 💡 ✅). Tom profissional mas acessível.
+2. "suggestions" - Array de 3-5 sugestões práticas e acionáveis. Cada sugestão deve ter:
+   - "title": Título curto da ação (max 60 chars)
+   - "priority": "alta", "media" ou "baixa"
+
+RESPONDA APENAS COM JSON VÁLIDO, sem markdown, sem code blocks. Exemplo:
+{"summary":"Texto do resumo...","suggestions":[{"title":"Aumentar investimento em Google Ads","priority":"alta"},{"title":"Criar conteúdo para blog","priority":"media"}]}`;
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -54,45 +55,78 @@ Sua tarefa agora é criar um RESUMO EXECUTIVO DO MÊS em 1 parágrafo curto (má
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: `Aqui estão os dados do mês atual do tenant:\n\n${metricsContext}\n\nGere o resumo executivo com sugestões.` },
+            { role: "user", content: `Dados do cliente:\n\n${metricsContext}\n\nGere o JSON com resumo e sugestões.` },
           ],
+          tools: [
+            {
+              type: "function",
+              function: {
+                name: "generate_summary",
+                description: "Generate a monthly summary with actionable suggestions for the client.",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    summary: { type: "string", description: "A short paragraph summarizing the month" },
+                    suggestions: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          title: { type: "string", description: "Short action title" },
+                          priority: { type: "string", enum: ["alta", "media", "baixa"] }
+                        },
+                        required: ["title", "priority"],
+                        additionalProperties: false
+                      }
+                    }
+                  },
+                  required: ["summary", "suggestions"],
+                  additionalProperties: false
+                }
+              }
+            }
+          ],
+          tool_choice: { type: "function", function: { name: "generate_summary" } },
         }),
       }
     );
 
     if (!response.ok) {
       if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições excedido." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Limite de requisições excedido." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Créditos insuficientes." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ error: "Créditos insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      return new Response(
-        JSON.stringify({ error: "Erro no serviço de IA" }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: "Erro no serviço de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     const data = await response.json();
-    const summary = data.choices?.[0]?.message?.content || "Não foi possível gerar o resumo.";
+    
+    // Extract from tool call response
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    if (toolCall?.function?.arguments) {
+      try {
+        const parsed = JSON.parse(toolCall.function.arguments);
+        return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      } catch {
+        // fallback
+      }
+    }
 
-    return new Response(
-      JSON.stringify({ summary }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // Fallback: try to parse content as JSON
+    const content = data.choices?.[0]?.message?.content || "";
+    try {
+      const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    } catch {
+      return new Response(JSON.stringify({ summary: content, suggestions: [] }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
   } catch (e) {
     console.error("dashboard-summary error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
