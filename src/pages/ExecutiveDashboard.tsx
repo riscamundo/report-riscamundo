@@ -285,7 +285,7 @@ export default function ExecutiveDashboard() {
           <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
         </StaggerContainer>
 
-        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           <StaggerItem><KPICard title="Clientes Ativos" value={clientesAtivos.toString()} icon={Briefcase} /></StaggerItem>
           <StaggerItem><KPICard title="Mensalidades/Mês" value={fmt(receitaMensalidades)} icon={Receipt} /></StaggerItem>
           <StaggerItem><KPICard title="A Receber" value={fmt(totalReceber)} subtitle={`${boletosPendentes.length} pendentes`} icon={Wallet} /></StaggerItem>

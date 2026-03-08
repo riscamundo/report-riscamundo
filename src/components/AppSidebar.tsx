@@ -42,11 +42,11 @@ export function AppSidebar() {
       <div className="p-5 flex items-center justify-between">
         {!collapsed && (
           <div className="flex flex-col items-start gap-1">
-            <a href="https://www.maestro.riscamundo.com.br" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-sidebar-foreground/50 hover:text-sidebar-foreground/80 uppercase tracking-[0.2em] transition-colors">
+            <a href="https://www.maestro.riscamundo.com.br" target="_blank" rel="noopener noreferrer" className="text-[10px] font-semibold text-sidebar-foreground/40 hover:text-sidebar-foreground/70 uppercase tracking-[0.25em] transition-colors">
               Riscamundo
             </a>
-            <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">REPORTS</h1>
-            <p className="text-[10px] text-sidebar-foreground/40 uppercase tracking-widest">Dashboard</p>
+            <h1 className="text-sm font-bold text-primary tracking-tight font-display">REPORTS</h1>
+            <p className="text-[9px] text-sidebar-foreground/30 uppercase tracking-[0.2em]">Dashboard</p>
           </div>
         )}
         {collapsed && (
