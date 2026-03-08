@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import EquipeDashboard from "./pages/EquipeDashboard";
 
 import MidiaPage from "./pages/MidiaPage";
 import FunilPage from "./pages/FunilPage";
