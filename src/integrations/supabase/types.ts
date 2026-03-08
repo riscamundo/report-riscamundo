@@ -61,6 +61,59 @@ export type Database = {
           },
         ]
       }
+      equipe_members: {
+        Row: {
+          created_at: string
+          equipe_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          equipe_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          equipe_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipe_members_equipe_id_fkey"
+            columns: ["equipe_id"]
+            isOneToOne: false
+            referencedRelation: "equipes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      equipes: {
+        Row: {
+          created_at: string
+          gestor_id: string
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          gestor_id: string
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          gestor_id?: string
+          id?: string
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           campanha_id: string | null
@@ -265,9 +318,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      in_same_equipe: {
+        Args: { _user_a: string; _user_b: string }
+        Returns: boolean
+      }
+      is_gestor_of: {
+        Args: { _gestor_id: string; _member_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      app_role: "master" | "equipe"
+      app_role: "master" | "gestor" | "equipe"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -395,7 +456,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["master", "equipe"],
+      app_role: ["master", "gestor", "equipe"],
     },
   },
 } as const
