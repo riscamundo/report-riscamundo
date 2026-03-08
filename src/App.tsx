@@ -19,6 +19,7 @@ import LoginPage from "./pages/LoginPage";
 import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
 import TenantsPage from "./pages/TenantsPage";
+import ContatosEmpresasPage from "./pages/ContatosEmpresasPage";
 
 const queryClient = new QueryClient();
 
