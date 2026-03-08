@@ -68,6 +68,11 @@ export default function ExecutiveDashboard() {
   const [clientes, setClientes] = useState<ClienteResumo[]>([]);
   const [financeiro, setFinanceiro] = useState<FinanceiroRow[]>([]);
   const [tarefasPendentes, setTarefasPendentes] = useState<TarefaPendente[]>([]);
+  const [contatos, setContatos] = useState<any[]>([]);
+  const [contatoOpen, setContatoOpen] = useState(false);
+  const [editContato, setEditContato] = useState<any | null>(null);
+  const [contatoSearch, setContatoSearch] = useState('');
+  const [contatoFilter, setContatoFilter] = useState('all');
 
   useEffect(() => {
     const fetchExtra = async () => {
