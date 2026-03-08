@@ -19,6 +19,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
 import { LlmMaestroTab } from '@/components/LlmMaestroTab';
 import { EmpresaContatoSearch } from '@/components/EmpresaContatoSearch';
+import { SalesManagerTab } from '@/components/SalesManagerTab';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
