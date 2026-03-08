@@ -102,6 +102,32 @@ export default function SeoConfigPage() {
 
   const getClienteName = (id: string) => clientes.find(c => c.id === id)?.nome || '—';
 
+  const estimateKeyword = async () => {
+    if (!kwForm.palavra_chave.trim()) { toast({ title: 'Digite a palavra-chave primeiro', variant: 'destructive' }); return; }
+    setEstimating(true);
+    try {
+      const clienteNome = kwForm.cliente_id ? clientes.find(c => c.id === kwForm.cliente_id)?.nome : undefined;
+      const { data, error } = await supabase.functions.invoke('keyword-estimate', {
+        body: { palavra_chave: kwForm.palavra_chave, nicho: clienteNome },
+      });
+      if (error) throw error;
+      if (data?.success && data.data) {
+        setKwForm(p => ({
+          ...p,
+          posicao_atual: data.data.posicao_estimada,
+          volume_busca: data.data.volume_busca,
+          dificuldade: data.data.dificuldade,
+        }));
+        toast({ title: 'Estimativas preenchidas pela IA!' });
+      } else {
+        toast({ title: 'Erro', description: data?.error || 'Falha na estimativa', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e.message || 'Falha ao estimar', variant: 'destructive' });
+    }
+    setEstimating(false);
+  };
+
   // Keyword handlers
   const openKw = (kw?: SeoKeyword) => {
     if (kw) { setEditingKw(kw); setKwForm({ ...kw, url_rankeada: kw.url_rankeada || '' }); }
