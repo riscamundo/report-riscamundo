@@ -20,7 +20,8 @@ import {
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
   Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
   Search, ExternalLink, MoveUp, MoveDown, Minus, Link2,
-  ListTodo, Circle, Loader2, CheckCircle, AlertTriangle, Plus, Sparkles, Send
+  ListTodo, Circle, Loader2, CheckCircle, AlertTriangle, Plus, Sparkles, Send,
+  MapPin, Star, Phone, Share2, Store, Activity, Wallet, Receipt, Lock, Unlock
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
