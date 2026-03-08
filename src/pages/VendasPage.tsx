@@ -6,7 +6,7 @@ import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/Animat
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,6 +18,7 @@ import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
 import { LlmMaestroTab } from '@/components/LlmMaestroTab';
+import { EmpresaContatoSearch } from '@/components/EmpresaContatoSearch';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
@@ -39,13 +40,18 @@ export default function VendasPage() {
   const [draggedLead, setDraggedLead] = useState<string | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
 
+  // Empresa/Contato state for Lead form
+  const [leadEmpresa, setLeadEmpresa] = useState<any>(null);
+  const [leadContato, setLeadContato] = useState<any>(null);
+  // Empresa/Contato state for Venda form
+  const [vendaEmpresa, setVendaEmpresa] = useState<any>(null);
+  const [vendaContato, setVendaContato] = useState<any>(null);
+
   const faturamento = calcFaturamentoMes(vendas);
   const ticketMedio = calcTicketMedio(vendas);
   const conversao = calcConversao(leads, vendas);
   const forecast = calcForecast(leads, vendas, procedimentos);
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
-
-  
 
   const forecastChart = [
     { nome: 'Realizado', valor: faturamento },
@@ -97,6 +103,8 @@ export default function VendasPage() {
     });
     setIsOpen(false);
     setSelectedLeadId('');
+    setVendaEmpresa(null);
+    setVendaContato(null);
   };
 
   const handleSaveLead = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -113,12 +121,33 @@ export default function VendasPage() {
       escopo_projeto: fd.get('escopo_projeto') as string || null,
     } as any);
     setIsLeadOpen(false);
+    setLeadEmpresa(null);
+    setLeadContato(null);
+  };
+
+  const resetLeadForm = (open: boolean) => {
+    setIsLeadOpen(open);
+    if (!open) { setLeadEmpresa(null); setLeadContato(null); }
+  };
+  const resetVendaForm = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) { setVendaEmpresa(null); setVendaContato(null); setSelectedLeadId(''); }
   };
 
   return (
     <DashboardLayout>
       <AnimatedPage>
-        <PageHeader title="Vendas & Forecast" subtitle="Controle de vendas, funil e projeções" />
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-6">
+          <PageHeader title="Vendas & Forecast" subtitle="Controle de vendas, funil e projeções" />
+          <div className="flex items-center gap-2">
+            <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold gap-1.5" onClick={() => resetLeadForm(true)}>
+              <Plus className="h-4 w-4" /> Novo Lead
+            </Button>
+            <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold gap-1.5" onClick={() => resetVendaForm(true)}>
+              <Plus className="h-4 w-4" /> Nova Venda
+            </Button>
+          </div>
+        </div>
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <StaggerItem><KPICard title="Faturamento Atual" value={fmt(faturamento)} icon={DollarSign} /></StaggerItem>
@@ -137,75 +166,16 @@ export default function VendasPage() {
 
           {/* ═══════ VENDAS TAB ═══════ */}
           <TabsContent value="vendas" className="space-y-4">
-            <div className="flex justify-end">
-              <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Registrar Venda</Button></DialogTrigger>
-                <DialogContent className="bg-card">
-                  <DialogHeader><DialogTitle className="font-display">Nova Venda</DialogTitle></DialogHeader>
-                  <form onSubmit={handleSave} className="space-y-4">
-                    <div><Label>Lead</Label>
-                      <Select name="lead" value={selectedLeadId} onValueChange={(val) => setSelectedLeadId(val)}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o lead..." /></SelectTrigger>
-                        <SelectContent>
-                          {leads.map(l => {
-                            const proc = procedimentos.find(p => p.id === l.procedimento_interesse);
-                            return (
-                              <SelectItem key={l.id} value={l.id}>
-                                {l.nome} {proc ? `· ${proc.nome_procedimento}` : ''} ({etapaLabels[l.status_funil as StatusFunil] || l.status_funil})
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                      {leads.length === 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">Nenhum lead cadastrado. Cadastre leads no funil primeiro.</p>
-                      )}
-                    </div>
-                    {(() => {
-                      const selectedLead = leads.find(l => l.id === selectedLeadId);
-                      const proc = selectedLead ? procedimentos.find(p => p.id === selectedLead.procedimento_interesse) : null;
-                      return selectedLead ? (
-                        <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5">
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-muted-foreground">Serviço:</span>
-                            <span className="font-medium">{proc?.nome_procedimento || '—'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-muted-foreground">Escopo do Projeto:</span>
-                            <span className="font-medium">{(selectedLead as any).escopo_projeto || '—'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-muted-foreground">Interesse:</span>
-                            <Badge variant="outline" className="text-[10px]">{selectedLead.nivel_interesse}</Badge>
-                          </div>
-                        </div>
-                      ) : null;
-                    })()}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><Label>Valor (R$)</Label><Input name="valor" type="number" required className="mt-1" /></div>
-                      <div><Label>Pagamento</Label>
-                        <Select name="pagamento" defaultValue="pix">
-                          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                          <SelectContent>{Object.entries(pagamentoLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <Button type="submit" className="w-full" disabled={leads.length === 0}>Salvar Venda</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-
             <Card className="mb-6">
               <CardHeader><CardTitle className="text-base font-sans">Projeção vs Realizado</CardTitle></CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={forecastChart}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 88%)" />
-                    <XAxis dataKey="nome" stroke="hsl(220, 15%, 45%)" fontSize={12} />
-                    <YAxis stroke="hsl(220, 15%, 45%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                    <Tooltip contentStyle={{ background: '#fff', border: '1px solid hsl(220, 15%, 88%)', borderRadius: '10px' }} formatter={(v: number) => fmt(v)} />
-                    <Bar dataKey="valor" fill="hsl(217, 91%, 60%)" radius={[6, 6, 0, 0]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="nome" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                    <Tooltip contentStyle={{ background: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '10px', color: 'hsl(var(--popover-foreground))' }} formatter={(v: number) => fmt(v)} />
+                    <Bar dataKey="valor" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -267,64 +237,10 @@ export default function VendasPage() {
           <TabsContent value="funil" className="space-y-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <p className="text-sm text-muted-foreground">{leads.length} leads no pipeline</p>
-              <Dialog open={isLeadOpen} onOpenChange={setIsLeadOpen}>
-                <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Novo Lead</Button></DialogTrigger>
-                <DialogContent className="bg-card">
-                  <DialogHeader><DialogTitle className="font-display">Novo Lead</DialogTitle></DialogHeader>
-                  <form onSubmit={handleSaveLead} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><Label>Nome *</Label><Input name="nome" required className="mt-1" /></div>
-                      <div><Label>Telefone</Label><Input name="telefone" placeholder="(00) 00000-0000" className="mt-1" /></div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div><Label>Origem</Label>
-                        <Select name="origem" defaultValue="Meta Ads">
-                          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Google Ads">Google Ads</SelectItem>
-                            <SelectItem value="Meta Ads">Meta Ads</SelectItem>
-                            <SelectItem value="Instagram Orgânico">Instagram Orgânico</SelectItem>
-                            <SelectItem value="Indicação">Indicação</SelectItem>
-                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                            <SelectItem value="Telefone">Telefone</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div><Label>Nível de Interesse</Label>
-                        <Select name="interesse" defaultValue="medio">
-                          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="alto">🔥 Alto</SelectItem>
-                            <SelectItem value="medio">⚡ Médio</SelectItem>
-                            <SelectItem value="baixo">💤 Baixo</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div><Label>Serviço de Interesse</Label>
-                      <Select name="procedimento" defaultValue={procedimentos.filter(p => p.status === 'ativo')[0]?.id}>
-                        <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o serviço..." /></SelectTrigger>
-                        <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                    <div><Label>Escopo do Projeto</Label><Input name="escopo_projeto" placeholder="Descreva o escopo do projeto..." className="mt-1" /></div>
-                    {campanhas.length > 0 && (
-                      <div><Label>Campanha</Label>
-                        <Select name="campanha" defaultValue={campanhas[0]?.id}>
-                          <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                          <SelectContent>{campanhas.map(c => <SelectItem key={c.id} value={c.id}>{c.nome_campanha}</SelectItem>)}</SelectContent>
-                        </Select>
-                      </div>
-                    )}
-                    <Button type="submit" className="w-full">Salvar Lead</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            </div>
-
-            <div className="relative max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Buscar por nome ou telefone..." value={funilSearch} onChange={e => setFunilSearch(e.target.value)} className="pl-9" />
+              <div className="relative max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar por nome ou telefone..." value={funilSearch} onChange={e => setFunilSearch(e.target.value)} className="pl-9" />
+              </div>
             </div>
 
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0">
@@ -387,6 +303,129 @@ export default function VendasPage() {
             <LlmMaestroTab />
           </TabsContent>
         </Tabs>
+
+        {/* ═══════ DIALOG: NOVO LEAD ═══════ */}
+        <Dialog open={isLeadOpen} onOpenChange={resetLeadForm}>
+          <DialogContent className="bg-card max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle className="font-display">Novo Lead</DialogTitle></DialogHeader>
+            <form onSubmit={handleSaveLead} className="space-y-4">
+              <EmpresaContatoSearch
+                selectedEmpresa={leadEmpresa}
+                selectedContato={leadContato}
+                onEmpresaSelected={setLeadEmpresa}
+                onContatoSelected={(c) => { setLeadContato(c); }}
+              />
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Nome *</Label><Input name="nome" required className="mt-1" defaultValue={leadContato?.nome || ''} /></div>
+                <div><Label>Telefone</Label><Input name="telefone" placeholder="(00) 00000-0000" className="mt-1" defaultValue={leadContato?.telefone || ''} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Origem</Label>
+                  <Select name="origem" defaultValue="Meta Ads">
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Google Ads">Google Ads</SelectItem>
+                      <SelectItem value="Meta Ads">Meta Ads</SelectItem>
+                      <SelectItem value="Instagram Orgânico">Instagram Orgânico</SelectItem>
+                      <SelectItem value="Indicação">Indicação</SelectItem>
+                      <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                      <SelectItem value="Telefone">Telefone</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Nível de Interesse</Label>
+                  <Select name="interesse" defaultValue="medio">
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alto">🔥 Alto</SelectItem>
+                      <SelectItem value="medio">⚡ Médio</SelectItem>
+                      <SelectItem value="baixo">💤 Baixo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div><Label>Serviço de Interesse</Label>
+                <Select name="procedimento" defaultValue={procedimentos.filter(p => p.status === 'ativo')[0]?.id}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o serviço..." /></SelectTrigger>
+                  <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
+                </Select>
+              </div>
+              <div><Label>Escopo do Projeto</Label><Input name="escopo_projeto" placeholder="Descreva o escopo do projeto..." className="mt-1" /></div>
+              {campanhas.length > 0 && (
+                <div><Label>Campanha</Label>
+                  <Select name="campanha" defaultValue={campanhas[0]?.id}>
+                    <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                    <SelectContent>{campanhas.map(c => <SelectItem key={c.id} value={c.id}>{c.nome_campanha}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">Salvar Lead</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* ═══════ DIALOG: NOVA VENDA ═══════ */}
+        <Dialog open={isOpen} onOpenChange={resetVendaForm}>
+          <DialogContent className="bg-card max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle className="font-display">Nova Venda</DialogTitle></DialogHeader>
+            <form onSubmit={handleSave} className="space-y-4">
+              <EmpresaContatoSearch
+                selectedEmpresa={vendaEmpresa}
+                selectedContato={vendaContato}
+                onEmpresaSelected={setVendaEmpresa}
+                onContatoSelected={setVendaContato}
+              />
+              <div><Label>Lead</Label>
+                <Select name="lead" value={selectedLeadId} onValueChange={(val) => setSelectedLeadId(val)}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o lead..." /></SelectTrigger>
+                  <SelectContent>
+                    {leads.map(l => {
+                      const proc = procedimentos.find(p => p.id === l.procedimento_interesse);
+                      return (
+                        <SelectItem key={l.id} value={l.id}>
+                          {l.nome} {proc ? `· ${proc.nome_procedimento}` : ''} ({etapaLabels[l.status_funil as StatusFunil] || l.status_funil})
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                {leads.length === 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">Nenhum lead cadastrado. Cadastre leads no funil primeiro.</p>
+                )}
+              </div>
+              {(() => {
+                const selectedLead = leads.find(l => l.id === selectedLeadId);
+                const proc = selectedLead ? procedimentos.find(p => p.id === selectedLead.procedimento_interesse) : null;
+                return selectedLead ? (
+                  <div className="rounded-lg border bg-muted/30 p-3 space-y-1.5">
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">Serviço:</span>
+                      <span className="font-medium">{proc?.nome_procedimento || '—'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">Escopo do Projeto:</span>
+                      <span className="font-medium">{(selectedLead as any).escopo_projeto || '—'}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">Interesse:</span>
+                      <Badge variant="outline" className="text-[10px]">{selectedLead.nivel_interesse}</Badge>
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Valor (R$)</Label><Input name="valor" type="number" required className="mt-1" /></div>
+                <div><Label>Pagamento</Label>
+                  <Select name="pagamento" defaultValue="pix">
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>{Object.entries(pagamentoLabels).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">Salvar Venda</Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </AnimatedPage>
     </DashboardLayout>
   );
