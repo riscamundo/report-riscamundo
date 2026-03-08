@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import KeywordResearchAgent from '@/components/KeywordResearchAgent';
 import TaskAnalyzerAgent from '@/components/TaskAnalyzerAgent';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
@@ -287,6 +288,7 @@ export default function ClientPortalPage() {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:block">{cliente?.nome || user?.email}</span>
+            <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
           </div>
         </div>
