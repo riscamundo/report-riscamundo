@@ -12,6 +12,7 @@ interface NavItem {
   url: string;
   icon: typeof LayoutDashboard;
   masterOnly?: boolean;
+  gestorAllowed?: boolean;
 }
 
 const allNavItems: NavItem[] = [
