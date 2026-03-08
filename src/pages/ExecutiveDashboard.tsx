@@ -622,8 +622,8 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Receita por Serviço */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Receita por Serviço</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita por Serviço</CardTitle></CardHeader>
             <CardContent>
               {receitaProc.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
