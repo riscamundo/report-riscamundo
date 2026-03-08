@@ -56,7 +56,7 @@ export default function ExecutiveDashboard() {
           </div>
         )}
 
-        <PageHeader title="Visão Executiva" subtitle="Dashboard de performance da clínica" />
+        <PageHeader title={isMaster ? "Visão Executiva — Todos os Clientes" : "Meu Dashboard"} subtitle={isMaster ? "Dados consolidados de toda a equipe" : "Seus leads e vendas"} />
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <StaggerItem><KPICard title="Faturamento" value={fmt(faturamento)} icon={DollarSign} /></StaggerItem>
