@@ -304,6 +304,11 @@ export default function VendasPage() {
           <TabsContent value="llm" className="space-y-4">
             <LlmMaestroTab />
           </TabsContent>
+
+          {/* ═══════ SALES MANAGER TAB ═══════ */}
+          <TabsContent value="sales-manager" className="space-y-4">
+            <SalesManagerTab />
+          </TabsContent>
         </Tabs>
 
         {/* ═══════ DIALOG: NOVO LEAD ═══════ */}
