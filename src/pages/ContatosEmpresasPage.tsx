@@ -184,6 +184,7 @@ export default function ContatosEmpresasPage() {
                           <SelectContent>
                             <SelectItem value="ativa">Ativa</SelectItem>
                             <SelectItem value="inativa">Inativa</SelectItem>
+                            <SelectItem value="pendencia_financeira">Pendência Financeira</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
