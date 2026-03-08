@@ -29,7 +29,7 @@ interface Anuncio { id: string; plataforma: string; tipo_anuncio: string; titulo
 interface SocialAccount { id: string; plataforma: string; username: string | null; url_perfil: string | null; seguidores: number; novos_seguidores_mes: number; engajamento_medio: number; alcance_medio: number; impressoes_mes: number; cliques_mes: number; posts_total: number; }
 interface MBProfile { id: string; nome_negocio: string; categoria: string | null; endereco: string | null; cidade: string | null; avaliacao_media: number; total_avaliacoes: number; visualizacoes_busca: number; visualizacoes_maps: number; cliques_site: number; cliques_ligacao: number; cliques_rota: number; fotos_count: number; }
 interface MBCompetitor { id: string; nome_concorrente: string; categoria: string | null; avaliacao_media: number; total_avaliacoes: number; distancia_km: number | null; }
-interface TarefaPendente { id: string; titulo: string; status: string; prioridade: string | null; cliente_id: string; updated_at: string; }
+interface TarefaPendente { id: string; titulo: string; descricao: string | null; status: string; prioridade: string | null; cliente_id: string; updated_at: string; }
 
 // ─── Constants ───
 const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
