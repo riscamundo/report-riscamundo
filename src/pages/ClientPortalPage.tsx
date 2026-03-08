@@ -249,6 +249,7 @@ export default function ClientPortalPage() {
     </Button>
   );
 
+  const MktKPI = ({ label, value, icon: Icon, delta, prefix }: { label: string; value: string; icon: React.ElementType; delta?: number; prefix?: string }) => (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-start justify-between">
