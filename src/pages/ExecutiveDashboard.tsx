@@ -119,6 +119,33 @@ export default function ExecutiveDashboard() {
     setContatos((data || []) as any[]);
   };
 
+  // ─── Fetch client reports when selected ───
+  const fetchClientReports = useCallback(async (cid: string) => {
+    if (!cid) return;
+    setReportLoading(true);
+    const [mktRes, kwRes, pgRes, anunciosRes, socialRes, mbRes, compRes] = await Promise.all([
+      supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
+      supabase.from('seo_keywords').select('*').eq('cliente_id', cid).order('posicao_atual', { ascending: true }),
+      supabase.from('seo_pages').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }),
+      supabase.from('anuncios').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+      supabase.from('social_media_accounts' as any).select('*').eq('cliente_id', cid),
+      supabase.from('mybusiness_profiles' as any).select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('mybusiness_competitors' as any).select('*').eq('cliente_id', cid),
+    ]);
+    setClientMarketing((mktRes.data || []) as any[]);
+    setClientSeoKeywords((kwRes.data || []) as any[]);
+    setClientSeoPages((pgRes.data || []) as any[]);
+    setClientAnuncios((anunciosRes.data || []) as any[]);
+    setClientSocial((socialRes.data || []) as any[]);
+    setClientMybusiness(mbRes.data || null);
+    setClientCompetitors((compRes.data || []) as any[]);
+    setReportLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (selectedClienteId) fetchClientReports(selectedClienteId);
+  }, [selectedClienteId, fetchClientReports]);
+
   const handleSaveContato = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
