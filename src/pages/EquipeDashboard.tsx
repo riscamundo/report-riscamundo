@@ -91,7 +91,7 @@ export default function EquipeDashboard() {
   const fetchClientData = useCallback(async (cid: string) => {
     if (!cid) return;
     setReportLoading(true);
-    const [mkt, kw, pg, an, soc, mb, comp, tar] = await Promise.all([
+    const [mkt, kw, pg, an, soc, mb, comp, tar, vRes, lRes] = await Promise.all([
       supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
       supabase.from('seo_keywords').select('*').eq('cliente_id', cid).order('posicao_atual', { ascending: true }),
       supabase.from('seo_pages').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }),
@@ -100,6 +100,8 @@ export default function EquipeDashboard() {
       supabase.from('mybusiness_profiles' as any).select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('mybusiness_competitors' as any).select('*').eq('cliente_id', cid),
       supabase.from('tarefas_cliente').select('*').eq('cliente_id', cid).order('updated_at', { ascending: false }),
+      supabase.from('vendas').select('*').order('data_venda', { ascending: false }),
+      supabase.from('leads').select('id, nome, origem, campanha_id, procedimento_interesse, status_funil'),
     ]);
     setClientMarketing((mkt.data || []) as MarketingReport[]);
     setClientKeywords((kw.data || []) as SeoKeyword[]);
@@ -109,6 +111,8 @@ export default function EquipeDashboard() {
     setClientMB(mb.data as unknown as MBProfile || null);
     setClientComp((comp.data || []) as unknown as MBCompetitor[]);
     setClientTarefas((tar.data || []) as TarefaPendente[]);
+    setVendas((vRes.data || []) as VendaRow[]);
+    setAllLeads((lRes.data || []) as LeadRow[]);
     setReportLoading(false);
   }, []);
 
