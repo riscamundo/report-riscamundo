@@ -124,6 +124,8 @@ export default function ClientPortalPage() {
   const [cliente, setCliente] = useState<ClienteData | null>(null);
   const [vendas, setVendas] = useState<VendaCliente[]>([]);
   const [marketing, setMarketing] = useState<MarketingReport[]>([]);
+  const [seoKeywords, setSeoKeywords] = useState<SeoKeyword[]>([]);
+  const [seoPages, setSeoPages] = useState<SeoPage[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
