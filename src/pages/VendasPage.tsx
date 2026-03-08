@@ -303,6 +303,7 @@ export default function VendasPage() {
                         <SelectContent>{procedimentos.filter(p => p.status === 'ativo').map(p => <SelectItem key={p.id} value={p.id}>{p.nome_procedimento}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
+                    <div><Label>Escopo do Projeto</Label><Input name="escopo_projeto" placeholder="Descreva o escopo do projeto..." className="mt-1" /></div>
                     {campanhas.length > 0 && (
                       <div><Label>Campanha</Label>
                         <Select name="campanha" defaultValue={campanhas[0]?.id}>
