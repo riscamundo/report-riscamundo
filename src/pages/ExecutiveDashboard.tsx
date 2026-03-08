@@ -323,9 +323,9 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Leads parados >24h */}
-          <Card className="border-border/60">
+          <Card className="executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Phone className="h-4 w-4 text-warning" /> Leads Sem Contato (&gt;24h)
                 {leadsParados.length > 0 && <Badge className="ml-auto text-[10px] bg-warning/20 text-warning border-0">{leadsParados.length}</Badge>}
               </CardTitle>
