@@ -99,7 +99,45 @@ export default function ExecutiveDashboard() {
     fetchExtra();
   }, []);
 
-  // KPIs
+  const refreshContatos = async () => {
+    const { data } = await supabase.from('contatos_ativacao' as any).select('*').order('proximo_contato', { ascending: true });
+    setContatos((data || []) as any[]);
+  };
+
+  const handleSaveContato = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      nome: fd.get('nome') as string,
+      telefone: fd.get('telefone') as string || null,
+      email: fd.get('email') as string || null,
+      origem: fd.get('origem') as string || 'manual',
+      motivo_inatividade: fd.get('motivo') as string || null,
+      ultimo_contato: fd.get('ultimo_contato') as string || null,
+      proximo_contato: fd.get('proximo_contato') as string || null,
+      status: fd.get('status') as string || 'pendente',
+      observacoes: fd.get('observacoes') as string || null,
+    };
+    if (editContato) {
+      const { error } = await supabase.from('contatos_ativacao' as any).update(payload).eq('id', editContato.id);
+      if (error) { toast.error('Erro ao atualizar'); return; }
+      toast.success('Contato atualizado!');
+    } else {
+      const { error } = await supabase.from('contatos_ativacao' as any).insert(payload);
+      if (error) { toast.error('Erro ao criar'); return; }
+      toast.success('Contato adicionado!');
+    }
+    setContatoOpen(false);
+    setEditContato(null);
+    refreshContatos();
+  };
+
+  const handleContatoStatus = async (id: string, status: string) => {
+    await supabase.from('contatos_ativacao' as any).update({ status }).eq('id', id);
+    refreshContatos();
+  };
+
+
   const faturamento = calcFaturamentoMes(vendas);
   const investimento = calcInvestimentoTotal(campanhas);
   const roi = calcROI(vendas, campanhas);
