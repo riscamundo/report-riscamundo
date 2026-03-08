@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import logoRiscamundo from '@/assets/logo-riscamundo.png';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
