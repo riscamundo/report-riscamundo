@@ -293,7 +293,7 @@ export default function ExecutiveDashboard() {
         </StaggerContainer>
 
         {/* ═══ FINANCEIRO + LEADS PARADOS ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Boletos vencidos por cliente */}
           <Card className="border-border/60">
             <CardHeader className="pb-2">
