@@ -33,6 +33,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend
 } from 'recharts';
+import { DashboardAiSummary } from '@/components/DashboardAiSummary';
 
 const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
 const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
@@ -318,6 +319,30 @@ export default function ExecutiveDashboard() {
     ? `Este mês você tem ${statusResumo.join(', ')}.`
     : 'Ainda não há dados registrados para este mês.';
 
+  // Build metrics context for AI summary
+  const aiMetricsContext = [
+    `Faturamento do mês: R$ ${faturamento.toFixed(2)}`,
+    `Investimento total em campanhas: R$ ${investimento.toFixed(2)}`,
+    `ROI: ${roi.toFixed(1)}%`,
+    `Ticket médio: R$ ${ticketMedio.toFixed(2)}`,
+    `Taxa de conversão: ${conversao.toFixed(1)}%`,
+    `Vendas fechadas no mês: ${vendasMes}`,
+    `Leads ativos no funil: ${leadsAtivos}`,
+    `Total de leads: ${leads.length}`,
+    `Clientes ativos: ${clientesAtivos}`,
+    `Clientes bloqueados: ${clientesBloqueados}`,
+    `Receita de mensalidades: R$ ${receitaMensalidades.toFixed(2)}`,
+    `Boletos vencidos: ${boletosVencidos.length} (R$ ${totalVencido.toFixed(2)})`,
+    `Boletos pendentes: ${boletosPendentes.length} (R$ ${totalReceber.toFixed(2)})`,
+    `Leads parados >24h: ${leadsParados.length}`,
+    `Alertas críticos: ${criticalAlerts.length}`,
+    `Procedimentos cadastrados: ${procedimentos.length}`,
+    `Campanhas ativas: ${campanhas.filter(c => c.status === 'ativo').length}`,
+    `Forecast: receita projetada mensal R$ ${forecast.receitaProjetadaMensal.toFixed(2)}, trimestral R$ ${forecast.receitaProjetadaTrimestral.toFixed(2)}`,
+    `Funil de leads: ${funilData.map(f => `${f.etapa}: ${f.count}`).join(', ')}`,
+    receitaProc.length > 0 ? `Receita por procedimento: ${receitaProc.map(r => `${r.nome}: R$ ${r.receita}`).join(', ')}` : null,
+  ].filter(Boolean).join('\n');
+
   return (
     <DashboardLayout>
       <AnimatedPage>
@@ -327,6 +352,9 @@ export default function ExecutiveDashboard() {
           </h1>
           <p className="text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">{statusText}</p>
         </div>
+
+        {/* ═══ RESUMO IA MAESTRO BI ═══ */}
+        <DashboardAiSummary metricsContext={aiMetricsContext} />
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (
