@@ -71,7 +71,7 @@ export default function ClientPortalPage() {
   // Dialogs
   const [showNewTarefa, setShowNewTarefa] = useState(false);
   const [showNewAnuncio, setShowNewAnuncio] = useState(false);
-  const [showAiGenerator, _setShowAiGenerator] = useState(false);
+  
   const [activePlatform, setActivePlatform] = useState<Platform>('google');
 
   // New tarefa form
