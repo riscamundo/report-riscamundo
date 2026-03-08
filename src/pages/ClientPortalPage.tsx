@@ -933,6 +933,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MARKETING TAB ═══════════ */}
             <TabsContent value="marketing" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Marketing" /></div>
               {marketing.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><BarChart3 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Marketing Digital</h3><p className="text-sm text-muted-foreground">Seus relatórios de marketing aparecerão aqui em breve.</p></CardContent></Card>
               ) : (
