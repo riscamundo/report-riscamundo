@@ -259,6 +259,7 @@ export default function TenantsPage() {
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><ListTodo className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Tarefas</p><p className="text-xl font-bold">{tenantData.tarefas.length}</p></div></CardContent></Card></StaggerItem>
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><Globe className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Redes Sociais</p><p className="text-xl font-bold">{tenantData.socialAccounts.length}</p></div></CardContent></Card></StaggerItem>
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><Wallet className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Cobranças</p><p className="text-xl font-bold">{tenantData.financeiro.length}</p></div></CardContent></Card></StaggerItem>
+                  <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><FileText className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Procedimentos</p><p className="text-xl font-bold">{tenantData.procedimentos.length}</p></div></CardContent></Card></StaggerItem>
                 </StaggerContainer>
 
                 {/* Marketing charts */}
