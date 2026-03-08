@@ -186,11 +186,11 @@ export default function MidiaPage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={roiData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                    <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
-                    <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                    <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => `${v.toFixed(1)}x`} />
-                    <Bar dataKey="roi" fill="hsl(150, 50%, 45%)" radius={[4, 4, 0, 0]} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 88%)" />
+                    <XAxis dataKey="nome" stroke="hsl(220, 15%, 45%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="hsl(220, 15%, 45%)" fontSize={12} />
+                    <Tooltip contentStyle={{ background: '#fff', border: '1px solid hsl(220, 15%, 88%)', borderRadius: '8px' }} formatter={(v: number) => `${v.toFixed(1)}x`} />
+                    <Bar dataKey="roi" fill="hsl(160, 84%, 39%)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
