@@ -1053,7 +1053,6 @@ export default function ExecutiveDashboard() {
                 )}
               </TabsContent>
             </Tabs>
-          )
         )}
 
       </AnimatedPage>
