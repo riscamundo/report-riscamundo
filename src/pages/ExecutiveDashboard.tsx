@@ -245,6 +245,16 @@ export default function ExecutiveDashboard() {
 
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
 
+  // Tenant connections (hooks must be before early returns)
+  const [tenantConnections, setTenantConnections] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchConnections = async () => {
+      const { data } = await supabase.from('tenant_connections').select('*, clientes(nome)').order('created_at');
+      setTenantConnections((data || []) as any[]);
+    };
+    fetchConnections();
+  }, []);
+
   if (loading) {
     return (
       <DashboardLayout>
