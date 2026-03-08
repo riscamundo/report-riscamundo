@@ -103,7 +103,7 @@ export default function ContatosEmpresasPage() {
       empresa_id: (fd.get('empresa_id') as string) || null,
     };
     if (data.empresa_id === 'none') data.empresa_id = null;
-    if (editContato) {
+    if (editContato?.id) {
       const { error } = await supabase.from('contatos_ativacao' as any).update(data).eq('id', editContato.id);
       if (error) { toast.error('Erro ao atualizar contato'); return; }
       toast.success('Contato atualizado!');
