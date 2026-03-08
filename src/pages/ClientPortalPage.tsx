@@ -108,13 +108,18 @@ export default function ClientPortalPage() {
       setVendas((vendasRes.data || []) as VendaCliente[]);
 
       if (clienteRes.data?.id) {
-        const [mktRes, kwRes, pgRes, tarefasRes, anunciosRes, studiesRes] = await Promise.all([
-          supabase.from('marketing_reports').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: true }),
-          supabase.from('seo_keywords').select('*').eq('cliente_id', clienteRes.data.id).order('posicao_atual', { ascending: true }),
-          supabase.from('seo_pages').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: false }),
-          supabase.from('tarefas_cliente').select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
-          supabase.from('anuncios').select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
-          supabase.from('ad_studies' as any).select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
+        const cid = clienteRes.data.id;
+        const [mktRes, kwRes, pgRes, tarefasRes, anunciosRes, studiesRes, socialRes, mbRes, compRes, finRes] = await Promise.all([
+          supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
+          supabase.from('seo_keywords').select('*').eq('cliente_id', cid).order('posicao_atual', { ascending: true }),
+          supabase.from('seo_pages').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }),
+          supabase.from('tarefas_cliente').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('anuncios').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('ad_studies' as any).select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
+          supabase.from('social_media_accounts' as any).select('*').eq('cliente_id', cid),
+          supabase.from('mybusiness_profiles' as any).select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: false }).limit(1).maybeSingle(),
+          supabase.from('mybusiness_competitors' as any).select('*').eq('cliente_id', cid),
+          supabase.from('financeiro' as any).select('*').eq('cliente_id', cid).order('data_vencimento', { ascending: false }),
         ]);
         setMarketing((mktRes.data || []) as MarketingReport[]);
         setSeoKeywords((kwRes.data || []) as SeoKeyword[]);
@@ -122,6 +127,10 @@ export default function ClientPortalPage() {
         setTarefas((tarefasRes.data || []) as TarefaCliente[]);
         setAnuncios((anunciosRes.data || []) as Anuncio[]);
         setAdStudies((studiesRes.data || []) as unknown as AdStudy[]);
+        setSocialAccounts((socialRes.data || []) as unknown as SocialMediaAccount[]);
+        setMybusiness((mbRes.data as unknown as MyBusinessProfile) || null);
+        setCompetitors((compRes.data || []) as unknown as MyBusinessCompetitor[]);
+        setFinanceiro((finRes.data || []) as unknown as FinanceiroRecord[]);
       }
       setLoading(false);
     };
