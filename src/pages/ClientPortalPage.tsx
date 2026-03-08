@@ -255,8 +255,8 @@ export default function ClientPortalPage() {
     </Card>
   );
 
-  const currentPlatformAds = anunciosByPlatform[activePlatform];
-  const currentPlatformInfo = PLATFORMS.find(p => p.id === activePlatform)!;
+  const currentPlatformAds = activePlatform === 'all' ? anuncios : anunciosByPlatform[activePlatform];
+  const currentPlatformInfo = activePlatform === 'all' ? null : PLATFORMS.find(p => p.id === activePlatform)!;
 
   return (
     <div className="min-h-screen bg-background">
