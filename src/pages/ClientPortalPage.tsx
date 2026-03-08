@@ -733,8 +733,8 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ SEO TAB ═══════════ */}
             <TabsContent value="seo" className="space-y-6">
-              {/* Keyword Research Agent */}
-              <KeywordResearchAgent clienteNome={cliente?.nome} />
+              {/* Keyword Research Agent - only for master */}
+              {isMaster && <KeywordResearchAgent clienteNome={cliente?.nome} />}
 
               {seoKeywords.length === 0 && seoPages.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Search className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">SEO & Palavras-Chave</h3><p className="text-sm text-muted-foreground">Seus dados de SEO aparecerão aqui em breve.</p></CardContent></Card>
