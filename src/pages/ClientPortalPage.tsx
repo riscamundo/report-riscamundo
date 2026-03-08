@@ -688,38 +688,43 @@ export default function ClientPortalPage() {
               </Card>
 
 
-              {/* ── Saved AI studies for this platform ── */}
-              {studiesByPlatform[activePlatform].length > 0 && (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-primary" /> Estudos Salvos — {currentPlatformInfo.label}
-                      <Badge variant="outline" className="ml-auto">{studiesByPlatform[activePlatform].length}</Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {studiesByPlatform[activePlatform].map((study, idx) => (
-                      <details key={study.id} className="group rounded-lg border p-3 hover:bg-muted/20 transition-colors">
-                        <summary className="flex items-center gap-3 cursor-pointer list-none">
-                          <Sparkles className="h-4 w-4 text-primary shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="font-medium">Estudo #{studiesByPlatform[activePlatform].length - idx}</span>
-                              {study.segmento && <Badge variant="outline" className="text-[10px]">{study.segmento}</Badge>}
-                              {study.produto && <Badge variant="outline" className="text-[10px]">{study.produto}</Badge>}
-                              {study.objetivo && <Badge variant="secondary" className="text-[10px]">{study.objetivo}</Badge>}
+              {/* ── Saved AI studies ── */}
+              {(() => {
+                const currentStudies = activePlatform === 'all' ? adStudies : studiesByPlatform[activePlatform];
+                if (currentStudies.length === 0) return null;
+                return (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" /> Estudos Salvos {currentPlatformInfo ? `— ${currentPlatformInfo.label}` : ''}
+                        <Badge variant="outline" className="ml-auto">{currentStudies.length}</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {currentStudies.map((study, idx) => (
+                        <details key={study.id} className="group rounded-lg border p-3 hover:bg-muted/20 transition-colors">
+                          <summary className="flex items-center gap-3 cursor-pointer list-none">
+                            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium">Estudo #{currentStudies.length - idx}</span>
+                                {activePlatform === 'all' && <Badge variant="outline" className="text-[10px]">{study.plataforma}</Badge>}
+                                {study.segmento && <Badge variant="outline" className="text-[10px]">{study.segmento}</Badge>}
+                                {study.produto && <Badge variant="outline" className="text-[10px]">{study.produto}</Badge>}
+                                {study.objetivo && <Badge variant="secondary" className="text-[10px]">{study.objetivo}</Badge>}
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{new Date(study.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{new Date(study.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                          </div>
-                          <span className="text-xs text-muted-foreground group-open:hidden">Expandir</span>
-                          <span className="text-xs text-muted-foreground hidden group-open:inline">Recolher</span>
-                        </summary>
-                        <div className="mt-3 pt-3 border-t prose prose-sm max-w-none text-sm whitespace-pre-wrap">{study.resultado}</div>
-                      </details>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                            <span className="text-xs text-muted-foreground group-open:hidden">Expandir</span>
+                            <span className="text-xs text-muted-foreground hidden group-open:inline">Recolher</span>
+                          </summary>
+                          <div className="mt-3 pt-3 border-t prose prose-sm max-w-none text-sm whitespace-pre-wrap">{study.resultado}</div>
+                        </details>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {/* Investment by platform chart */}
               {anuncios.length > 0 && (
