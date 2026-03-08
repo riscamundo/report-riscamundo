@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Plus, Edit2, Trash2, Search, Hash, Link2, MoveUp, MoveDown, Minus } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Hash, Link2, MoveUp, MoveDown, Minus, Sparkles, Loader2 } from 'lucide-react';
 
 interface Cliente { id: string; nome: string; }
 
@@ -85,6 +85,7 @@ export default function SeoConfigPage() {
   const [editingPg, setEditingPg] = useState<SeoPage | null>(null);
   const [kwForm, setKwForm] = useState(emptyKeyword);
   const [pgForm, setPgForm] = useState(emptyPage);
+  const [estimating, setEstimating] = useState(false);
 
   const fetchData = async () => {
     const [cRes, kwRes, pgRes] = await Promise.all([
@@ -100,6 +101,32 @@ export default function SeoConfigPage() {
   useEffect(() => { fetchData(); }, []);
 
   const getClienteName = (id: string) => clientes.find(c => c.id === id)?.nome || '—';
+
+  const estimateKeyword = async () => {
+    if (!kwForm.palavra_chave.trim()) { toast({ title: 'Digite a palavra-chave primeiro', variant: 'destructive' }); return; }
+    setEstimating(true);
+    try {
+      const clienteNome = kwForm.cliente_id ? clientes.find(c => c.id === kwForm.cliente_id)?.nome : undefined;
+      const { data, error } = await supabase.functions.invoke('keyword-estimate', {
+        body: { palavra_chave: kwForm.palavra_chave, nicho: clienteNome },
+      });
+      if (error) throw error;
+      if (data?.success && data.data) {
+        setKwForm(p => ({
+          ...p,
+          posicao_atual: data.data.posicao_estimada,
+          volume_busca: data.data.volume_busca,
+          dificuldade: data.data.dificuldade,
+        }));
+        toast({ title: 'Estimativas preenchidas pela IA!' });
+      } else {
+        toast({ title: 'Erro', description: data?.error || 'Falha na estimativa', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Erro', description: e.message || 'Falha ao estimar', variant: 'destructive' });
+    }
+    setEstimating(false);
+  };
 
   // Keyword handlers
   const openKw = (kw?: SeoKeyword) => {
@@ -359,7 +386,15 @@ export default function SeoConfigPage() {
               </div>
               <div>
                 <Label>Palavra-Chave *</Label>
-                <Input value={kwForm.palavra_chave} onChange={e => setKwForm(p => ({ ...p, palavra_chave: e.target.value }))} required className="mt-1" placeholder="ex: harmonização facial SP" />
+                <div className="flex gap-2 mt-1">
+                  <Input value={kwForm.palavra_chave} onChange={e => setKwForm(p => ({ ...p, palavra_chave: e.target.value }))} required placeholder="ex: harmonização facial SP" className="flex-1" />
+                  {!editingKw && (
+                    <Button type="button" variant="outline" size="sm" onClick={estimateKeyword} disabled={estimating || !kwForm.palavra_chave.trim()} className="gap-1.5 shrink-0">
+                      {estimating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {estimating ? 'Estimando...' : 'Estimar com IA'}
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
