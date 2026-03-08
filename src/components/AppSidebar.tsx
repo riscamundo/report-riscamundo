@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import logoRiscamundo from '@/assets/logo-riscamundo.png';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -39,16 +38,18 @@ export function AppSidebar() {
     <>
       <div className="p-5 flex items-center justify-between">
         {!collapsed && (
-          <div className="flex flex-col items-start gap-2">
-            <img src={logoRiscamundo} alt="Riscamundo" className="h-7 brightness-0 invert opacity-90" />
-            <div>
-              <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">REPORTS</h1>
-              <p className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest">Dashboard</p>
-            </div>
+          <div className="flex flex-col items-start gap-1">
+            <a href="https://www.maestro.riscamundo.com.br" target="_blank" rel="noopener noreferrer" className="text-[11px] font-semibold text-sidebar-foreground/50 hover:text-sidebar-foreground/80 uppercase tracking-[0.2em] transition-colors">
+              Riscamundo
+            </a>
+            <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">REPORTS</h1>
+            <p className="text-[10px] text-sidebar-foreground/40 uppercase tracking-widest">Dashboard</p>
           </div>
         )}
         {collapsed && (
-          <img src={logoRiscamundo} alt="Riscamundo" className="h-6 brightness-0 invert opacity-90 mx-auto" />
+          <a href="https://www.maestro.riscamundo.com.br" target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-sidebar-foreground/50 hover:text-sidebar-foreground/80 uppercase tracking-widest mx-auto transition-colors">
+            R
+          </a>
         )}
         <button onClick={() => { setCollapsed(!collapsed); setMobileOpen(false); }} className="p-1.5 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors hidden md:block">
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
