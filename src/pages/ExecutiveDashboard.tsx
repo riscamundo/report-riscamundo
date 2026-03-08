@@ -76,10 +76,11 @@ export default function ExecutiveDashboard() {
 
   useEffect(() => {
     const fetchExtra = async () => {
-      const [cRes, fRes, tRes] = await Promise.all([
+      const [cRes, fRes, tRes, ctRes] = await Promise.all([
         supabase.from('clientes').select('id, nome, status, mensalidade_valor, acesso_liberado').order('nome'),
         supabase.from('financeiro' as any).select('id, cliente_id, valor, status, data_vencimento, descricao, tipo').order('data_vencimento', { ascending: false }).limit(200),
         supabase.from('tarefas_cliente').select('id, titulo, status, prioridade, updated_at, cliente_id').neq('status', 'pronta').order('updated_at', { ascending: true }).limit(20),
+        supabase.from('contatos_ativacao' as any).select('*').order('proximo_contato', { ascending: true }),
       ]);
       setClientes((cRes.data || []) as ClienteResumo[]);
       setFinanceiro((fRes.data || []) as unknown as FinanceiroRow[]);
