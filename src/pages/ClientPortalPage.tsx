@@ -370,6 +370,118 @@ export default function ClientPortalPage() {
               <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
 
+            {/* ═══════════ TAREFAS TAB ═══════════ */}
+            <TabsContent value="tarefas" className="space-y-6">
+              {tarefas.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <ListTodo className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" />
+                    <h3 className="text-sm font-semibold mb-1">Tarefas</h3>
+                    <p className="text-sm text-muted-foreground">Suas tarefas aparecerão aqui em breve.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  {/* Tarefas KPIs */}
+                  {(() => {
+                    const fazendo = tarefas.filter(t => t.status === 'fazendo').length;
+                    const esperando = tarefas.filter(t => t.status === 'esperando').length;
+                    const pronta = tarefas.filter(t => t.status === 'pronta').length;
+                    const verificar = tarefas.filter(t => t.status === 'verificar').length;
+                    return (
+                      <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <StaggerItem>
+                          <Card className="border-l-4 border-l-primary">
+                            <CardContent className="p-4 flex items-center gap-3">
+                              <div className="p-2 rounded-xl bg-primary/10"><Loader2 className="h-4 w-4 text-primary" /></div>
+                              <div><p className="text-xs text-muted-foreground">Fazendo</p><p className="text-xl font-bold">{fazendo}</p></div>
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                        <StaggerItem>
+                          <Card className="border-l-4 border-l-warning">
+                            <CardContent className="p-4 flex items-center gap-3">
+                              <div className="p-2 rounded-xl bg-warning/10"><Circle className="h-4 w-4 text-warning" /></div>
+                              <div><p className="text-xs text-muted-foreground">Esperando</p><p className="text-xl font-bold">{esperando}</p></div>
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                        <StaggerItem>
+                          <Card className="border-l-4 border-l-accent">
+                            <CardContent className="p-4 flex items-center gap-3">
+                              <div className="p-2 rounded-xl bg-accent/10"><CheckCircle className="h-4 w-4 text-accent" /></div>
+                              <div><p className="text-xs text-muted-foreground">Pronta</p><p className="text-xl font-bold">{pronta}</p></div>
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                        <StaggerItem>
+                          <Card className="border-l-4 border-l-[hsl(var(--chart-3))]">
+                            <CardContent className="p-4 flex items-center gap-3">
+                              <div className="p-2 rounded-xl bg-chart-3/10"><AlertTriangle className="h-4 w-4 text-[hsl(var(--chart-3))]" /></div>
+                              <div><p className="text-xs text-muted-foreground">Verificar</p><p className="text-xl font-bold">{verificar}</p></div>
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                      </StaggerContainer>
+                    );
+                  })()}
+
+                  {/* Tarefas grouped by status */}
+                  {(['fazendo', 'esperando', 'verificar', 'pronta'] as const).map(status => {
+                    const items = tarefas.filter(t => t.status === status);
+                    if (items.length === 0) return null;
+                    const config: Record<string, { label: string; icon: React.ElementType; color: string; bg: string }> = {
+                      fazendo: { label: 'Fazendo', icon: Loader2, color: 'text-primary', bg: 'bg-primary/5 border-primary/20' },
+                      esperando: { label: 'Esperando', icon: Circle, color: 'text-warning', bg: 'bg-warning/5 border-warning/20' },
+                      pronta: { label: 'Pronta', icon: CheckCircle, color: 'text-accent', bg: 'bg-accent/5 border-accent/20' },
+                      verificar: { label: 'Verificar', icon: AlertTriangle, color: 'text-[hsl(var(--chart-3))]', bg: 'bg-chart-3/5 border-[hsl(var(--chart-3))]/20' },
+                    };
+                    const c = config[status];
+                    const StatusIcon = c.icon;
+                    return (
+                      <Card key={status}>
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <StatusIcon className={`h-4 w-4 ${c.color}`} /> {c.label}
+                            <Badge variant="outline" className="ml-auto text-xs">{items.length}</Badge>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2">
+                            {items.map(t => (
+                              <motion.div
+                                key={t.id}
+                                initial={{ opacity: 0, y: 5 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={`p-3 rounded-lg border ${c.bg} transition-colors`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <StatusIcon className={`h-4 w-4 ${c.color} mt-0.5 shrink-0`} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium">{t.titulo}</p>
+                                    {t.descricao && <p className="text-xs text-muted-foreground mt-1">{t.descricao}</p>}
+                                    <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
+                                      <CalendarDays className="h-3 w-3" />
+                                      {new Date(t.created_at).toLocaleDateString('pt-BR')}
+                                      {t.prioridade && t.prioridade !== 'media' && (
+                                        <Badge variant="outline" className={`text-[10px] py-0 ${t.prioridade === 'alta' ? 'text-destructive border-destructive' : 'text-muted-foreground'}`}>
+                                          {t.prioridade === 'alta' ? 'Alta' : t.prioridade === 'baixa' ? 'Baixa' : 'Média'}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </>
+              )}
+            </TabsContent>
+
             {/* ═══════════ PROCEDIMENTOS TAB ═══════════ */}
             <TabsContent value="procedimentos" className="space-y-6">
               {/* KPI Cards */}
