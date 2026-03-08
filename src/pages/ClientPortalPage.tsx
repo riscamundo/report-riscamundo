@@ -459,81 +459,41 @@ export default function ClientPortalPage() {
             <TabsContent value="anuncios" className="space-y-6">
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
-                <div className="flex gap-2">
-                  <Dialog open={showAiGenerator} onOpenChange={setShowAiGenerator}>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1.5"><Sparkles className="h-4 w-4" /> Gerador IA</Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-                      <DialogHeader><DialogTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" /> Gerador de Anúncios com IA</DialogTitle></DialogHeader>
-                      <div className="space-y-4 pt-2">
-                        <p className="text-sm text-muted-foreground">O agente especialista irá pesquisar SEO, volumes de busca e gerar sugestões otimizadas para <strong>{currentPlatformInfo.label}</strong>.</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                          <div><Label>Segmento / Nicho</Label><Input value={aiForm.segmento} onChange={e => setAiForm(p => ({ ...p, segmento: e.target.value }))} placeholder="Ex: Clínica de estética" /></div>
-                          <div><Label>Produto / Serviço</Label><Input value={aiForm.produto} onChange={e => setAiForm(p => ({ ...p, produto: e.target.value }))} placeholder="Ex: Harmonização facial" /></div>
-                        </div>
-                        <div><Label>Objetivo</Label>
-                          <Select value={aiForm.objetivo} onValueChange={v => setAiForm(p => ({ ...p, objetivo: v }))}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Conversão">Conversão</SelectItem>
-                              <SelectItem value="Tráfego">Tráfego</SelectItem>
-                              <SelectItem value="Reconhecimento de marca">Reconhecimento de marca</SelectItem>
-                              <SelectItem value="Geração de leads">Geração de leads</SelectItem>
-                              <SelectItem value="Vendas">Vendas</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <Button onClick={handleAiGenerate} disabled={aiLoading} className="w-full gap-2">
-                          {aiLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando sugestões...</> : <><Send className="h-4 w-4" /> Gerar Sugestões para {currentPlatformInfo.label}</>}
-                        </Button>
-                        {aiResult && (
-                          <Card className="bg-muted/30">
-                            <CardContent className="p-4">
-                              <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Sugestões do Especialista</h4>
-                              <div className="prose prose-sm max-w-none text-sm whitespace-pre-wrap">{aiResult}</div>
-                            </CardContent>
-                          </Card>
-                        )}
+                <Dialog open={showNewAnuncio} onOpenChange={setShowNewAnuncio}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Novo Anúncio</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader><DialogTitle>Novo Anúncio</DialogTitle></DialogHeader>
+                    <div className="space-y-4 pt-2">
+                      <div><Label>Plataforma *</Label>
+                        <Select value={newAnuncio.plataforma} onValueChange={v => setNewAnuncio(p => ({ ...p, plataforma: v as Platform, tipo_anuncio: '' }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>{PLATFORMS.map(p => <SelectItem key={p.id} value={p.id}>{p.icon} {p.label}</SelectItem>)}</SelectContent>
+                        </Select>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                  <Dialog open={showNewAnuncio} onOpenChange={setShowNewAnuncio}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Novo Anúncio</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader><DialogTitle>Novo Anúncio</DialogTitle></DialogHeader>
-                      <div className="space-y-4 pt-2">
-                        <div><Label>Plataforma *</Label>
-                          <Select value={newAnuncio.plataforma} onValueChange={v => setNewAnuncio(p => ({ ...p, plataforma: v as Platform, tipo_anuncio: '' }))}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>{PLATFORMS.map(p => <SelectItem key={p.id} value={p.id}>{p.icon} {p.label}</SelectItem>)}</SelectContent>
-                          </Select>
-                        </div>
-                        <div><Label>Tipo de Anúncio *</Label>
-                          <Select value={newAnuncio.tipo_anuncio} onValueChange={v => setNewAnuncio(p => ({ ...p, tipo_anuncio: v }))}>
-                            <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
-                            <SelectContent>{PLATFORMS.find(p => p.id === newAnuncio.plataforma)?.types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                          </Select>
-                        </div>
-                        <div><Label>Título *</Label><Input value={newAnuncio.titulo} onChange={e => setNewAnuncio(p => ({ ...p, titulo: e.target.value }))} placeholder="Título do anúncio" /></div>
-                        <div><Label>Descrição</Label><Textarea value={newAnuncio.descricao} onChange={e => setNewAnuncio(p => ({ ...p, descricao: e.target.value }))} rows={2} /></div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div><Label>Investimento (R$)</Label><Input type="number" value={newAnuncio.investimento} onChange={e => setNewAnuncio(p => ({ ...p, investimento: e.target.value }))} /></div>
-                          <div><Label>URL Destino</Label><Input value={newAnuncio.url_destino} onChange={e => setNewAnuncio(p => ({ ...p, url_destino: e.target.value }))} /></div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div><Label>Data Início</Label><Input type="date" value={newAnuncio.data_inicio} onChange={e => setNewAnuncio(p => ({ ...p, data_inicio: e.target.value }))} /></div>
-                          <div><Label>Data Fim</Label><Input type="date" value={newAnuncio.data_fim} onChange={e => setNewAnuncio(p => ({ ...p, data_fim: e.target.value }))} /></div>
-                        </div>
-                        <Button onClick={handleSaveAnuncio} disabled={savingAnuncio || !newAnuncio.titulo.trim() || !newAnuncio.tipo_anuncio} className="w-full">
-                          {savingAnuncio ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Anúncio'}
-                        </Button>
+                      <div><Label>Tipo de Anúncio *</Label>
+                        <Select value={newAnuncio.tipo_anuncio} onValueChange={v => setNewAnuncio(p => ({ ...p, tipo_anuncio: v }))}>
+                          <SelectTrigger><SelectValue placeholder="Selecione o tipo" /></SelectTrigger>
+                          <SelectContent>{PLATFORMS.find(p => p.id === newAnuncio.plataforma)?.types.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                        </Select>
                       </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                      <div><Label>Título *</Label><Input value={newAnuncio.titulo} onChange={e => setNewAnuncio(p => ({ ...p, titulo: e.target.value }))} placeholder="Título do anúncio" /></div>
+                      <div><Label>Descrição</Label><Textarea value={newAnuncio.descricao} onChange={e => setNewAnuncio(p => ({ ...p, descricao: e.target.value }))} rows={2} /></div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div><Label>Investimento (R$)</Label><Input type="number" value={newAnuncio.investimento} onChange={e => setNewAnuncio(p => ({ ...p, investimento: e.target.value }))} /></div>
+                        <div><Label>URL Destino</Label><Input value={newAnuncio.url_destino} onChange={e => setNewAnuncio(p => ({ ...p, url_destino: e.target.value }))} /></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div><Label>Data Início</Label><Input type="date" value={newAnuncio.data_inicio} onChange={e => setNewAnuncio(p => ({ ...p, data_inicio: e.target.value }))} /></div>
+                        <div><Label>Data Fim</Label><Input type="date" value={newAnuncio.data_fim} onChange={e => setNewAnuncio(p => ({ ...p, data_fim: e.target.value }))} /></div>
+                      </div>
+                      <Button onClick={handleSaveAnuncio} disabled={savingAnuncio || !newAnuncio.titulo.trim() || !newAnuncio.tipo_anuncio} className="w-full">
+                        {savingAnuncio ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Anúncio'}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
 
               {/* Platform summary cards */}
@@ -574,7 +534,7 @@ export default function ClientPortalPage() {
                     <div className="text-center py-8 text-muted-foreground">
                       <Megaphone className="h-8 w-8 mx-auto mb-2 opacity-40" />
                       <p className="text-sm">Nenhum anúncio em {currentPlatformInfo.label} ainda.</p>
-                      <p className="text-xs mt-1">Clique em "Novo Anúncio" ou use o "Gerador IA" para começar.</p>
+                      <p className="text-xs mt-1">Clique em "Novo Anúncio" para criar ou use o Gerador IA abaixo.</p>
                     </div>
                   ) : (
                     <div className="space-y-3">
@@ -624,6 +584,78 @@ export default function ClientPortalPage() {
                   )}
                 </CardContent>
               </Card>
+
+              {/* ── AI Generator inline per platform ── */}
+              <Card className="border-primary/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" /> Gerador IA — {currentPlatformInfo.label}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">Especialista em mídia paga analisa SEO, volumes de busca e gera sugestões otimizadas para {currentPlatformInfo.label}.</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div><Label className="text-xs">Segmento / Nicho</Label><Input value={aiForm.segmento} onChange={e => setAiForm(p => ({ ...p, segmento: e.target.value }))} placeholder="Ex: Clínica de estética" className="h-9 text-sm" /></div>
+                    <div><Label className="text-xs">Produto / Serviço</Label><Input value={aiForm.produto} onChange={e => setAiForm(p => ({ ...p, produto: e.target.value }))} placeholder="Ex: Harmonização facial" className="h-9 text-sm" /></div>
+                    <div><Label className="text-xs">Objetivo</Label>
+                      <Select value={aiForm.objetivo} onValueChange={v => setAiForm(p => ({ ...p, objetivo: v }))}>
+                        <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Conversão">Conversão</SelectItem>
+                          <SelectItem value="Tráfego">Tráfego</SelectItem>
+                          <SelectItem value="Reconhecimento de marca">Reconhecimento de marca</SelectItem>
+                          <SelectItem value="Geração de leads">Geração de leads</SelectItem>
+                          <SelectItem value="Vendas">Vendas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <Button onClick={handleAiGenerate} disabled={aiLoading} size="sm" className="gap-2">
+                    {aiLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> Gerando sugestões...</> : <><Send className="h-4 w-4" /> Gerar Sugestões</>}
+                  </Button>
+                  {aiResult && (
+                    <Card className="bg-muted/30 border-primary/10">
+                      <CardContent className="p-4">
+                        <h4 className="text-sm font-semibold mb-2 flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /> Última Geração</h4>
+                        <div className="prose prose-sm max-w-none text-sm whitespace-pre-wrap">{aiResult}</div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* ── Saved AI studies for this platform ── */}
+              {studiesByPlatform[activePlatform].length > 0 && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-primary" /> Estudos Salvos — {currentPlatformInfo.label}
+                      <Badge variant="outline" className="ml-auto">{studiesByPlatform[activePlatform].length}</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {studiesByPlatform[activePlatform].map((study, idx) => (
+                      <details key={study.id} className="group rounded-lg border p-3 hover:bg-muted/20 transition-colors">
+                        <summary className="flex items-center gap-3 cursor-pointer list-none">
+                          <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="font-medium">Estudo #{studiesByPlatform[activePlatform].length - idx}</span>
+                              {study.segmento && <Badge variant="outline" className="text-[10px]">{study.segmento}</Badge>}
+                              {study.produto && <Badge variant="outline" className="text-[10px]">{study.produto}</Badge>}
+                              {study.objetivo && <Badge variant="secondary" className="text-[10px]">{study.objetivo}</Badge>}
+                            </div>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{new Date(study.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                          </div>
+                          <span className="text-xs text-muted-foreground group-open:hidden">Expandir</span>
+                          <span className="text-xs text-muted-foreground hidden group-open:inline">Recolher</span>
+                        </summary>
+                        <div className="mt-3 pt-3 border-t prose prose-sm max-w-none text-sm whitespace-pre-wrap">{study.resultado}</div>
+                      </details>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Investment by platform chart */}
               {anuncios.length > 0 && (
