@@ -35,6 +35,7 @@ interface SeoKeyword { id: string; palavra_chave: string; posicao_atual: number 
 interface SeoPage { id: string; url: string; titulo: string; visitas_mes: number; visitas_mes_anterior: number; posicao_media: number; impressoes: number; cliques: number; ctr: number; taxa_rejeicao: number; tempo_medio_pagina: string | null; status: string; periodo_mes: string; }
 interface TarefaCliente { id: string; titulo: string; descricao: string | null; status: string; prioridade: string; created_at: string; updated_at: string; }
 interface Anuncio { id: string; plataforma: string; tipo_anuncio: string; titulo: string; descricao: string | null; palavras_chave: string[] | null; investimento: number; impressoes: number; cliques: number; conversoes: number; custo_total: number; status: string; data_inicio: string | null; data_fim: string | null; url_destino: string | null; observacoes: string | null; created_at: string; }
+interface AdStudy { id: string; plataforma: string; segmento: string | null; produto: string | null; objetivo: string | null; resultado: string; created_at: string; }
 
 // ─── Constants ───
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
