@@ -65,6 +65,7 @@ export default function ClientPortalPage() {
   const [seoPages, setSeoPages] = useState<SeoPage[]>([]);
   const [tarefas, setTarefas] = useState<TarefaCliente[]>([]);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
+  const [adStudies, setAdStudies] = useState<AdStudy[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialogs
