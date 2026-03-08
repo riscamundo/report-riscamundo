@@ -12,23 +12,28 @@ interface NavItem {
   url: string;
   icon: typeof LayoutDashboard;
   masterOnly?: boolean;
+  gestorAllowed?: boolean;
 }
 
 const allNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
   { title: 'Procedimentos', url: '/procedimentos', icon: Package, masterOnly: true },
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
-  { title: 'Funil de Vendas', url: '/funil', icon: Users },
-  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart },
+  { title: 'Funil de Vendas', url: '/funil', icon: Users, gestorAllowed: true },
+  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
 ];
 
 export function AppSidebar() {
-  const { isMaster, user, signOut } = useAuth();
+  const { isMaster, isGestor, role, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const visibleItems = allNavItems.filter(item => !item.masterOnly || isMaster);
+  const visibleItems = allNavItems.filter(item => {
+    if (item.masterOnly) return isMaster;
+    if (item.gestorAllowed) return true; // everyone sees funil/vendas
+    return true;
+  });
 
   const sidebarContent = (
     <>
@@ -68,7 +73,7 @@ export function AppSidebar() {
           <div className="space-y-2">
             <div className="px-2">
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              <p className="text-xs text-primary font-medium">{isMaster ? '👑 Master' : '👤 Equipe'}</p>
+              <p className="text-xs text-primary font-medium">{isMaster ? '👑 Master' : isGestor ? '🏢 Gestor' : '👤 Equipe'}</p>
             </div>
             <button
               onClick={signOut}

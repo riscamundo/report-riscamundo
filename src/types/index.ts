@@ -19,7 +19,7 @@ export type VendaUpdate = TablesUpdate<'vendas'>;
 
 export type Profile = Tables<'profiles'>;
 export type UserRole = Tables<'user_roles'>;
-export type AppRole = 'master' | 'equipe';
+export type AppRole = 'master' | 'gestor' | 'equipe';
 
 // Legacy compat aliases
 export type Categoria = 'facial' | 'capilar' | 'combo_premium';

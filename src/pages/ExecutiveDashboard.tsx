@@ -16,7 +16,7 @@ const COLORS = ['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)',
 
 export default function ExecutiveDashboard() {
   const { procedimentos, campanhas, leads, vendas, loading } = useStoreContext();
-  const { isMaster } = useAuth();
+  const { isMaster, isGestor } = useAuth();
 
   const faturamento = calcFaturamentoMes(vendas);
   const investimento = calcInvestimentoTotal(campanhas);
@@ -56,7 +56,7 @@ export default function ExecutiveDashboard() {
           </div>
         )}
 
-        <PageHeader title={isMaster ? "Visão Executiva — Todos os Clientes" : "Meu Dashboard"} subtitle={isMaster ? "Dados consolidados de toda a equipe" : "Seus leads e vendas"} />
+        <PageHeader title={isMaster ? "Visão Executiva — Todos os Clientes" : isGestor ? "Visão da Equipe" : "Meu Dashboard"} subtitle={isMaster ? "Dados consolidados de toda a equipe" : isGestor ? "Dados da sua equipe" : "Seus leads e vendas"} />
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
           <StaggerItem><KPICard title="Faturamento" value={fmt(faturamento)} icon={DollarSign} /></StaggerItem>
