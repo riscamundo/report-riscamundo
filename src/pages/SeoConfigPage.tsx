@@ -243,6 +243,9 @@ export default function SeoConfigPage() {
               <Button size="sm" onClick={() => openKw()}><Plus className="h-4 w-4 mr-1" /> Nova Palavra-Chave</Button>
             </div>
 
+            {/* ═══ WORD CLOUD VISUAL ═══ */}
+            {filteredKw.length > 0 && <KeywordCloud keywords={filteredKw} />}
+
             {filteredKw.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
