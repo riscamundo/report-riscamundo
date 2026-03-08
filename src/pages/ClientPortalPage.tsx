@@ -1269,6 +1269,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ PROCEDIMENTOS TAB ═══════════ */}
             <TabsContent value="procedimentos" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Procedimentos" /></div>
               <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <StaggerItem><Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2.5 rounded-xl bg-primary/10"><ShoppingBag className="h-5 w-5 text-primary" /></div><div><p className="text-xs text-muted-foreground">Procedimentos</p><p className="text-xl font-bold">{totalProcedimentos}</p></div></CardContent></Card></StaggerItem>
                 <StaggerItem><Card><CardContent className="p-4 flex items-center gap-3"><div className="p-2.5 rounded-xl bg-accent/10"><DollarSign className="h-5 w-5 text-accent" /></div><div><p className="text-xs text-muted-foreground">Total Investido</p><p className="text-xl font-bold">R$ {totalGasto.toLocaleString('pt-BR')}</p></div></CardContent></Card></StaggerItem>
