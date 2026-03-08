@@ -125,8 +125,8 @@ export function SalesManagerTab() {
           <Brain className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h3 className="text-base font-bold font-display">Sales Manager AI</h3>
-          <p className="text-xs text-muted-foreground">Organize contatos de planilhas para email marketing e WhatsApp</p>
+          <h3 className="text-base font-bold font-display">Rocha Senior — Sales Director AI</h3>
+          <p className="text-xs text-muted-foreground">Diretor Executivo de Vendas • Estratégia militar aplicada • IA + Performance</p>
         </div>
       </div>
 
