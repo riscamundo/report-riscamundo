@@ -10,14 +10,14 @@ import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/Animat
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  AreaChart, Area, Legend
+  AreaChart, Area, Legend, PieChart, Pie, Cell
 } from 'recharts';
 import {
   Globe, Target, Users, Search, Megaphone, Share2, Store, BarChart3,
   AlertTriangle, Clock, TrendingUp, ArrowUpRight,
   Zap, Hash, Link2, ExternalLink, MoveUp, MoveDown, Minus, Star, MapPin,
   Phone, Eye, Activity, Percent, ListTodo, FileText, PhoneCall,
-  CheckCircle2, Loader2, LayoutDashboard
+  CheckCircle2, Loader2, LayoutDashboard, ShoppingCart, DollarSign
 } from 'lucide-react';
 
 // ─── Types ───
