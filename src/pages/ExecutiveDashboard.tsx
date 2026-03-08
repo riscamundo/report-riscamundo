@@ -773,6 +773,24 @@ export default function ExecutiveDashboard() {
         )}
 
         {selectedClienteId && !reportLoading && (
+          <>
+          <TenantAiChecklist
+            clienteId={selectedClienteId}
+            clienteNome={clientes.find(c => c.id === selectedClienteId)?.nome || 'Cliente'}
+            metricsContext={(() => {
+              const latestMkt = clientMarketing.length > 0 ? clientMarketing[clientMarketing.length - 1] : null;
+              return [
+                `Cliente: ${clientes.find(c => c.id === selectedClienteId)?.nome || ''}`,
+                latestMkt ? `Visitas ao site: ${latestMkt.visitas_site}, orgânicas: ${latestMkt.visitas_organicas}, pagas: ${latestMkt.visitas_pagas}` : null,
+                latestMkt ? `Leads gerados: ${latestMkt.leads_gerados}, qualificados: ${latestMkt.leads_qualificados}` : null,
+                latestMkt ? `Seguidores: ${latestMkt.seguidores_total}, novos: ${latestMkt.novos_seguidores}, engajamento: ${latestMkt.engajamento_rate}%` : null,
+                `Palavras-chave no top 10: ${clientSeoKeywords.filter((k: any) => k.posicao_atual && k.posicao_atual <= 10).length} de ${clientSeoKeywords.length}`,
+                `Anúncios ativos: ${clientAnuncios.filter((a: any) => a.status === 'ativo').length}`,
+                clientSocial.length > 0 ? `Redes sociais: ${clientSocial.map((s: any) => `${s.plataforma}: ${s.seguidores} seguidores`).join(', ')}` : null,
+                clientMybusiness ? `Google Meu Negócio: ${clientMybusiness.avaliacao_media}★ (${clientMybusiness.total_avaliacoes} avaliações), ${clientMybusiness.visualizacoes_busca} views busca` : null,
+              ].filter(Boolean).join('\n');
+            })()}
+          />
           <Tabs defaultValue="marketing" key={selectedClienteId} className="space-y-6">
               <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
                 <TabsList className="inline-flex h-auto gap-0.5 bg-transparent p-0 border-b border-border/40 w-full min-w-max">
