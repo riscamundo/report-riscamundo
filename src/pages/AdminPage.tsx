@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Shield, Users, Building2, Plus, Trash2 } from 'lucide-react';
+import { UserPlus, Shield, Users, Building2, Plus, Trash2, Briefcase, Search, Edit2, Phone, Mail, MapPin } from 'lucide-react';
 import type { AppRole } from '@/types';
 
 interface UserWithRole {
@@ -30,13 +31,32 @@ interface Equipe {
   members: { user_id: string; display_name: string | null }[];
 }
 
+interface Cliente {
+  id: string;
+  nome: string;
+  razao_social: string | null;
+  cnpj: string | null;
+  email: string | null;
+  telefone: string | null;
+  endereco: string | null;
+  cidade: string | null;
+  estado: string | null;
+  status: string;
+  observacoes: string | null;
+  created_at: string;
+}
+
 export default function AdminPage() {
   const { toast } = useToast();
   const [users, setUsers] = useState<UserWithRole[]>([]);
   const [equipes, setEquipes] = useState<Equipe[]>([]);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isEquipeOpen, setIsEquipeOpen] = useState(false);
+  const [isClienteOpen, setIsClienteOpen] = useState(false);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(true);
+  const [clienteSearch, setClienteSearch] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newName, setNewName] = useState('');
@@ -48,17 +68,12 @@ export default function AdminPage() {
     setLoading(true);
     const { data: profiles } = await supabase.from('profiles').select('user_id, display_name');
     const { data: roles } = await supabase.from('user_roles').select('user_id, role');
-
     if (profiles) {
-      const userList: UserWithRole[] = profiles.map(p => {
-        const userRole = roles?.find(r => r.user_id === p.user_id);
-        return {
-          user_id: p.user_id,
-          display_name: p.display_name,
-          role: (userRole?.role as AppRole) || null,
-        };
-      });
-      setUsers(userList);
+      setUsers(profiles.map(p => ({
+        user_id: p.user_id,
+        display_name: p.display_name,
+        role: (roles?.find(r => r.user_id === p.user_id)?.role as AppRole) || null,
+      })));
     }
     setLoading(false);
   };
@@ -67,52 +82,37 @@ export default function AdminPage() {
     const { data: equipeRows } = await supabase.from('equipes').select('*');
     const { data: members } = await supabase.from('equipe_members').select('*');
     const { data: profiles } = await supabase.from('profiles').select('user_id, display_name');
-
     if (equipeRows) {
-      const result: Equipe[] = equipeRows.map(e => {
+      setEquipes(equipeRows.map(e => {
         const gestorProfile = profiles?.find(p => p.user_id === e.gestor_id);
         const equipeMembers = (members || [])
           .filter(m => m.equipe_id === e.id)
-          .map(m => {
-            const profile = profiles?.find(p => p.user_id === m.user_id);
-            return { user_id: m.user_id, display_name: profile?.display_name || null };
-          });
-        return {
-          id: e.id,
-          nome: e.nome,
-          gestor_id: e.gestor_id,
-          gestor_name: gestorProfile?.display_name || 'Sem nome',
-          members: equipeMembers,
-        };
-      });
-      setEquipes(result);
+          .map(m => ({ user_id: m.user_id, display_name: profiles?.find(p => p.user_id === m.user_id)?.display_name || null }));
+        return { id: e.id, nome: e.nome, gestor_id: e.gestor_id, gestor_name: gestorProfile?.display_name || 'Sem nome', members: equipeMembers };
+      }));
     }
+  };
+
+  const fetchClientes = async () => {
+    const { data } = await supabase.from('clientes').select('*').order('nome');
+    if (data) setClientes(data as Cliente[]);
   };
 
   useEffect(() => {
     fetchUsers();
     fetchEquipes();
+    fetchClientes();
   }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: newEmail,
-        password: newPassword,
-        options: { data: { display_name: newName } },
-      });
+      const { data, error } = await supabase.auth.signUp({ email: newEmail, password: newPassword, options: { data: { display_name: newName } } });
       if (error) throw error;
-
-      if (data.user) {
-        await supabase.from('user_roles').insert({ user_id: data.user.id, role: newRole });
-      }
-
+      if (data.user) await supabase.from('user_roles').insert({ user_id: data.user.id, role: newRole });
       toast({ title: 'Usuário criado!', description: `${newEmail} adicionado como ${newRole}` });
       setIsOpen(false);
-      setNewEmail('');
-      setNewPassword('');
-      setNewName('');
+      setNewEmail(''); setNewPassword(''); setNewName('');
       fetchUsers();
     } catch (err: any) {
       toast({ title: 'Erro', description: err.message, variant: 'destructive' });
@@ -121,11 +121,8 @@ export default function AdminPage() {
 
   const handleChangeRole = async (userId: string, role: AppRole) => {
     const { data: existing } = await supabase.from('user_roles').select('id').eq('user_id', userId).maybeSingle();
-    if (existing) {
-      await supabase.from('user_roles').update({ role }).eq('user_id', userId);
-    } else {
-      await supabase.from('user_roles').insert({ user_id: userId, role });
-    }
+    if (existing) await supabase.from('user_roles').update({ role }).eq('user_id', userId);
+    else await supabase.from('user_roles').insert({ user_id: userId, role });
     toast({ title: 'Permissão atualizada' });
     fetchUsers();
   };
@@ -134,25 +131,14 @@ export default function AdminPage() {
     e.preventDefault();
     if (!newEquipeName || !newEquipeGestor) return;
     const { error } = await supabase.from('equipes').insert({ nome: newEquipeName, gestor_id: newEquipeGestor });
-    if (error) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Equipe criada!' });
-      setIsEquipeOpen(false);
-      setNewEquipeName('');
-      setNewEquipeGestor('');
-      fetchEquipes();
-    }
+    if (error) toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    else { toast({ title: 'Equipe criada!' }); setIsEquipeOpen(false); setNewEquipeName(''); setNewEquipeGestor(''); fetchEquipes(); }
   };
 
   const handleAddMember = async (equipeId: string, userId: string) => {
     const { error } = await supabase.from('equipe_members').insert({ equipe_id: equipeId, user_id: userId });
-    if (error) {
-      toast({ title: 'Erro', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Membro adicionado!' });
-      fetchEquipes();
-    }
+    if (error) toast({ title: 'Erro', description: error.message, variant: 'destructive' });
+    else { toast({ title: 'Membro adicionado!' }); fetchEquipes(); }
   };
 
   const handleRemoveMember = async (equipeId: string, userId: string) => {
@@ -161,34 +147,100 @@ export default function AdminPage() {
     fetchEquipes();
   };
 
+  const handleSaveCliente = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const clienteData = {
+      nome: fd.get('nome') as string,
+      razao_social: (fd.get('razao_social') as string) || null,
+      cnpj: (fd.get('cnpj') as string) || null,
+      email: (fd.get('email') as string) || null,
+      telefone: (fd.get('telefone') as string) || null,
+      endereco: (fd.get('endereco') as string) || null,
+      cidade: (fd.get('cidade') as string) || null,
+      estado: (fd.get('estado') as string) || null,
+      status: (fd.get('status') as string) || 'ativo',
+      observacoes: (fd.get('observacoes') as string) || null,
+    };
+
+    if (editingCliente) {
+      const { error } = await supabase.from('clientes').update(clienteData).eq('id', editingCliente.id);
+      if (error) { toast({ title: 'Erro', description: error.message, variant: 'destructive' }); return; }
+      toast({ title: 'Cliente atualizado!' });
+    } else {
+      const { error } = await supabase.from('clientes').insert(clienteData);
+      if (error) { toast({ title: 'Erro', description: error.message, variant: 'destructive' }); return; }
+      toast({ title: 'Cliente cadastrado!' });
+    }
+    setIsClienteOpen(false);
+    setEditingCliente(null);
+    fetchClientes();
+  };
+
+  const handleDeleteCliente = async (id: string) => {
+    await supabase.from('clientes').delete().eq('id', id);
+    toast({ title: 'Cliente removido' });
+    fetchClientes();
+  };
+
+  const filteredClientes = clientes.filter(c => {
+    if (!clienteSearch.trim()) return true;
+    const q = clienteSearch.toLowerCase();
+    return c.nome.toLowerCase().includes(q) || c.cnpj?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q) || c.cidade?.toLowerCase().includes(q);
+  });
+
   const gestores = users.filter(u => u.role === 'gestor');
   const equipeUsers = users.filter(u => u.role === 'equipe' || !u.role);
 
-  const roleLabel = (role: AppRole | null) => {
-    if (role === 'master') return '👑 Master';
-    if (role === 'gestor') return '🏢 Gestor';
-    return '👤 Equipe';
-  };
+  const roleLabel = (role: AppRole | null) => role === 'master' ? '👑 Master' : role === 'gestor' ? '🏢 Gestor' : '👤 Equipe';
+  const roleBadgeClass = (role: AppRole | null) => role === 'master' ? 'bg-primary/20 text-primary border-0' : role === 'gestor' ? 'bg-info/20 text-info border-0' : 'bg-secondary text-secondary-foreground border-0';
 
-  const roleBadgeClass = (role: AppRole | null) => {
-    if (role === 'master') return 'bg-primary/20 text-primary border-0';
-    if (role === 'gestor') return 'bg-info/20 text-info border-0';
-    return 'bg-secondary text-secondary-foreground border-0';
-  };
+  const ClienteForm = () => (
+    <form onSubmit={handleSaveCliente} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><Label>Nome Fantasia *</Label><Input name="nome" defaultValue={editingCliente?.nome || ''} required className="mt-1" /></div>
+        <div><Label>Razão Social</Label><Input name="razao_social" defaultValue={editingCliente?.razao_social || ''} className="mt-1" /></div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><Label>CNPJ</Label><Input name="cnpj" defaultValue={editingCliente?.cnpj || ''} placeholder="00.000.000/0000-00" className="mt-1" /></div>
+        <div><Label>Email</Label><Input name="email" type="email" defaultValue={editingCliente?.email || ''} className="mt-1" /></div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><Label>Telefone</Label><Input name="telefone" defaultValue={editingCliente?.telefone || ''} placeholder="(00) 00000-0000" className="mt-1" /></div>
+        <div><Label>Status</Label>
+          <Select name="status" defaultValue={editingCliente?.status || 'ativo'}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ativo">✅ Ativo</SelectItem>
+              <SelectItem value="inativo">⏸ Inativo</SelectItem>
+              <SelectItem value="prospeccao">🔍 Prospecção</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="md:col-span-1"><Label>Endereço</Label><Input name="endereco" defaultValue={editingCliente?.endereco || ''} className="mt-1" /></div>
+        <div><Label>Cidade</Label><Input name="cidade" defaultValue={editingCliente?.cidade || ''} className="mt-1" /></div>
+        <div><Label>Estado</Label><Input name="estado" defaultValue={editingCliente?.estado || ''} placeholder="SP" maxLength={2} className="mt-1" /></div>
+      </div>
+      <div><Label>Observações</Label><Textarea name="observacoes" defaultValue={editingCliente?.observacoes || ''} rows={3} className="mt-1" /></div>
+      <Button type="submit" className="w-full">{editingCliente ? 'Atualizar Cliente' : 'Cadastrar Cliente'}</Button>
+    </form>
+  );
 
   return (
     <DashboardLayout>
       <AnimatedPage>
         <PageHeader
           title="Administração"
-          subtitle="Gestão de usuários, equipes e permissões"
+          subtitle="Gestão de usuários, equipes, clientes e permissões"
           action={
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
                 <Button size="sm"><UserPlus className="h-4 w-4 mr-1" /> Novo Usuário</Button>
               </DialogTrigger>
               <DialogContent className="bg-card">
-                <DialogHeader><DialogTitle className="font-display">Criar Usuário</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle>Criar Usuário</DialogTitle></DialogHeader>
                 <form onSubmit={handleCreateUser} className="space-y-4">
                   <div><Label>Nome</Label><Input value={newName} onChange={e => setNewName(e.target.value)} required className="mt-1" /></div>
                   <div><Label>Email</Label><Input type="email" value={newEmail} onChange={e => setNewEmail(e.target.value)} required className="mt-1" /></div>
@@ -210,14 +262,14 @@ export default function AdminPage() {
           }
         />
 
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           <StaggerItem>
             <Card className="card-glow">
               <CardContent className="p-4 flex items-center gap-3">
-                <Users className="h-8 w-8 text-primary" />
+                <div className="p-2 rounded-xl bg-primary/10"><Users className="h-5 w-5 text-primary" /></div>
                 <div>
-                  <p className="text-2xl font-bold font-display">{users.length}</p>
-                  <p className="text-xs text-muted-foreground">Total de Usuários</p>
+                  <p className="text-2xl font-bold">{users.length}</p>
+                  <p className="text-xs text-muted-foreground">Usuários</p>
                 </div>
               </CardContent>
             </Card>
@@ -225,9 +277,9 @@ export default function AdminPage() {
           <StaggerItem>
             <Card className="card-glow">
               <CardContent className="p-4 flex items-center gap-3">
-                <Shield className="h-8 w-8 text-primary" />
+                <div className="p-2 rounded-xl bg-primary/10"><Shield className="h-5 w-5 text-primary" /></div>
                 <div>
-                  <p className="text-2xl font-bold font-display">{users.filter(u => u.role === 'master').length}</p>
+                  <p className="text-2xl font-bold">{users.filter(u => u.role === 'master').length}</p>
                   <p className="text-xs text-muted-foreground">Masters</p>
                 </div>
               </CardContent>
@@ -236,9 +288,9 @@ export default function AdminPage() {
           <StaggerItem>
             <Card className="card-glow">
               <CardContent className="p-4 flex items-center gap-3">
-                <Building2 className="h-8 w-8 text-info" />
+                <div className="p-2 rounded-xl bg-info/10"><Building2 className="h-5 w-5 text-info" /></div>
                 <div>
-                  <p className="text-2xl font-bold font-display">{gestores.length}</p>
+                  <p className="text-2xl font-bold">{gestores.length}</p>
                   <p className="text-xs text-muted-foreground">Gestores</p>
                 </div>
               </CardContent>
@@ -247,25 +299,129 @@ export default function AdminPage() {
           <StaggerItem>
             <Card className="card-glow">
               <CardContent className="p-4 flex items-center gap-3">
-                <Users className="h-8 w-8 text-muted-foreground" />
+                <div className="p-2 rounded-xl bg-muted"><Users className="h-5 w-5 text-muted-foreground" /></div>
                 <div>
-                  <p className="text-2xl font-bold font-display">{equipeUsers.length}</p>
+                  <p className="text-2xl font-bold">{equipeUsers.length}</p>
                   <p className="text-xs text-muted-foreground">Equipe</p>
+                </div>
+              </CardContent>
+            </Card>
+          </StaggerItem>
+          <StaggerItem>
+            <Card className="card-glow">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-accent/10"><Briefcase className="h-5 w-5 text-accent" /></div>
+                <div>
+                  <p className="text-2xl font-bold">{clientes.filter(c => c.status === 'ativo').length}</p>
+                  <p className="text-xs text-muted-foreground">Clientes Ativos</p>
                 </div>
               </CardContent>
             </Card>
           </StaggerItem>
         </StaggerContainer>
 
-        <Tabs defaultValue="usuarios" className="space-y-4">
+        <Tabs defaultValue="clientes" className="space-y-4">
           <TabsList>
+            <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="usuarios">Usuários</TabsTrigger>
             <TabsTrigger value="equipes">Equipes</TabsTrigger>
           </TabsList>
 
+          {/* ── CLIENTES TAB ── */}
+          <TabsContent value="clientes">
+            <div className="flex flex-col md:flex-row gap-3 mb-4 justify-between">
+              <div className="relative flex-1 max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Buscar por nome, CNPJ, email, cidade..." value={clienteSearch} onChange={e => setClienteSearch(e.target.value)} className="pl-9" />
+              </div>
+              <Dialog open={isClienteOpen} onOpenChange={(open) => { setIsClienteOpen(open); if (!open) setEditingCliente(null); }}>
+                <DialogTrigger asChild>
+                  <Button size="sm" onClick={() => setEditingCliente(null)}><Plus className="h-4 w-4 mr-1" /> Novo Cliente</Button>
+                </DialogTrigger>
+                <DialogContent className="bg-card max-w-2xl">
+                  <DialogHeader><DialogTitle>{editingCliente ? 'Editar Cliente' : 'Novo Cliente'}</DialogTitle></DialogHeader>
+                  <ClienteForm />
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {filteredClientes.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Briefcase className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">{clienteSearch ? 'Nenhum cliente encontrado' : 'Nenhum cliente cadastrado. Clique em "Novo Cliente" para começar.'}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-border/60">
+                <CardContent className="p-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead className="hidden md:table-cell">CNPJ</TableHead>
+                        <TableHead className="hidden md:table-cell">Contato</TableHead>
+                        <TableHead className="hidden lg:table-cell">Cidade/UF</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredClientes.map(c => (
+                        <TableRow key={c.id} className="group">
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-sm">{c.nome}</p>
+                              {c.razao_social && <p className="text-xs text-muted-foreground">{c.razao_social}</p>}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground font-mono">{c.cnpj || '—'}</TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <div className="space-y-0.5">
+                              {c.email && <div className="flex items-center gap-1 text-xs text-muted-foreground"><Mail className="h-3 w-3" />{c.email}</div>}
+                              {c.telefone && <div className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="h-3 w-3" />{c.telefone}</div>}
+                            </div>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            {(c.cidade || c.estado) ? (
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                {[c.cidade, c.estado].filter(Boolean).join('/')}
+                              </div>
+                            ) : '—'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={
+                              c.status === 'ativo' ? 'bg-accent/15 text-accent border-0' :
+                              c.status === 'prospeccao' ? 'bg-warning/15 text-warning border-0' :
+                              'bg-muted text-muted-foreground border-0'
+                            }>
+                              {c.status === 'ativo' ? 'Ativo' : c.status === 'prospeccao' ? 'Prospecção' : 'Inativo'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => { setEditingCliente(c); setIsClienteOpen(true); }}>
+                                <Edit2 className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteCliente(c.id)}>
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* ── USUARIOS TAB ── */}
           <TabsContent value="usuarios">
             <Card>
-              <CardHeader><CardTitle className="text-base font-sans">Usuários</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base">Usuários</CardTitle></CardHeader>
               <CardContent className="p-0">
                 <Table>
                   <TableHeader>
@@ -281,14 +437,9 @@ export default function AdminPage() {
                       <TableRow key={u.user_id}>
                         <TableCell className="font-medium">{u.display_name || 'Sem nome'}</TableCell>
                         <TableCell className="text-xs text-muted-foreground font-mono">{u.user_id.slice(0, 8)}...</TableCell>
+                        <TableCell><Badge className={roleBadgeClass(u.role)}>{roleLabel(u.role)}</Badge></TableCell>
                         <TableCell>
-                          <Badge className={roleBadgeClass(u.role)}>{roleLabel(u.role)}</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Select
-                            value={u.role || 'equipe'}
-                            onValueChange={v => handleChangeRole(u.user_id, v as AppRole)}
-                          >
+                          <Select value={u.role || 'equipe'} onValueChange={v => handleChangeRole(u.user_id, v as AppRole)}>
                             <SelectTrigger className="w-28 h-8"><SelectValue /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="equipe">Equipe</SelectItem>
@@ -300,11 +451,7 @@ export default function AdminPage() {
                       </TableRow>
                     ))}
                     {users.length === 0 && !loading && (
-                      <TableRow>
-                        <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                          Nenhum usuário cadastrado
-                        </TableCell>
-                      </TableRow>
+                      <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground py-8">Nenhum usuário cadastrado</TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
@@ -312,28 +459,21 @@ export default function AdminPage() {
             </Card>
           </TabsContent>
 
+          {/* ── EQUIPES TAB ── */}
           <TabsContent value="equipes">
             <div className="flex justify-end mb-4">
               <Dialog open={isEquipeOpen} onOpenChange={setIsEquipeOpen}>
-                <DialogTrigger asChild>
-                  <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova Equipe</Button>
-                </DialogTrigger>
+                <DialogTrigger asChild><Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nova Equipe</Button></DialogTrigger>
                 <DialogContent className="bg-card">
-                  <DialogHeader><DialogTitle className="font-display">Criar Equipe</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>Criar Equipe</DialogTitle></DialogHeader>
                   <form onSubmit={handleCreateEquipe} className="space-y-4">
                     <div><Label>Nome da Equipe</Label><Input value={newEquipeName} onChange={e => setNewEquipeName(e.target.value)} required className="mt-1" /></div>
                     <div><Label>Gestor Responsável</Label>
                       <Select value={newEquipeGestor} onValueChange={setNewEquipeGestor}>
                         <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione o gestor..." /></SelectTrigger>
-                        <SelectContent>
-                          {gestores.map(g => (
-                            <SelectItem key={g.user_id} value={g.user_id}>{g.display_name || g.user_id.slice(0, 8)}</SelectItem>
-                          ))}
-                        </SelectContent>
+                        <SelectContent>{gestores.map(g => <SelectItem key={g.user_id} value={g.user_id}>{g.display_name || g.user_id.slice(0, 8)}</SelectItem>)}</SelectContent>
                       </Select>
-                      {gestores.length === 0 && (
-                        <p className="text-xs text-muted-foreground mt-1">Primeiro defina um usuário como Gestor na aba Usuários.</p>
-                      )}
+                      {gestores.length === 0 && <p className="text-xs text-muted-foreground mt-1">Primeiro defina um usuário como Gestor na aba Usuários.</p>}
                     </div>
                     <Button type="submit" className="w-full" disabled={gestores.length === 0}>Criar Equipe</Button>
                   </form>
@@ -342,12 +482,7 @@ export default function AdminPage() {
             </div>
 
             {equipes.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">Nenhuma equipe criada. Crie uma equipe e atribua um gestor.</p>
-                </CardContent>
-              </Card>
+              <Card><CardContent className="p-12 text-center"><Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" /><p className="text-sm text-muted-foreground">Nenhuma equipe criada.</p></CardContent></Card>
             ) : (
               <div className="space-y-4">
                 {equipes.map(eq => {
@@ -356,7 +491,7 @@ export default function AdminPage() {
                     <Card key={eq.id}>
                       <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                          <CardTitle className="text-base font-sans">{eq.nome}</CardTitle>
+                          <CardTitle className="text-base">{eq.nome}</CardTitle>
                           <p className="text-xs text-muted-foreground mt-1">Gestor: <span className="text-info font-medium">{eq.gestor_name}</span></p>
                         </div>
                         <Badge variant="outline">{eq.members.length} membro(s)</Badge>
@@ -366,24 +501,16 @@ export default function AdminPage() {
                           {eq.members.map(m => (
                             <div key={m.user_id} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                               <span className="text-sm">{m.display_name || m.user_id.slice(0, 8)}</span>
-                              <Button variant="ghost" size="sm" onClick={() => handleRemoveMember(eq.id, m.user_id)}>
-                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleRemoveMember(eq.id, m.user_id)}><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                             </div>
                           ))}
-                          {eq.members.length === 0 && (
-                            <p className="text-xs text-muted-foreground text-center py-2">Nenhum membro adicionado</p>
-                          )}
+                          {eq.members.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">Nenhum membro adicionado</p>}
                         </div>
                         {availableMembers.length > 0 && (
-                          <div className="mt-3 flex gap-2 items-center">
+                          <div className="mt-3">
                             <Select onValueChange={(userId) => handleAddMember(eq.id, userId)}>
-                              <SelectTrigger className="flex-1 h-8 text-xs"><SelectValue placeholder="Adicionar membro..." /></SelectTrigger>
-                              <SelectContent>
-                                {availableMembers.map(u => (
-                                  <SelectItem key={u.user_id} value={u.user_id}>{u.display_name || u.user_id.slice(0, 8)}</SelectItem>
-                                ))}
-                              </SelectContent>
+                              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Adicionar membro..." /></SelectTrigger>
+                              <SelectContent>{availableMembers.map(u => <SelectItem key={u.user_id} value={u.user_id}>{u.display_name || u.user_id.slice(0, 8)}</SelectItem>)}</SelectContent>
                             </Select>
                           </div>
                         )}
