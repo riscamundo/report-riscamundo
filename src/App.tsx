@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import EquipeDashboard from "./pages/EquipeDashboard";
 
 import MidiaPage from "./pages/MidiaPage";
 import FunilPage from "./pages/FunilPage";
@@ -42,7 +43,7 @@ function ClientRoute({ children }: { children: React.ReactNode }) {
 }
 
 const AppRoutes = () => {
-  const { user, loading, isCliente } = useAuth();
+  const { user, loading, isCliente, isMaster } = useAuth();
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><div className="text-muted-foreground">Carregando...</div></div>;
@@ -52,7 +53,7 @@ const AppRoutes = () => {
     <Routes>
       <Route path="/login" element={user ? (isCliente ? <Navigate to="/portal" replace /> : <Navigate to="/" replace />) : <LoginPage />} />
       <Route path="/portal" element={<ClientRoute><ClientPortalPage /></ClientRoute>} />
-      <Route path="/" element={<ProtectedRoute><ExecutiveDashboard /></ProtectedRoute>} />
+      <Route path="/" element={<ProtectedRoute>{isMaster ? <ExecutiveDashboard /> : <EquipeDashboard />}</ProtectedRoute>} />
       
       <Route path="/midia" element={<ProtectedRoute masterOnly><MidiaPage /></ProtectedRoute>} />
       <Route path="/funil" element={<ProtectedRoute><Navigate to="/vendas" replace /></ProtectedRoute>} />
