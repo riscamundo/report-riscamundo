@@ -359,15 +359,7 @@ export default function ExecutiveDashboard() {
     receitaProc.length > 0 ? `Receita por procedimento: ${receitaProc.map(r => `${r.nome}: R$ ${r.receita}`).join(', ')}` : null,
   ].filter(Boolean).join('\n');
 
-  // Build connections context for AI summary
-  const [tenantConnections, setTenantConnections] = useState<any[]>([]);
-  useEffect(() => {
-    const fetchConnections = async () => {
-      const { data } = await supabase.from('tenant_connections').select('*, clientes(nome)').order('created_at');
-      setTenantConnections((data || []) as any[]);
-    };
-    fetchConnections();
-  }, []);
+  // Build connections context for AI summary (hooks already declared above)
 
   const connectionsContext = useMemo(() => {
     if (tenantConnections.length === 0) {
