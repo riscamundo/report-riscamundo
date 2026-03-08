@@ -381,6 +381,11 @@ export default function VendasPage() {
           <TabsContent value="contatos" className="space-y-4">
             <ContatosEmpresasTab />
           </TabsContent>
+
+          {/* ═══════ LLM MAESTRO TAB ═══════ */}
+          <TabsContent value="llm" className="space-y-4">
+            <LlmMaestroTab />
+          </TabsContent>
         </Tabs>
       </AnimatedPage>
     </DashboardLayout>
