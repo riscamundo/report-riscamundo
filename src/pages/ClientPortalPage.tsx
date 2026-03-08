@@ -1362,6 +1362,35 @@ export default function ClientPortalPage() {
         </div>
       </AnimatedPage>
 
+      {/* ── Create Task Dialog (global) ── */}
+      <Dialog open={showNewTarefa} onOpenChange={setShowNewTarefa}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              Nova Tarefa
+              {newTarefa.contexto && <Badge variant="outline" className="text-xs text-primary border-primary/40">{newTarefa.contexto}</Badge>}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div><Label>Título *</Label><Input value={newTarefa.titulo} onChange={e => setNewTarefa(p => ({ ...p, titulo: e.target.value }))} placeholder="Ex: Enviar material atualizado" /></div>
+            <div><Label>Descrição</Label><Textarea value={newTarefa.descricao} onChange={e => setNewTarefa(p => ({ ...p, descricao: e.target.value }))} placeholder="Detalhes opcionais..." rows={3} /></div>
+            <div><Label>Prioridade</Label>
+              <Select value={newTarefa.prioridade} onValueChange={v => setNewTarefa(p => ({ ...p, prioridade: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="baixa">Baixa</SelectItem>
+                  <SelectItem value="media">Média</SelectItem>
+                  <SelectItem value="alta">Alta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={handleSaveTarefa} disabled={savingTarefa || !newTarefa.titulo.trim()} className="w-full">
+              {savingTarefa ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Tarefa'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* ── Floating WhatsApp Button ── */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
         <div className="bg-card border border-border/60 rounded-2xl px-4 py-2.5 shadow-lg backdrop-blur-sm">
