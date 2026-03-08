@@ -294,6 +294,45 @@ export default function ClientPortalPage() {
             <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
           </StaggerContainer>
 
+          {/* ═══════════ TAREFAS RESUMO NO DASHBOARD ═══════════ */}
+          {tarefas.filter(t => t.status !== 'pronta').length > 0 && (
+            <Card className="border-l-4 border-l-warning/80">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-warning" /> Tarefas Pendentes
+                  <Badge variant="outline" className="ml-auto text-xs">{tarefas.filter(t => t.status !== 'pronta').length}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {[...tarefas]
+                    .filter(t => t.status !== 'pronta')
+                    .sort((a, b) => {
+                      const prioOrder: Record<string, number> = { alta: 0, media: 1, baixa: 2 };
+                      return (prioOrder[a.prioridade || 'media'] ?? 1) - (prioOrder[b.prioridade || 'media'] ?? 1);
+                    })
+                    .slice(0, 5)
+                    .map(t => (
+                      <div key={t.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30 border border-border/50">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${t.prioridade === 'alta' ? 'bg-destructive' : t.prioridade === 'media' ? 'bg-warning' : 'bg-muted-foreground/40'}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{t.titulo}</p>
+                          <p className="text-[11px] text-muted-foreground">{t.status === 'fazendo' ? 'Em andamento' : t.status === 'esperando' ? 'Aguardando' : 'Verificar'}</p>
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] shrink-0 ${t.prioridade === 'alta' ? 'text-destructive border-destructive/40' : t.prioridade === 'media' ? 'text-warning border-warning/40' : ''}`}>
+                          {t.prioridade === 'alta' ? '🔥 Alta' : t.prioridade === 'media' ? '⚡ Média' : 'Baixa'}
+                        </Badge>
+                      </div>
+                    ))
+                  }
+                  {tarefas.filter(t => t.status !== 'pronta').length > 5 && (
+                    <p className="text-xs text-muted-foreground text-center pt-1">+ {tarefas.filter(t => t.status !== 'pronta').length - 5} tarefas adicionais</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quick summary charts */}
           {(latestMkt || anuncios.length > 0) && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
