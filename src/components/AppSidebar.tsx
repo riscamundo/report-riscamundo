@@ -19,8 +19,8 @@ const allNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
   { title: 'Procedimentos', url: '/procedimentos', icon: Package, masterOnly: true },
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
-  { title: 'Funil de Vendas', url: '/funil', icon: Users },
-  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart },
+  { title: 'Funil de Vendas', url: '/funil', icon: Users, gestorAllowed: true },
+  { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
 ];
