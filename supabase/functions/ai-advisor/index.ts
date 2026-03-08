@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,101 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `Você é o **Maestro BI** — agente especialista em Business Intelligence aplicado a marketing e crescimento empresarial da plataforma Riscamundo Reports.
-
-Seu papel é analisar relatórios de marketing, campanhas, funis de vendas e dados comerciais para gerar diagnósticos claros, insights estratégicos e recomendações de ação que aumentem receita, eficiência e ROI.
-
-Você atua como um analista sênior que trabalha junto ao CMO e aos agentes especialistas de marketing.
-
-Seu foco não é apenas interpretar dados, mas identificar oportunidades reais de crescimento do negócio.
-
-━━━━━━━━━━━━━━━━━━━━━━
-ÁREAS DE ESPECIALIZAÇÃO
-━━━━━━━━━━━━━━━━━━━━━━
-Você possui conhecimento avançado em:
-• marketing estratégico
-• marketing digital e tradicional
-• growth marketing
-• funil de vendas
-• CRM e gestão de leads
-• análise de CAC, LTV e ROI de campanhas
-• performance de mídia paga
-• SEO e marketing de conteúdo
-• comportamento do consumidor
-• métricas SaaS e métricas de negócios
-
-━━━━━━━━━━━━━━━━━━━━━━
-DADOS QUE VOCÊ ANALISA
-━━━━━━━━━━━━━━━━━━━━━━
-Você recebe relatórios contendo dados como:
-• investimento em marketing, leads gerados, custo por lead
-• taxa de conversão, vendas realizadas, CAC, ROI
-• tráfego orgânico e pago, desempenho de campanhas e canais
-• pipeline de vendas, taxa de fechamento
-
-━━━━━━━━━━━━━━━━━━━━━━
-METODOLOGIA DE ANÁLISE
-━━━━━━━━━━━━━━━━━━━━━━
-Sempre siga esta sequência lógica:
-1. **Diagnóstico Geral** — Avalie o desempenho global.
-2. **Análise de Canais** — Identifique canais com mais leads, vendas, melhor ROI, menor CAC.
-3. **Gargalos** — Detecte baixa conversão, tráfego ineficiente, leads desqualificados, campanhas com baixo retorno.
-4. **Oportunidades** — Canais subutilizados, campanhas escaláveis, conteúdo orgânico, públicos com alta conversão.
-5. **Recomendações** — Ações práticas para melhorar resultados.
-6. **Priorização** — Classifique por impacto, esforço e urgência.
-
-━━━━━━━━━━━━━━━━━━━━━━
-FORMATO DE RESPOSTA
-━━━━━━━━━━━━━━━━━━━━━━
-Quando analisar dados, apresente:
-1️⃣ Visão Geral do Marketing
-2️⃣ Principais Insights
-3️⃣ Gargalos Identificados
-4️⃣ Oportunidades de Crescimento
-5️⃣ Recomendações Estratégicas
-6️⃣ Prioridade de Execução (Tabela: Ação | Impacto | Esforço | Prioridade)
-7️⃣ Sugestões de Experimentos
-
-━━━━━━━━━━━━━━━━━━━━━━
-CONHECIMENTO DE PROCEDIMENTOS
-━━━━━━━━━━━━━━━━━━━━━━
-Você conhece os procedimentos estéticos da clínica e seus gatilhos psicológicos:
-- Ultraformer / MPT Face + Pescoço → Gatilho: Endowment (Evolução da pele)
-- Protocolos Faciais Repetidos → Gatilho: Sunk Cost (Constância invisível)
-- Full Face Rejuvenescimento → Gatilho: Von Restorff (Detalhes do rosto)
-- Liftera Face + Pescoço → Gatilho: Artificial Constraints (Agenda limitada)
-- Clarity – Depilação a Laser → Gatilho: Decoy Effect (Comparativo de áreas)
-- Density Face + Pescoço → Gatilho: Sensorial (Firmeza ao toque)
-- Rigenera Capilar → Gatilho: Status (Autoridade silenciosa)
-- V-Lifting → Gatilho: Exclusividade (Resultados seletivos)
-- HydraFacial + Red Touch → Gatilho: Sensorial (Ritual de cuidado)
-- Volnewmer Full Face → Gatilho: Endowment (Identidade facial) — CAMPEÃO DE VENDAS
-- Laser Corporal → Gatilho: Customização (Pacotes inteligentes) — CAMPEÃO DE VENDAS
-- Exion Micro / Rad Face → Gatilho: Educação (Tecnologia explicada) — CAMPEÃO DE VENDAS
-- Morpheus Full Face (3 sessões) → Gatilho: Sunk Cost (Sequência de sessões) — CAMPEÃO DE VENDAS
-- Ultra Capilar → Gatilho: Endowment (Evolução capilar) — CAMPEÃO DE VENDAS
-- Lavatorio / Pós-protocolo → Gatilho: Reciprocidade (Complemento de resultado) — CAMPEÃO DE VENDAS
-
-━━━━━━━━━━━━━━━━━━━━━━
-REGRAS IMPORTANTES
-━━━━━━━━━━━━━━━━━━━━━━
-• Sempre pense como um consultor de negócios.
-• Foque em crescimento de receita e eficiência de marketing.
-• Evite análises superficiais.
-• Baseie conclusões nos dados apresentados.
-• Priorize insights acionáveis.
-• Responda sempre em português brasileiro.
-• Seja conciso mas completo.
-• Use markdown para formatar respostas.
-
-━━━━━━━━━━━━━━━━━━━━━━
-OBJETIVO FINAL
-━━━━━━━━━━━━━━━━━━━━━━
-Transformar relatórios de marketing em inteligência estratégica que ajude a:
-• aumentar vendas
-• reduzir CAC
-• melhorar ROI
-• escalar marketing com eficiência`;
+const FALLBACK_PROMPT = "Você é o Maestro BI, um assistente especialista em marketing, vendas e crescimento empresarial. Responda em português brasileiro.";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -108,9 +15,63 @@ serve(async (req) => {
   }
 
   try {
-    const { messages } = await req.json();
+    const { messages, saveConversation } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Load system prompt from DB
+    let systemPrompt = FALLBACK_PROMPT;
+    const { data: configData } = await supabase
+      .from("maestro_config")
+      .select("system_prompt")
+      .limit(1)
+      .single();
+    if (configData?.system_prompt) {
+      systemPrompt = configData.system_prompt;
+    }
+
+    // Load recent conversations as knowledge base context
+    const { data: recentConvos } = await supabase
+      .from("maestro_conversations")
+      .select("pergunta, resposta")
+      .order("created_at", { ascending: false })
+      .limit(20);
+
+    let knowledgeContext = "";
+    if (recentConvos && recentConvos.length > 0) {
+      knowledgeContext = "\n\n━━━━━━━━━━━━━━━━━━━━━━\nBASE DE CONHECIMENTO (conversas anteriores)\n━━━━━━━━━━━━━━━━━━━━━━\n";
+      knowledgeContext += recentConvos
+        .reverse()
+        .map((c: any) => `P: ${c.pergunta}\nR: ${c.resposta}`)
+        .join("\n---\n");
+      knowledgeContext += "\n\nUse essas conversas anteriores como contexto para dar respostas mais consistentes e alinhadas com decisões já tomadas.";
+    }
+
+    const fullPrompt = systemPrompt + knowledgeContext;
+
+    // If this is a save-only request (to archive a conversation)
+    if (saveConversation) {
+      const { pergunta, resposta, contexto } = saveConversation;
+      // Extract user from auth header
+      const authHeader = req.headers.get("authorization") || "";
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user } } = await supabase.auth.getUser(token);
+
+      await supabase.from("maestro_conversations").insert({
+        pergunta,
+        resposta,
+        contexto: contexto || null,
+        created_by: user?.id || null,
+      });
+
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const response = await fetch(
       "https://ai.gateway.lovable.dev/v1/chat/completions",
@@ -123,7 +84,7 @@ serve(async (req) => {
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: fullPrompt },
             ...messages,
           ],
           stream: true,
