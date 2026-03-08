@@ -14,6 +14,80 @@ export type Database = {
   }
   public: {
     Tables: {
+      anuncios: {
+        Row: {
+          cliente_id: string
+          cliques: number | null
+          conversoes: number | null
+          created_at: string
+          custo_total: number | null
+          data_fim: string | null
+          data_inicio: string | null
+          descricao: string | null
+          id: string
+          impressoes: number | null
+          investimento: number
+          observacoes: string | null
+          palavras_chave: string[] | null
+          plataforma: string
+          status: string
+          tipo_anuncio: string
+          titulo: string
+          updated_at: string
+          url_destino: string | null
+        }
+        Insert: {
+          cliente_id: string
+          cliques?: number | null
+          conversoes?: number | null
+          created_at?: string
+          custo_total?: number | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          impressoes?: number | null
+          investimento?: number
+          observacoes?: string | null
+          palavras_chave?: string[] | null
+          plataforma: string
+          status?: string
+          tipo_anuncio: string
+          titulo: string
+          updated_at?: string
+          url_destino?: string | null
+        }
+        Update: {
+          cliente_id?: string
+          cliques?: number | null
+          conversoes?: number | null
+          created_at?: string
+          custo_total?: number | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          descricao?: string | null
+          id?: string
+          impressoes?: number | null
+          investimento?: number
+          observacoes?: string | null
+          palavras_chave?: string[] | null
+          plataforma?: string
+          status?: string
+          tipo_anuncio?: string
+          titulo?: string
+          updated_at?: string
+          url_destino?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anuncios_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campanhas: {
         Row: {
           canal: string
