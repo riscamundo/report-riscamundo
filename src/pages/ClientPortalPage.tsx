@@ -81,7 +81,7 @@ export default function ClientPortalPage() {
   const [showNewTarefa, setShowNewTarefa] = useState(false);
   
   
-  const [activePlatform, setActivePlatform] = useState<Platform>('google');
+  const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
   const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
@@ -255,8 +255,8 @@ export default function ClientPortalPage() {
     </Card>
   );
 
-  const currentPlatformAds = anunciosByPlatform[activePlatform];
-  const currentPlatformInfo = PLATFORMS.find(p => p.id === activePlatform)!;
+  const currentPlatformAds = activePlatform === 'all' ? anuncios : anunciosByPlatform[activePlatform];
+  const currentPlatformInfo = activePlatform === 'all' ? null : PLATFORMS.find(p => p.id === activePlatform)!;
 
   return (
     <div className="min-h-screen bg-background">
@@ -574,14 +574,34 @@ export default function ClientPortalPage() {
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
               </div>
 
+              {/* Platform filter buttons */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={activePlatform === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setActivePlatform('all')}
+                  className="text-xs gap-1.5"
+                >
+                  <Layers className="h-3.5 w-3.5" /> Todas ({anuncios.length})
+                </Button>
+                {platformStats.map(p => (
+                  <Button
+                    key={p.id}
+                    variant={activePlatform === p.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActivePlatform(activePlatform === p.id ? 'all' : p.id)}
+                    className="text-xs gap-1.5"
+                  >
+                    <span>{p.icon}</span> {p.label} ({p.count})
+                  </Button>
+                ))}
+              </div>
+
               {/* Platform summary cards */}
               <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {platformStats.map(p => (
                   <StaggerItem key={p.id}>
-                    <Card
-                      className={`cursor-pointer transition-all hover:shadow-md ${activePlatform === p.id ? 'ring-2 ring-primary shadow-md' : ''}`}
-                      onClick={() => setActivePlatform(p.id)}
-                    >
+                    <Card className="transition-all hover:shadow-md">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-lg">{p.icon}</span>
@@ -599,11 +619,15 @@ export default function ClientPortalPage() {
                 ))}
               </StaggerContainer>
 
-              {/* Active platform detail */}
+              {/* Ads list */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <span className="text-lg">{currentPlatformInfo.icon}</span> {currentPlatformInfo.label}
+                    {currentPlatformInfo ? (
+                      <><span className="text-lg">{currentPlatformInfo.icon}</span> {currentPlatformInfo.label}</>
+                    ) : (
+                      <><Layers className="h-4 w-4 text-primary" /> Todos os Anúncios</>
+                    )}
                     <Badge variant="outline" className="ml-auto">{currentPlatformAds.length} anúncios</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -611,7 +635,7 @@ export default function ClientPortalPage() {
                   {currentPlatformAds.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <Megaphone className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                      <p className="text-sm">Nenhum anúncio em {currentPlatformInfo.label} ainda.</p>
+                      <p className="text-sm">Nenhum anúncio {currentPlatformInfo ? `em ${currentPlatformInfo.label}` : ''} ainda.</p>
                       <p className="text-xs mt-1">Seus anúncios aparecerão aqui quando cadastrados.</p>
                     </div>
                   ) : (
@@ -625,8 +649,9 @@ export default function ClientPortalPage() {
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="flex items-center gap-2 mb-1 flex-wrap">
                                   <p className="text-sm font-semibold truncate">{ad.titulo}</p>
+                                  {activePlatform === 'all' && <Badge className="text-[10px] shrink-0 bg-muted text-muted-foreground border-0">{PLATFORMS.find(p => p.id === ad.plataforma)?.icon} {PLATFORMS.find(p => p.id === ad.plataforma)?.label}</Badge>}
                                   <Badge variant="outline" className="text-[10px] shrink-0">{ad.tipo_anuncio}</Badge>
                                   <Badge variant={ad.status === 'ativo' ? 'default' : 'secondary'} className="text-[10px] shrink-0">
                                     {ad.status === 'ativo' ? 'Ativo' : ad.status === 'pausado' ? 'Pausado' : 'Finalizado'}
@@ -664,38 +689,43 @@ export default function ClientPortalPage() {
               </Card>
 
 
-              {/* ── Saved AI studies for this platform ── */}
-              {studiesByPlatform[activePlatform].length > 0 && (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-primary" /> Estudos Salvos — {currentPlatformInfo.label}
-                      <Badge variant="outline" className="ml-auto">{studiesByPlatform[activePlatform].length}</Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {studiesByPlatform[activePlatform].map((study, idx) => (
-                      <details key={study.id} className="group rounded-lg border p-3 hover:bg-muted/20 transition-colors">
-                        <summary className="flex items-center gap-3 cursor-pointer list-none">
-                          <Sparkles className="h-4 w-4 text-primary shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span className="font-medium">Estudo #{studiesByPlatform[activePlatform].length - idx}</span>
-                              {study.segmento && <Badge variant="outline" className="text-[10px]">{study.segmento}</Badge>}
-                              {study.produto && <Badge variant="outline" className="text-[10px]">{study.produto}</Badge>}
-                              {study.objetivo && <Badge variant="secondary" className="text-[10px]">{study.objetivo}</Badge>}
+              {/* ── Saved AI studies ── */}
+              {(() => {
+                const currentStudies = activePlatform === 'all' ? adStudies : studiesByPlatform[activePlatform];
+                if (currentStudies.length === 0) return null;
+                return (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" /> Estudos Salvos {currentPlatformInfo ? `— ${currentPlatformInfo.label}` : ''}
+                        <Badge variant="outline" className="ml-auto">{currentStudies.length}</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {currentStudies.map((study, idx) => (
+                        <details key={study.id} className="group rounded-lg border p-3 hover:bg-muted/20 transition-colors">
+                          <summary className="flex items-center gap-3 cursor-pointer list-none">
+                            <Sparkles className="h-4 w-4 text-primary shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium">Estudo #{currentStudies.length - idx}</span>
+                                {activePlatform === 'all' && <Badge variant="outline" className="text-[10px]">{study.plataforma}</Badge>}
+                                {study.segmento && <Badge variant="outline" className="text-[10px]">{study.segmento}</Badge>}
+                                {study.produto && <Badge variant="outline" className="text-[10px]">{study.produto}</Badge>}
+                                {study.objetivo && <Badge variant="secondary" className="text-[10px]">{study.objetivo}</Badge>}
+                              </div>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{new Date(study.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">{new Date(study.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                          </div>
-                          <span className="text-xs text-muted-foreground group-open:hidden">Expandir</span>
-                          <span className="text-xs text-muted-foreground hidden group-open:inline">Recolher</span>
-                        </summary>
-                        <div className="mt-3 pt-3 border-t prose prose-sm max-w-none text-sm whitespace-pre-wrap">{study.resultado}</div>
-                      </details>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                            <span className="text-xs text-muted-foreground group-open:hidden">Expandir</span>
+                            <span className="text-xs text-muted-foreground hidden group-open:inline">Recolher</span>
+                          </summary>
+                          <div className="mt-3 pt-3 border-t prose prose-sm max-w-none text-sm whitespace-pre-wrap">{study.resultado}</div>
+                        </details>
+                      ))}
+                    </CardContent>
+                  </Card>
+                );
+              })()}
 
               {/* Investment by platform chart */}
               {anuncios.length > 0 && (
@@ -1377,7 +1407,7 @@ export default function ClientPortalPage() {
           <p className="text-xs font-medium text-foreground">Alguma dúvida? 💬</p>
         </div>
         <a
-          href="https://wa.me/5500000000000"
+          href="https://wa.me/5511941646249?text=Ol%C3%A1%2C%20venho%20do%20REPORTS"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white px-5 py-3 rounded-2xl shadow-lg shadow-[hsl(142,70%,45%)]/30 transition-all hover:scale-105 hover:shadow-xl"
