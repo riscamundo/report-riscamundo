@@ -14,8 +14,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FormaPagamento, StatusFunil } from '@/types';
 import { calcFaturamentoMes, calcTicketMedio, calcConversao, calcForecast, getLeadsPorEtapa } from '@/lib/metrics';
-import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users } from 'lucide-react';
+import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
@@ -129,6 +130,7 @@ export default function VendasPage() {
           <TabsList>
             <TabsTrigger value="vendas" className="gap-1.5"><DollarSign className="h-4 w-4" /> Vendas</TabsTrigger>
             <TabsTrigger value="funil" className="gap-1.5"><Users className="h-4 w-4" /> Funil de Vendas</TabsTrigger>
+            <TabsTrigger value="contatos" className="gap-1.5"><Building2 className="h-4 w-4" /> Contatos & Empresas</TabsTrigger>
           </TabsList>
 
           {/* ═══════ VENDAS TAB ═══════ */}
@@ -371,6 +373,11 @@ export default function VendasPage() {
                 );
               })}
             </div>
+          </TabsContent>
+
+          {/* ═══════ CONTATOS & EMPRESAS TAB ═══════ */}
+          <TabsContent value="contatos" className="space-y-4">
+            <ContatosEmpresasTab />
           </TabsContent>
         </Tabs>
       </AnimatedPage>
