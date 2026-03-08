@@ -1052,7 +1052,223 @@ export default function ClientPortalPage() {
               )}
             </TabsContent>
 
-            {/* ═══════════ DADOS TAB ═══════════ */}
+            {/* ═══════════ MÍDIAS SOCIAIS TAB ═══════════ */}
+            <TabsContent value="social" className="space-y-6">
+              {socialAccounts.length === 0 ? (
+                <Card><CardContent className="p-12 text-center"><Share2 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Mídias Sociais</h3><p className="text-sm text-muted-foreground">Suas contas de mídias sociais aparecerão aqui quando cadastradas pela equipe.</p></CardContent></Card>
+              ) : (
+                <>
+                  <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {socialAccounts.map(acc => {
+                      const platformIcons: Record<string, string> = { instagram: '📸', facebook: '📘', linkedin: '💼', tiktok: '🎵', youtube: '▶️', twitter: '🐦', pinterest: '📌' };
+                      return (
+                        <StaggerItem key={acc.id}>
+                          <Card className="hover:shadow-md transition-shadow">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <span className="text-lg">{platformIcons[acc.plataforma.toLowerCase()] || '🌐'}</span>
+                                {acc.plataforma}
+                                {acc.username && <Badge variant="outline" className="text-[10px]">@{acc.username}</Badge>}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Seguidores</p><p className="font-bold">{acc.seguidores.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Novos/mês</p><p className="font-bold text-accent">+{acc.novos_seguidores_mes.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Engajamento</p><p className="font-bold">{acc.engajamento_medio}%</p></div>
+                                <div className="p-2 rounded-lg bg-muted/50"><p className="text-[10px] text-muted-foreground">Posts</p><p className="font-bold">{acc.posts_total}</p></div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-1 text-[11px] text-center">
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Alcance</p><p className="font-semibold">{acc.alcance_medio.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Impressões</p><p className="font-semibold">{acc.impressoes_mes.toLocaleString('pt-BR')}</p></div>
+                                <div className="p-1.5 rounded bg-primary/5"><p className="text-muted-foreground">Cliques</p><p className="font-semibold">{acc.cliques_mes.toLocaleString('pt-BR')}</p></div>
+                              </div>
+                              {acc.url_perfil && <a href={acc.url_perfil} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><ExternalLink className="h-3 w-3" /> Ver perfil</a>}
+                            </CardContent>
+                          </Card>
+                        </StaggerItem>
+                      );
+                    })}
+                  </StaggerContainer>
+
+                  {/* Combined social chart */}
+                  {socialAccounts.length > 1 && (
+                    <Card>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Activity className="h-4 w-4 text-primary" /> Comparativo entre Plataformas</CardTitle></CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={220}>
+                          <BarChart data={socialAccounts.map(a => ({ nome: a.plataforma, seguidores: a.seguidores, engajamento: a.engajamento_medio }))}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 93%)" vertical={false} />
+                            <XAxis dataKey="nome" fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                            <YAxis fontSize={11} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                            <Tooltip contentStyle={tooltipStyle} />
+                            <Legend fontSize={10} />
+                            <Bar dataKey="seguidores" name="Seguidores" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} barSize={20} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* ═══════════ MYBUSINESS TAB ═══════════ */}
+            <TabsContent value="mybusiness" className="space-y-6">
+              {!mybusiness ? (
+                <Card><CardContent className="p-12 text-center"><Store className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Google MyBusiness</h3><p className="text-sm text-muted-foreground">Dados do seu perfil MyBusiness aparecerão aqui quando configurados pela equipe.</p></CardContent></Card>
+              ) : (
+                <>
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2"><Store className="h-4 w-4 text-primary" /> {mybusiness.nome_negocio}</CardTitle>
+                      {mybusiness.categoria && <p className="text-xs text-muted-foreground">{mybusiness.categoria}</p>}
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex flex-wrap items-center gap-4 text-sm">
+                        {mybusiness.endereco && <span className="flex items-center gap-1.5 text-muted-foreground"><MapPin className="h-3.5 w-3.5" /> {mybusiness.endereco}{mybusiness.cidade ? `, ${mybusiness.cidade}` : ''}{mybusiness.estado ? ` - ${mybusiness.estado}` : ''}</span>}
+                        {mybusiness.telefone && <span className="flex items-center gap-1.5 text-muted-foreground"><Phone className="h-3.5 w-3.5" /> {mybusiness.telefone}</span>}
+                        {mybusiness.website && <a href={mybusiness.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-primary hover:underline"><Globe className="h-3.5 w-3.5" /> Website</a>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map(i => <Star key={i} className={`h-4 w-4 ${i <= Math.round(mybusiness.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}
+                        </div>
+                        <span className="text-sm font-bold">{mybusiness.avaliacao_media.toFixed(1)}</span>
+                        <span className="text-xs text-muted-foreground">({mybusiness.total_avaliacoes} avaliações)</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <StaggerItem><MktKPI label="Visualiz. Busca" value={mybusiness.visualizacoes_busca.toLocaleString('pt-BR')} icon={Search} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Visualiz. Maps" value={mybusiness.visualizacoes_maps.toLocaleString('pt-BR')} icon={MapPin} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Cliques Site" value={mybusiness.cliques_site.toLocaleString('pt-BR')} icon={Globe} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Ligações" value={mybusiness.cliques_ligacao.toLocaleString('pt-BR')} icon={Phone} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Rotas" value={mybusiness.cliques_rota.toLocaleString('pt-BR')} icon={MapPin} /></StaggerItem>
+                    <StaggerItem><MktKPI label="Fotos" value={mybusiness.fotos_count.toString()} icon={Eye} /></StaggerItem>
+                  </StaggerContainer>
+
+                  {/* Competitors box */}
+                  {competitors.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> Concorrentes</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {/* Your business vs competitors */}
+                          <div className="p-3 rounded-lg border-2 border-primary/20 bg-primary/5">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2"><Store className="h-4 w-4 text-primary" /><span className="text-sm font-semibold">{mybusiness.nome_negocio}</span><Badge className="text-[10px]">Você</Badge></div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className={`h-3 w-3 ${i <= Math.round(mybusiness.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}</div>
+                                <span className="text-sm font-bold">{mybusiness.avaliacao_media.toFixed(1)}</span>
+                                <span className="text-xs text-muted-foreground">({mybusiness.total_avaliacoes})</span>
+                              </div>
+                            </div>
+                          </div>
+                          {competitors.map(comp => (
+                            <div key={comp.id} className="p-3 rounded-lg border hover:bg-muted/20 transition-colors">
+                              <div className="flex items-center justify-between">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium">{comp.nome_concorrente}</p>
+                                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                                    {comp.categoria && <span>{comp.categoria}</span>}
+                                    {comp.distancia_km != null && <span>· {comp.distancia_km.toFixed(1)} km</span>}
+                                    {comp.endereco && <span>· {comp.endereco}</span>}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <div className="flex items-center gap-0.5">{[1,2,3,4,5].map(i => <Star key={i} className={`h-3 w-3 ${i <= Math.round(comp.avaliacao_media) ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />)}</div>
+                                  <span className="text-sm font-bold">{comp.avaliacao_media.toFixed(1)}</span>
+                                  <span className="text-xs text-muted-foreground">({comp.total_avaliacoes})</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {/* Rating comparison chart */}
+                        <div className="mt-4">
+                          <ResponsiveContainer width="100%" height={180}>
+                            <BarChart data={[{ nome: mybusiness.nome_negocio.slice(0, 15), nota: mybusiness.avaliacao_media, avaliacoes: mybusiness.total_avaliacoes }, ...competitors.map(c => ({ nome: c.nome_concorrente.slice(0, 15), nota: c.avaliacao_media, avaliacoes: c.total_avaliacoes }))]} layout="vertical">
+                              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 93%)" horizontal={false} />
+                              <XAxis type="number" domain={[0, 5]} fontSize={10} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="nome" width={100} fontSize={10} stroke="hsl(220, 9%, 46%)" axisLine={false} tickLine={false} />
+                              <Tooltip contentStyle={tooltipStyle} formatter={(v: number, name: string) => [name === 'nota' ? `${v.toFixed(1)} ⭐` : v, name === 'nota' ? 'Nota' : 'Avaliações']} />
+                              <Bar dataKey="nota" fill="hsl(38, 92%, 50%)" radius={[0, 6, 6, 0]} barSize={16} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </>
+              )}
+            </TabsContent>
+
+            {/* ═══════════ FINANCEIRO TAB ═══════════ */}
+            <TabsContent value="financeiro" className="space-y-6">
+              {financeiro.length === 0 ? (
+                <Card><CardContent className="p-12 text-center"><Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Financeiro</h3><p className="text-sm text-muted-foreground">Nenhum registro financeiro encontrado.</p></CardContent></Card>
+              ) : (
+                <>
+                  {(() => {
+                    const total = financeiro.reduce((s, f) => s + f.valor, 0);
+                    const pago = financeiro.filter(f => f.status === 'pago').reduce((s, f) => s + f.valor, 0);
+                    const pendente = financeiro.filter(f => f.status === 'pendente').reduce((s, f) => s + f.valor, 0);
+                    const vencido = financeiro.filter(f => f.status === 'pendente' && new Date(f.data_vencimento) < new Date()).length;
+                    return (
+                      <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <StaggerItem><MktKPI label="Total" value={total.toLocaleString('pt-BR')} icon={Receipt} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><MktKPI label="Pago" value={pago.toLocaleString('pt-BR')} icon={CheckCircle2} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><MktKPI label="Pendente" value={pendente.toLocaleString('pt-BR')} icon={Clock} prefix="R$ " /></StaggerItem>
+                        <StaggerItem><Card className={vencido > 0 ? 'border-destructive/30' : ''}><CardContent className="p-4"><div className="flex items-start justify-between"><div className="p-2 rounded-xl bg-destructive/10"><AlertTriangle className="h-4 w-4 text-destructive" /></div></div><div className="mt-3"><p className="text-xs text-muted-foreground">Vencidos</p><p className="text-xl font-bold text-destructive">{vencido}</p></div></CardContent></Card></StaggerItem>
+                      </StaggerContainer>
+                    );
+                  })()}
+
+                  <Card>
+                    <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Receipt className="h-4 w-4 text-primary" /> Histórico de Cobranças</CardTitle></CardHeader>
+                    <CardContent className="p-0">
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead><tr className="border-b bg-muted/30">
+                            <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Descrição</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Valor</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Vencimento</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground hidden md:table-cell">Pagamento</th>
+                          </tr></thead>
+                          <tbody>
+                            {financeiro.map(f => {
+                              const isOverdue = f.status === 'pendente' && new Date(f.data_vencimento) < new Date();
+                              const statusMap: Record<string, { label: string; color: string }> = {
+                                pago: { label: 'Pago', color: 'bg-accent/10 text-accent border-accent/30' },
+                                pendente: { label: isOverdue ? 'Vencido' : 'Pendente', color: isOverdue ? 'bg-destructive/10 text-destructive border-destructive/30' : 'bg-warning/10 text-warning border-warning/30' },
+                                cancelado: { label: 'Cancelado', color: 'bg-muted text-muted-foreground' },
+                              };
+                              const st = statusMap[f.status] || statusMap.pendente;
+                              return (
+                                <tr key={f.id} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                                  <td className="p-3">
+                                    <p className="font-medium">{f.descricao || f.tipo}</p>
+                                    {f.numero_boleto && <p className="text-[10px] text-muted-foreground">Boleto: {f.numero_boleto}</p>}
+                                  </td>
+                                  <td className="p-3 text-right font-semibold">R$ {f.valor.toLocaleString('pt-BR')}</td>
+                                  <td className="p-3 text-center text-muted-foreground">{new Date(f.data_vencimento).toLocaleDateString('pt-BR')}</td>
+                                  <td className="p-3 text-center"><Badge variant="outline" className={`text-[10px] ${st.color}`}>{st.label}</Badge></td>
+                                  <td className="p-3 text-center hidden md:table-cell text-muted-foreground text-xs">{f.data_pagamento ? new Date(f.data_pagamento).toLocaleDateString('pt-BR') : '—'}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
+            </TabsContent>
+
             <TabsContent value="dados">
               {cliente && (
                 <Card>
