@@ -43,6 +43,13 @@ export default function EquipeDashboard() {
   const [selectedClienteId, setSelectedClienteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('visao');
 
+  // Listen for sidebar tab changes
+  useEffect(() => {
+    const handler = (e: CustomEvent) => setActiveTab(e.detail);
+    window.addEventListener('equipe-tab-change', handler as EventListener);
+    return () => window.removeEventListener('equipe-tab-change', handler as EventListener);
+  }, []);
+
   // Data per selected client
   const [clientMarketing, setClientMarketing] = useState<MarketingReport[]>([]);
   const [clientKeywords, setClientKeywords] = useState<SeoKeyword[]>([]);
