@@ -34,6 +34,7 @@ import {
   PieChart, Pie, Cell, AreaChart, Area, LineChart, Line, Legend
 } from 'recharts';
 import { DashboardAiSummary } from '@/components/DashboardAiSummary';
+import { TenantAiChecklist } from '@/components/TenantAiChecklist';
 
 const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
 const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
