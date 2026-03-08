@@ -491,6 +491,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ ANÚNCIOS TAB ═══════════ */}
             <TabsContent value="anuncios" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Anúncios" /></div>
               {/* ── Análise Geral ── */}
               {anuncios.length > 0 && (() => {
                 const totalInvest = anuncios.reduce((s, a) => s + a.investimento, 0);
