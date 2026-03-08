@@ -1179,6 +1179,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ FINANCEIRO TAB ═══════════ */}
             <TabsContent value="financeiro" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Financeiro" /></div>
               {financeiro.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Wallet className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Financeiro</h3><p className="text-sm text-muted-foreground">Nenhum registro financeiro encontrado.</p></CardContent></Card>
               ) : (
