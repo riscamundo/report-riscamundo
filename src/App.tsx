@@ -63,7 +63,7 @@ const AppRoutes = () => {
       <Route path="/tarefas" element={<ProtectedRoute masterOnly><TarefasConfigPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute masterOnly><AdminPage /></ProtectedRoute>} />
       <Route path="/tenants" element={<ProtectedRoute masterOnly><TenantsPage /></ProtectedRoute>} />
-      <Route path="/contatos-empresas" element={<ProtectedRoute masterOnly><ContatosEmpresasPage /></ProtectedRoute>} />
+      <Route path="/contatos-empresas" element={<Navigate to="/vendas" replace />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
