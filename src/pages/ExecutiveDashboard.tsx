@@ -110,7 +110,9 @@ export default function ExecutiveDashboard() {
     const payload = {
       nome: fd.get('nome') as string,
       telefone: fd.get('telefone') as string || null,
+      whatsapp: fd.get('whatsapp') as string || null,
       email: fd.get('email') as string || null,
+      site: fd.get('site') as string || null,
       origem: fd.get('origem') as string || 'manual',
       motivo_inatividade: fd.get('motivo') as string || null,
       ultimo_contato: fd.get('ultimo_contato') as string || null,
