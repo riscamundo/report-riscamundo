@@ -147,11 +147,11 @@ export default function ExecutiveDashboard() {
                 {roiCampanha.some(r => r.roi > 0) ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={roiCampanha}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                      <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-20} textAnchor="end" height={60} />
-                      <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                      <Tooltip formatter={(v: number) => `${v.toFixed(1)}x`} contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} />
-                      <Bar dataKey="roi" fill="hsl(200, 60%, 50%)" radius={[4, 4, 0, 0]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 30%, 18%)" />
+                      <XAxis dataKey="nome" stroke="hsl(220, 15%, 55%)" fontSize={10} angle={-20} textAnchor="end" height={60} />
+                      <YAxis stroke="hsl(220, 15%, 55%)" fontSize={12} />
+                      <Tooltip formatter={(v: number) => `${v.toFixed(1)}x`} contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} />
+                      <Bar dataKey="roi" fill="hsl(160, 84%, 39%)" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
