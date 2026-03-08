@@ -26,10 +26,14 @@ const allNavItems: NavItem[] = [
 ];
 
 export function AppSidebar() {
-  const { isMaster, user, signOut } = useAuth();
+  const { isMaster, isGestor, role, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const visibleItems = allNavItems.filter(item => !item.masterOnly || isMaster);
+  const visibleItems = allNavItems.filter(item => {
+    if (item.masterOnly) return isMaster;
+    if (item.gestorAllowed) return true; // everyone sees funil/vendas
+    return true;
+  });
 
   const sidebarContent = (
     <>
