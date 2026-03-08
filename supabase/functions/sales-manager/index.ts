@@ -91,6 +91,68 @@ Seja direto, prático e com foco em resultado. Use seu estilo característico.`;
     }
 
     let userContent = '';
+    // Handle media analysis
+    if (action === 'analyze-media') {
+      const mediaPrompt = `Você está analisando material enviado pela equipe Riscamundo. Analise com olhar de Diretor de Vendas:
+
+${mediaContext ? `Contexto adicional: ${mediaContext}` : ''}
+
+Para cada material analisado, forneça:
+1. **O que você vê/lê** — Transcrição ou descrição detalhada do conteúdo
+2. **Diagnóstico de Vendas** — O que isso significa para o negócio
+3. **Oportunidades** — Ações concretas que podem gerar receita
+4. **Riscos** — Problemas identificados que precisam de atenção
+5. **Próximo passo** — Ação imediata recomendada
+
+Seja direto, prático e com foco em resultado. Use seu estilo característico.`;
+
+      const userMessageContent: any[] = [{ type: "text", text: mediaPrompt }];
+
+      if (mediaFiles && Array.isArray(mediaFiles)) {
+        for (const file of mediaFiles) {
+          userMessageContent.push({
+            type: "image_url",
+            image_url: { url: file.data }
+          });
+        }
+      }
+
+      const mediaResponse = await fetch(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userMessageContent },
+            ],
+          }),
+        }
+      );
+
+      if (!mediaResponse.ok) {
+        if (mediaResponse.status === 429) {
+          return new Response(JSON.stringify({ error: "Limite de requisições excedido." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (mediaResponse.status === 402) {
+          return new Response(JSON.stringify({ error: "Créditos insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        const t = await mediaResponse.text();
+        console.error("AI gateway error:", mediaResponse.status, t);
+        return new Response(JSON.stringify({ error: "Erro no serviço de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const mediaData = await mediaResponse.json();
+      const analysisContent = mediaData.choices?.[0]?.message?.content || "";
+      return new Response(JSON.stringify({ analysis: analysisContent }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    let userContent = '';
     if (action === 'organize') {
       userContent = `Organize estes dados de planilha em contatos trabalháveis para email marketing e WhatsApp:\n\n${csvContent}\n\n${instructions ? `Instruções adicionais: ${instructions}` : ''}`;
     } else if (action === 'analyze') {
