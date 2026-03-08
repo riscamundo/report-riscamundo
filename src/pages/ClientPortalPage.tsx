@@ -834,6 +834,7 @@ export default function ClientPortalPage() {
                     </Card>
                   )}
 
+                  {seoKeywords.length > 0 && (() => {
                     const distribution = [
                       { range: '1-3', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length },
                       { range: '4-10', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 3 && k.posicao_atual <= 10).length },
