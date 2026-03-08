@@ -85,6 +85,7 @@ export default function SeoConfigPage() {
   const [editingPg, setEditingPg] = useState<SeoPage | null>(null);
   const [kwForm, setKwForm] = useState(emptyKeyword);
   const [pgForm, setPgForm] = useState(emptyPage);
+  const [estimating, setEstimating] = useState(false);
 
   const fetchData = async () => {
     const [cRes, kwRes, pgRes] = await Promise.all([
