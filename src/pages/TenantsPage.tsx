@@ -68,13 +68,14 @@ export default function TenantsPage() {
     setLoadingData(true);
     setBoletoValor(cliente.mensalidade_valor?.toString() || '0');
     const cid = cliente.id;
-    const [mkt, seo, ads, tasks, fin, social] = await Promise.all([
+    const [mkt, seo, ads, tasks, fin, social, procs] = await Promise.all([
       supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
       supabase.from('seo_keywords').select('*').eq('cliente_id', cid),
       supabase.from('anuncios').select('*').eq('cliente_id', cid),
       supabase.from('tarefas_cliente').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
       supabase.from('financeiro' as any).select('*').eq('cliente_id', cid).order('data_vencimento', { ascending: false }),
       supabase.from('social_media_accounts' as any).select('*').eq('cliente_id', cid),
+      supabase.from('procedimentos').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
     ]);
     setTenantData({
       marketing: (mkt.data || []) as any[],
@@ -83,6 +84,7 @@ export default function TenantsPage() {
       tarefas: (tasks.data || []) as any[],
       financeiro: (fin.data || []) as unknown as any[],
       socialAccounts: (social.data || []) as unknown as any[],
+      procedimentos: (procs.data || []) as any[],
     });
     setLoadingData(false);
   };
