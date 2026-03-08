@@ -12,7 +12,7 @@ import {
 import { DollarSign, TrendingUp, Target, CreditCard, Users, Award, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const COLORS = ['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)', 'hsl(280, 50%, 55%)', 'hsl(15, 70%, 55%)'];
+const COLORS = ['hsl(217, 91%, 60%)', 'hsl(160, 84%, 39%)', 'hsl(280, 50%, 55%)', 'hsl(38, 90%, 55%)', 'hsl(340, 65%, 55%)'];
 
 export default function ExecutiveDashboard() {
   const { procedimentos, campanhas, leads, vendas, loading } = useStoreContext();
