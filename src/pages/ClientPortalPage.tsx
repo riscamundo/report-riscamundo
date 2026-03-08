@@ -152,14 +152,16 @@ export default function ClientPortalPage() {
       setVendas((vendasRes.data || []) as VendaCliente[]);
 
       if (clienteRes.data?.id) {
-        const [mktRes, kwRes, pgRes] = await Promise.all([
+        const [mktRes, kwRes, pgRes, tarefasRes] = await Promise.all([
           supabase.from('marketing_reports').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: true }),
           supabase.from('seo_keywords').select('*').eq('cliente_id', clienteRes.data.id).order('posicao_atual', { ascending: true }),
           supabase.from('seo_pages').select('*').eq('cliente_id', clienteRes.data.id).order('periodo_mes', { ascending: false }),
+          supabase.from('tarefas_cliente').select('*').eq('cliente_id', clienteRes.data.id).order('created_at', { ascending: false }),
         ]);
         setMarketing((mktRes.data || []) as MarketingReport[]);
         setSeoKeywords((kwRes.data || []) as SeoKeyword[]);
         setSeoPages((pgRes.data || []) as SeoPage[]);
+        setTarefas((tarefasRes.data || []) as TarefaCliente[]);
       }
       setLoading(false);
     };
