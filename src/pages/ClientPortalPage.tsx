@@ -1086,6 +1086,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MYBUSINESS TAB ═══════════ */}
             <TabsContent value="mybusiness" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="MyBusiness" /></div>
               {!mybusiness ? (
                 <Card><CardContent className="p-12 text-center"><Store className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Google MyBusiness</h3><p className="text-sm text-muted-foreground">Dados do seu perfil MyBusiness aparecerão aqui quando configurados pela equipe.</p></CardContent></Card>
               ) : (
