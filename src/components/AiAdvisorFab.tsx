@@ -118,6 +118,27 @@ export function AiAdvisorFab() {
           } catch { /* ignore */ }
         }
       }
+
+      // Save conversation to archive
+      if (assistantSoFar && !assistantSoFar.startsWith('❌')) {
+        try {
+          await fetch(CHAT_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              messages: [],
+              saveConversation: {
+                pergunta: text,
+                resposta: assistantSoFar,
+                contexto: window.location.pathname,
+              },
+            }),
+          });
+        } catch { /* silent */ }
+      }
     } catch (e) {
       console.error('AI Advisor error:', e);
       upsertAssistant('❌ Erro ao conectar com o Maestro BI. Tente novamente.');
