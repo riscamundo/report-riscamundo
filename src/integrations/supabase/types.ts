@@ -222,6 +222,83 @@ export type Database = {
           },
         ]
       }
+      marketing_reports: {
+        Row: {
+          cliente_id: string
+          cliques_ads: number | null
+          conversoes_ads: number | null
+          created_at: string
+          custo_ads: number | null
+          engajamento_rate: number | null
+          id: string
+          impressoes_ads: number | null
+          leads_gerados: number | null
+          leads_qualificados: number | null
+          novos_seguidores: number | null
+          observacoes: string | null
+          palavras_chave_top10: number | null
+          periodo_mes: string
+          posts_publicados: number | null
+          seguidores_total: number | null
+          updated_at: string
+          visitas_organicas: number | null
+          visitas_pagas: number | null
+          visitas_site: number | null
+        }
+        Insert: {
+          cliente_id: string
+          cliques_ads?: number | null
+          conversoes_ads?: number | null
+          created_at?: string
+          custo_ads?: number | null
+          engajamento_rate?: number | null
+          id?: string
+          impressoes_ads?: number | null
+          leads_gerados?: number | null
+          leads_qualificados?: number | null
+          novos_seguidores?: number | null
+          observacoes?: string | null
+          palavras_chave_top10?: number | null
+          periodo_mes: string
+          posts_publicados?: number | null
+          seguidores_total?: number | null
+          updated_at?: string
+          visitas_organicas?: number | null
+          visitas_pagas?: number | null
+          visitas_site?: number | null
+        }
+        Update: {
+          cliente_id?: string
+          cliques_ads?: number | null
+          conversoes_ads?: number | null
+          created_at?: string
+          custo_ads?: number | null
+          engajamento_rate?: number | null
+          id?: string
+          impressoes_ads?: number | null
+          leads_gerados?: number | null
+          leads_qualificados?: number | null
+          novos_seguidores?: number | null
+          observacoes?: string | null
+          palavras_chave_top10?: number | null
+          periodo_mes?: string
+          posts_publicados?: number | null
+          seguidores_total?: number | null
+          updated_at?: string
+          visitas_organicas?: number | null
+          visitas_pagas?: number | null
+          visitas_site?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_reports_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       procedimentos: {
         Row: {
           categoria: string
