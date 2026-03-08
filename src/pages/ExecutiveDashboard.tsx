@@ -595,8 +595,8 @@ export default function ExecutiveDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Funil */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Funil de Vendas</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Funil de Vendas</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {funilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
