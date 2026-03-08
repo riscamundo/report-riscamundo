@@ -1,4 +1,5 @@
 import { useStoreContext } from '@/contexts/StoreContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard, PageHeader } from '@/components/KPICard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
