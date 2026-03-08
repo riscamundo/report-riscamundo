@@ -804,7 +804,36 @@ export default function ClientPortalPage() {
                     );
                   })()}
 
-                  {seoKeywords.length > 0 && (() => {
+                  {/* Word Cloud */}
+                  {seoKeywords.length > 0 && (
+                    <Card>
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold flex items-center gap-2"><Hash className="h-4 w-4 text-primary" /> Nuvem de Palavras-Chave</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="flex flex-wrap items-center justify-center gap-2 py-4">
+                          {seoKeywords.map(kw => {
+                            const maxVol = Math.max(...seoKeywords.map(k => k.volume_busca || 1));
+                            const ratio = (kw.volume_busca || 1) / maxVol;
+                            const fontSize = Math.max(0.7, 0.7 + ratio * 1.8);
+                            const opacity = Math.max(0.4, 0.3 + ratio * 0.7);
+                            const posColor = !kw.posicao_atual ? 'text-muted-foreground' : kw.posicao_atual <= 3 ? 'text-accent' : kw.posicao_atual <= 10 ? 'text-primary' : kw.posicao_atual <= 20 ? 'text-foreground' : 'text-muted-foreground';
+                            return (
+                              <span key={kw.id} className={`${posColor} font-semibold cursor-default transition-transform hover:scale-110`} style={{ fontSize: `${fontSize}rem`, opacity }} title={`Posição: ${kw.posicao_atual || '—'} | Volume: ${kw.volume_busca}/mês`}>
+                                {kw.palavra_chave}
+                              </span>
+                            );
+                          })}
+                        </div>
+                        <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground border-t pt-2 mt-2">
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent" /> Top 3</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-primary" /> Top 10</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-foreground" /> Top 20</span>
+                          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-muted-foreground" /> 20+</span>
+                          <span className="ml-2">Tamanho = volume de busca</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
                     const distribution = [
                       { range: '1-3', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length },
                       { range: '4-10', count: seoKeywords.filter(k => k.posicao_atual && k.posicao_atual > 3 && k.posicao_atual <= 10).length },
