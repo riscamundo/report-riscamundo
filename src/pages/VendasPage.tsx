@@ -14,9 +14,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FormaPagamento, StatusFunil } from '@/types';
 import { calcFaturamentoMes, calcTicketMedio, calcConversao, calcForecast, getLeadsPorEtapa } from '@/lib/metrics';
-import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2 } from 'lucide-react';
+import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2, Brain } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
+import { LlmMaestroTab } from '@/components/LlmMaestroTab';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
@@ -131,6 +132,7 @@ export default function VendasPage() {
             <TabsTrigger value="vendas" className="gap-1.5"><DollarSign className="h-4 w-4" /> Vendas</TabsTrigger>
             <TabsTrigger value="funil" className="gap-1.5"><Users className="h-4 w-4" /> Funil de Vendas</TabsTrigger>
             <TabsTrigger value="contatos" className="gap-1.5"><Building2 className="h-4 w-4" /> Contatos & Empresas</TabsTrigger>
+            <TabsTrigger value="llm" className="gap-1.5"><Brain className="h-4 w-4" /> LLM Maestro</TabsTrigger>
           </TabsList>
 
           {/* ═══════ VENDAS TAB ═══════ */}
@@ -378,6 +380,11 @@ export default function VendasPage() {
           {/* ═══════ CONTATOS & EMPRESAS TAB ═══════ */}
           <TabsContent value="contatos" className="space-y-4">
             <ContatosEmpresasTab />
+          </TabsContent>
+
+          {/* ═══════ LLM MAESTRO TAB ═══════ */}
+          <TabsContent value="llm" className="space-y-4">
+            <LlmMaestroTab />
           </TabsContent>
         </Tabs>
       </AnimatedPage>
