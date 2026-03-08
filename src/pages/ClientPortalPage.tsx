@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import KeywordResearchAgent from '@/components/KeywordResearchAgent';
 import TaskAnalyzerAgent from '@/components/TaskAnalyzerAgent';
 import { toast } from 'sonner';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import {
   User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
