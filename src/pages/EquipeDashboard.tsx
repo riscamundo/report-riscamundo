@@ -73,9 +73,15 @@ export default function EquipeDashboard() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data } = await supabase.from('clientes').select('id, nome, status').eq('status', 'ativo').order('nome');
-      const list = (data || []) as ClienteResumo[];
+      const [cRes, pRes, campRes] = await Promise.all([
+        supabase.from('clientes').select('id, nome, status').eq('status', 'ativo').order('nome'),
+        supabase.from('procedimentos').select('id, nome_procedimento, categoria'),
+        supabase.from('campanhas').select('id, nome_campanha, canal'),
+      ]);
+      const list = (cRes.data || []) as ClienteResumo[];
       setClientes(list);
+      setAllProcedimentos((pRes.data || []) as ProcedimentoRow[]);
+      setAllCampanhas((campRes.data || []) as CampanhaRow[]);
       if (list.length > 0) setSelectedClienteId(list[0].id);
       setLoading(false);
     };
