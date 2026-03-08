@@ -340,6 +340,233 @@ export default function EquipeDashboard() {
               )}
             </TabsContent>
 
+            {/* ══════ VENDAS ══════ */}
+            <TabsContent value="vendas" className="space-y-6">
+              {(() => {
+                const vendasFechadas = vendas.filter(v => v.status === 'fechado');
+                const faturamentoTotal = vendasFechadas.reduce((s, v) => s + v.valor_venda, 0);
+                const now = new Date();
+                const vendasMes = vendasFechadas.filter(v => {
+                  const d = new Date(v.data_venda);
+                  return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                });
+                const faturamentoMes = vendasMes.reduce((s, v) => s + v.valor_venda, 0);
+                const ticketMedio = vendasFechadas.length > 0 ? faturamentoTotal / vendasFechadas.length : 0;
+                const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
+
+                // Receita por procedimento/serviço
+                const receitaPorProc: Record<string, { nome: string; receita: number; qtd: number }> = {};
+                vendasFechadas.forEach(v => {
+                  const proc = allProcedimentos.find(p => p.id === v.procedimento_vendido);
+                  const key = proc?.id || 'sem_proc';
+                  const nome = proc?.nome_procedimento || 'Não informado';
+                  if (!receitaPorProc[key]) receitaPorProc[key] = { nome, receita: 0, qtd: 0 };
+                  receitaPorProc[key].receita += v.valor_venda;
+                  receitaPorProc[key].qtd += 1;
+                });
+                const procChart = Object.values(receitaPorProc).sort((a, b) => b.receita - a.receita);
+
+                // Vendas por canal de mídia (via lead → campanha → canal, ou lead → origem)
+                const vendasPorCanal: Record<string, { canal: string; receita: number; qtd: number }> = {};
+                vendasFechadas.forEach(v => {
+                  const lead = allLeads.find(l => l.id === v.lead_id);
+                  let canal = 'Direto';
+                  if (lead?.campanha_id) {
+                    const camp = allCampanhas.find(c => c.id === lead.campanha_id);
+                    canal = camp?.canal || lead.origem || 'Direto';
+                  } else if (lead?.origem) {
+                    canal = lead.origem;
+                  }
+                  if (!vendasPorCanal[canal]) vendasPorCanal[canal] = { canal, receita: 0, qtd: 0 };
+                  vendasPorCanal[canal].receita += v.valor_venda;
+                  vendasPorCanal[canal].qtd += 1;
+                });
+                const canalChart = Object.values(vendasPorCanal).sort((a, b) => b.receita - a.receita);
+
+                // Funil
+                const funilEtapas = ['novo', 'qualificado', 'avaliacao', 'venda', 'perdido'];
+                const funilLabels: Record<string, string> = { novo: 'Novo Lead', qualificado: 'Qualificado', avaliacao: 'Avaliação', venda: 'Venda', perdido: 'Perdido' };
+                const funilData = funilEtapas.map(e => ({ etapa: funilLabels[e], count: allLeads.filter(l => l.status_funil === e).length }));
+
+                // Monthly revenue
+                const monthlyMap: Record<string, number> = {};
+                vendasFechadas.forEach(v => {
+                  const m = v.data_venda.slice(0, 7);
+                  monthlyMap[m] = (monthlyMap[m] || 0) + v.valor_venda;
+                });
+                const monthlyChart = Object.entries(monthlyMap).sort(([a], [b]) => a.localeCompare(b)).slice(-6).map(([m, v]) => ({
+                  mes: new Date(m + '-01T00:00:00').toLocaleDateString('pt-BR', { month: 'short' }),
+                  receita: v,
+                }));
+
+                if (vendas.length === 0 && allLeads.length === 0) {
+                  return <Card><CardContent className="p-12 text-center text-sm text-muted-foreground">Nenhum dado de vendas disponível.</CardContent></Card>;
+                }
+
+                return (
+                  <>
+                    {/* KPIs */}
+                    <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <StaggerItem>
+                        <Card className="executive-card border-l-4 border-l-primary">
+                          <CardContent className="p-4">
+                            <div className="p-2 rounded-xl bg-primary/10 w-fit"><DollarSign className="h-4 w-4 text-primary" /></div>
+                            <div className="mt-3"><p className="text-xs text-muted-foreground">Faturamento Mês</p><p className="text-xl font-bold">{fmt(faturamentoMes)}</p></div>
+                          </CardContent>
+                        </Card>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <Card className="executive-card border-l-4 border-l-accent">
+                          <CardContent className="p-4">
+                            <div className="p-2 rounded-xl bg-accent/10 w-fit"><ShoppingCart className="h-4 w-4 text-accent" /></div>
+                            <div className="mt-3"><p className="text-xs text-muted-foreground">Vendas Mês</p><p className="text-xl font-bold">{vendasMes.length}</p></div>
+                          </CardContent>
+                        </Card>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <Card className="executive-card border-l-4 border-l-warning">
+                          <CardContent className="p-4">
+                            <div className="p-2 rounded-xl bg-warning/10 w-fit"><Target className="h-4 w-4 text-warning" /></div>
+                            <div className="mt-3"><p className="text-xs text-muted-foreground">Ticket Médio</p><p className="text-xl font-bold">{fmt(ticketMedio)}</p></div>
+                          </CardContent>
+                        </Card>
+                      </StaggerItem>
+                      <StaggerItem>
+                        <Card className="executive-card border-l-4 border-l-primary">
+                          <CardContent className="p-4">
+                            <div className="p-2 rounded-xl bg-primary/10 w-fit"><Users className="h-4 w-4 text-primary" /></div>
+                            <div className="mt-3"><p className="text-xs text-muted-foreground">Leads Ativos</p><p className="text-xl font-bold">{allLeads.filter(l => ['novo', 'qualificado', 'avaliacao'].includes(l.status_funil)).length}</p></div>
+                          </CardContent>
+                        </Card>
+                      </StaggerItem>
+                    </StaggerContainer>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Receita Mensal */}
+                      {monthlyChart.length > 1 && (
+                        <Card className="executive-card">
+                          <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Receita Mensal</CardTitle></CardHeader>
+                          <CardContent>
+                            <ResponsiveContainer width="100%" height={220}>
+                              <AreaChart data={monthlyChart}>
+                                <defs><linearGradient id="vGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(42, 70%, 55%)" stopOpacity={0.3}/><stop offset="95%" stopColor="hsl(42, 70%, 55%)" stopOpacity={0}/></linearGradient></defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                                <XAxis dataKey="mes" fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} />
+                                <YAxis fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmt(v)} />
+                                <Area type="monotone" dataKey="receita" name="Receita" stroke="hsl(42, 70%, 55%)" fill="url(#vGrad)" strokeWidth={2} />
+                              </AreaChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Vendas por Canal de Mídia */}
+                      {canalChart.length > 0 && (
+                        <Card className="executive-card">
+                          <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans flex items-center gap-2"><Megaphone className="h-4 w-4 text-primary" /> Vendas por Canal de Mídia</CardTitle></CardHeader>
+                          <CardContent className="flex items-center justify-center">
+                            <ResponsiveContainer width="100%" height={220}>
+                              <PieChart>
+                                <Pie data={canalChart} dataKey="receita" nameKey="canal" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={4} strokeWidth={0}
+                                  label={({ canal, percent }) => `${canal} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={10}>
+                                  {canalChart.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                                </Pie>
+                                <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmt(v)} />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+
+                    {/* Receita por Serviço/Procedimento */}
+                    {procChart.length > 0 && (
+                      <Card className="executive-card">
+                        <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> Receita por Serviço/Procedimento</CardTitle></CardHeader>
+                        <CardContent>
+                          <ResponsiveContainer width="100%" height={Math.max(180, procChart.length * 40)}>
+                            <BarChart data={procChart.slice(0, 8)} layout="vertical" margin={{ left: 0, right: 16 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
+                              <XAxis type="number" tickFormatter={v => `${(v / 1000).toFixed(0)}k`} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="nome" width={140} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
+                              <Tooltip contentStyle={tooltipStyle} formatter={(v: number, name: string) => name === 'receita' ? fmt(v) : v} />
+                              <Bar dataKey="receita" name="Receita" fill="hsl(42, 70%, 55%)" radius={[0, 6, 6, 0]} barSize={18} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Funil de Vendas */}
+                    <Card className="executive-card">
+                      <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> Funil de Vendas</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {funilData.filter(f => f.etapa !== 'Perdido').map((f, i) => {
+                            const maxCount = Math.max(...funilData.map(x => x.count), 1);
+                            const width = (f.count / maxCount) * 100;
+                            return (
+                              <div key={f.etapa}>
+                                <div className="flex justify-between text-sm mb-1.5">
+                                  <span className="text-muted-foreground text-xs font-medium">{f.etapa}</span>
+                                  <span className="font-semibold text-xs">{f.count} leads</span>
+                                </div>
+                                <div className="h-7 bg-muted/60 rounded-lg overflow-hidden">
+                                  <div className="h-full rounded-lg transition-all duration-700 ease-out" style={{ width: `${Math.max(width, 2)}%`, background: COLORS[i % COLORS.length], opacity: 0.85 }} />
+                                </div>
+                              </div>
+                            );
+                          })}
+                          {funilData.find(f => f.etapa === 'Perdido')?.count ? (
+                            <p className="text-xs text-muted-foreground text-right">{funilData.find(f => f.etapa === 'Perdido')!.count} perdido(s)</p>
+                          ) : null}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Tabela de vendas recentes */}
+                    <Card className="executive-card">
+                      <CardHeader className="pb-3"><CardTitle className="text-sm font-semibold font-sans flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Vendas Recentes<Badge variant="outline" className="ml-auto text-[10px]">{vendas.length}</Badge></CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead><tr className="border-b text-xs text-muted-foreground"><th className="text-left py-2 pr-4">Data</th><th className="text-left py-2 pr-4">Cliente</th><th className="text-left py-2 pr-4">Serviço</th><th className="text-left py-2 pr-4">Canal</th><th className="text-right py-2 pr-4">Valor</th><th className="text-center py-2">Status</th></tr></thead>
+                            <tbody>
+                              {vendas.slice(0, 20).map(v => {
+                                const lead = allLeads.find(l => l.id === v.lead_id);
+                                const proc = allProcedimentos.find(p => p.id === v.procedimento_vendido);
+                                let canal = 'Direto';
+                                if (lead?.campanha_id) {
+                                  const camp = allCampanhas.find(c => c.id === lead.campanha_id);
+                                  canal = camp?.canal || lead.origem || 'Direto';
+                                } else if (lead?.origem) {
+                                  canal = lead.origem;
+                                }
+                                return (
+                                  <tr key={v.id} className="border-b border-border/30 hover:bg-muted/20">
+                                    <td className="py-2 pr-4">{new Date(v.data_venda).toLocaleDateString('pt-BR')}</td>
+                                    <td className="py-2 pr-4 font-medium">{lead?.nome || '—'}</td>
+                                    <td className="py-2 pr-4">{proc?.nome_procedimento || '—'}</td>
+                                    <td className="py-2 pr-4"><Badge variant="outline" className="text-[10px]">{canal}</Badge></td>
+                                    <td className="py-2 pr-4 text-right font-medium">{fmt(v.valor_venda)}</td>
+                                    <td className="py-2 text-center"><Badge className={`text-[10px] border-0 ${v.status === 'fechado' ? 'bg-accent/20 text-accent' : 'bg-destructive/20 text-destructive'}`}>{v.status}</Badge></td>
+                                  </tr>
+                                );
+                              })}
+                              {vendas.length === 0 && (
+                                <tr><td colSpan={6} className="py-8 text-center text-muted-foreground text-sm">Nenhuma venda registrada</td></tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </>
+                );
+              })()}
+            </TabsContent>
+
             {/* ══════ MARKETING DIGITAL ══════ */}
             <TabsContent value="marketing" className="space-y-6">
               {!latest ? (
