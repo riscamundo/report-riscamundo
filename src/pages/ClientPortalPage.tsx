@@ -397,7 +397,12 @@ export default function ClientPortalPage() {
                     <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Nova Tarefa</Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <DialogHeader><DialogTitle>Nova Tarefa</DialogTitle></DialogHeader>
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        Nova Tarefa
+                        {newTarefa.contexto && <Badge variant="outline" className="text-xs text-primary border-primary/40">{newTarefa.contexto}</Badge>}
+                      </DialogTitle>
+                    </DialogHeader>
                     <div className="space-y-4 pt-2">
                       <div><Label>Título *</Label><Input value={newTarefa.titulo} onChange={e => setNewTarefa(p => ({ ...p, titulo: e.target.value }))} placeholder="Ex: Enviar material atualizado" /></div>
                       <div><Label>Descrição</Label><Textarea value={newTarefa.descricao} onChange={e => setNewTarefa(p => ({ ...p, descricao: e.target.value }))} placeholder="Detalhes opcionais..." rows={3} /></div>
