@@ -36,6 +36,76 @@ interface TenantData {
   procedimentos: any[];
 }
 
+function ControleVendasClientes({ clientes }: { clientes: Cliente[] }) {
+  const [procs, setProcs] = useState<any[]>([]);
+  const [vendas, setVendas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const [p, v] = await Promise.all([
+        supabase.from('procedimentos').select('*').order('nome_procedimento'),
+        supabase.from('vendas').select('*'),
+      ]);
+      setProcs(p.data || []);
+      setVendas(v.data || []);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  const getClienteName = (clienteId: string | null) => clientes.find(c => c.id === clienteId)?.nome || '—';
+  const getFaturamento = (id: string) => vendas.filter(v => v.procedimento_vendido === id && v.status === 'fechado').reduce((s, v) => s + v.valor_venda, 0);
+  const getVendasCount = (id: string) => vendas.filter(v => v.procedimento_vendido === id && v.status === 'fechado').length;
+  const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR')}`;
+
+  if (loading) return null;
+
+  return (
+    <Card className="mt-6">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <ShoppingCart className="h-4 w-4 text-primary" /> Controle Vendas Clientes
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        {procs.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b bg-muted/30">
+                <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Procedimento</th>
+                <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Cliente</th>
+                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Categoria</th>
+                <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Ticket Médio</th>
+                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Vendas</th>
+                <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Faturamento</th>
+                <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Status</th>
+              </tr></thead>
+              <tbody>
+                {procs.map((p: any) => (
+                  <tr key={p.id} className="border-b last:border-0 hover:bg-muted/20">
+                    <td className="p-3 font-medium">{p.nome_procedimento}</td>
+                    <td className="p-3 text-muted-foreground">{getClienteName(p.cliente_id)}</td>
+                    <td className="p-3 text-center"><Badge variant="outline" className="text-[10px]">{p.categoria}</Badge></td>
+                    <td className="p-3 text-right">{fmt(p.ticket_medio)}</td>
+                    <td className="p-3 text-center">{getVendasCount(p.id)}</td>
+                    <td className="p-3 text-right font-semibold">{fmt(getFaturamento(p.id))}</td>
+                    <td className="p-3 text-center">
+                      <Badge variant="outline" className={`text-[10px] ${p.status === 'ativo' ? 'text-accent border-accent' : 'text-muted-foreground'}`}>{p.status}</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="p-8 text-center text-sm text-muted-foreground">Nenhum procedimento cadastrado.</div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function TenantsPage() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [search, setSearch] = useState('');
