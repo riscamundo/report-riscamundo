@@ -13,7 +13,8 @@ import {
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
   Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
-  Search, ExternalLink, MoveUp, MoveDown, Minus, Link2
+  Search, ExternalLink, MoveUp, MoveDown, Minus, Link2,
+  ListTodo, Circle, Loader2, CheckCircle, AlertTriangle
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
