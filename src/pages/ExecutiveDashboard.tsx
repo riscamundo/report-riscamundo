@@ -300,13 +300,33 @@ export default function ExecutiveDashboard() {
     </div>
   );
 
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+  const userName = user?.user_metadata?.display_name?.split(' ')[0] || '';
+
+  const vendasMes = vendas.filter(v => v.status === 'fechado' && new Date(v.data_venda).getMonth() === now.getMonth() && new Date(v.data_venda).getFullYear() === now.getFullYear()).length;
+  const leadsAtivos = leads.filter(l => ['novo', 'qualificado', 'avaliacao'].includes(l.status_funil)).length;
+
+  const statusResumo = [
+    faturamento > 0 ? `faturamento de ${fmt(faturamento)}` : null,
+    vendasMes > 0 ? `${vendasMes} venda(s) fechada(s)` : null,
+    leadsAtivos > 0 ? `${leadsAtivos} leads ativos no funil` : null,
+    criticalAlerts.length > 0 ? `${criticalAlerts.length} alerta(s) que precisam de atenção` : null,
+  ].filter(Boolean);
+
+  const statusText = statusResumo.length > 0
+    ? `Este mês você tem ${statusResumo.join(', ')}.`
+    : 'Ainda não há dados registrados para este mês.';
+
   return (
     <DashboardLayout>
       <AnimatedPage>
-        <PageHeader
-          title="Dashboard Executivo"
-          subtitle="Visão consolidada da agência e dos clientes · Pontos críticos e alertas"
-        />
+        <div className="mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-display">
+            {greeting}{userName ? `, ${userName}` : ''} 👋
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 max-w-2xl leading-relaxed">{statusText}</p>
+        </div>
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (
