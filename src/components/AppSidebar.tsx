@@ -16,9 +16,8 @@ interface NavItem {
   gestorAllowed?: boolean;
 }
 
-const allNavItems: NavItem[] = [
+const masterNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
-  
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },
@@ -29,14 +28,34 @@ const allNavItems: NavItem[] = [
   { title: 'Vendas & Forecast', url: '/vendas', icon: ShoppingCart, gestorAllowed: true },
 ];
 
-export function AppSidebar() {
+// Equipe sidebar items map to tabs on EquipeDashboard
+interface EquipeTabItem {
+  title: string;
+  tab: string;
+  icon: typeof LayoutDashboard;
+}
+
+const equipeTabItems: EquipeTabItem[] = [
+  { title: 'Visão Executiva', tab: 'visao', icon: LayoutDashboard },
+  { title: 'Marketing Digital', tab: 'marketing', icon: BarChart3 },
+  { title: 'Social Media', tab: 'social', icon: Share2 },
+  { title: 'Anúncios', tab: 'anuncios', icon: Megaphone },
+  { title: 'SEO', tab: 'seo', icon: Search },
+  { title: 'Tarefas', tab: 'tarefas', icon: ListTodo },
+];
+
+export function AppSidebar({ onEquipeTabChange }: { onEquipeTabChange?: (tab: string) => void }) {
   const { isMaster, isGestor, role, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const visibleItems = allNavItems.filter(item => {
-    if (item.masterOnly) return isMaster;
-    return true;
-  });
+  const [activeEquipeTab, setActiveEquipeTab] = useState('visao');
+  const location = useLocation();
+
+  const isMasterUser = isMaster;
+
+  const visibleItems = isMasterUser
+    ? masterNavItems.filter(item => !item.masterOnly || isMaster)
+    : [];
 
   const sidebarContent = (
     <>
