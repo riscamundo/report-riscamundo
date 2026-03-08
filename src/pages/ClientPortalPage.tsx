@@ -137,6 +137,7 @@ export default function ClientPortalPage() {
   const [marketing, setMarketing] = useState<MarketingReport[]>([]);
   const [seoKeywords, setSeoKeywords] = useState<SeoKeyword[]>([]);
   const [seoPages, setSeoPages] = useState<SeoPage[]>([]);
+  const [tarefas, setTarefas] = useState<TarefaCliente[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
