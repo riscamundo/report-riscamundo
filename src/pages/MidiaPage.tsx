@@ -170,12 +170,12 @@ export default function MidiaPage() {
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={investVsReceita}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                    <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
-                    <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                    <Tooltip contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
-                    <Bar dataKey="investimento" fill="hsl(200, 60%, 50%)" radius={[4, 4, 0, 0]} name="Investimento" />
-                    <Bar dataKey="receita" fill="hsl(38, 70%, 50%)" radius={[4, 4, 0, 0]} name="Receita" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 88%)" />
+                    <XAxis dataKey="nome" stroke="hsl(220, 15%, 45%)" fontSize={10} angle={-15} textAnchor="end" height={60} />
+                    <YAxis stroke="hsl(220, 15%, 45%)" fontSize={12} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+                    <Tooltip contentStyle={{ background: '#fff', border: '1px solid hsl(220, 15%, 88%)', borderRadius: '8px' }} formatter={(v: number) => fmt(v)} />
+                    <Bar dataKey="investimento" fill="hsl(217, 91%, 60%)" radius={[4, 4, 0, 0]} name="Investimento" />
+                    <Bar dataKey="receita" fill="hsl(160, 84%, 39%)" radius={[4, 4, 0, 0]} name="Receita" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
