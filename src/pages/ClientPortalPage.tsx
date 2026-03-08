@@ -90,6 +90,16 @@ interface SeoPage {
   periodo_mes: string;
 }
 
+interface TarefaCliente {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  status: string;
+  prioridade: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   fechado: { label: 'Concluído', color: 'text-accent', icon: CheckCircle2 },
   pendente: { label: 'Pendente', color: 'text-warning', icon: Clock },
