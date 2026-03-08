@@ -147,7 +147,7 @@ export default function ClientPortalPage() {
     else {
       toast.success('Tarefa criada!');
       setShowNewTarefa(false);
-      setNewTarefa({ titulo: '', descricao: '', prioridade: 'media' });
+      setNewTarefa({ titulo: '', descricao: '', prioridade: 'media', contexto: '' });
       // Refresh
       const { data } = await supabase.from('tarefas_cliente').select('*').eq('cliente_id', cliente.id).order('created_at', { ascending: false });
       setTarefas((data || []) as TarefaCliente[]);
