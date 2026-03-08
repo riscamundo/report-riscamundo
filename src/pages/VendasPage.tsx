@@ -108,7 +108,8 @@ export default function VendasPage() {
       procedimento_interesse: (fd.get('procedimento') as string) || null,
       nivel_interesse: fd.get('interesse') as string,
       status_funil: 'novo',
-    });
+      escopo_projeto: fd.get('escopo_projeto') as string || null,
+    } as any);
     setIsLeadOpen(false);
   };
 
