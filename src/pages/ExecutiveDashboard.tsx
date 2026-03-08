@@ -295,9 +295,9 @@ export default function ExecutiveDashboard() {
         {/* ═══ FINANCEIRO + LEADS PARADOS ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Boletos vencidos por cliente */}
-          <Card className="border-border/60">
+          <Card className="executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Wallet className="h-4 w-4 text-destructive" /> Inadimplência por Cliente
                 {clientesComVencidos.length > 0 && <Badge variant="destructive" className="ml-auto text-[10px]">{clientesComVencidos.length}</Badge>}
               </CardTitle>
