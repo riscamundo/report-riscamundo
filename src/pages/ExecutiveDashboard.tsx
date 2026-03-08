@@ -6,7 +6,14 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard, PageHeader } from '@/components/KPICard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
+import { toast } from 'sonner';
 import {
   calcFaturamentoMes, calcInvestimentoTotal, calcROI, calcTicketMedio,
   calcConversao, calcCombosPremium, getLeadsPorEtapa, getReceitaPorProcedimento,
@@ -15,7 +22,8 @@ import {
 import {
   DollarSign, TrendingUp, Target, CreditCard, Users, AlertTriangle,
   Clock, Briefcase, Wallet, ShieldAlert, UserX, Receipt,
-  ArrowUpRight, ArrowDownRight, Phone, BarChart3, Zap
+  ArrowUpRight, ArrowDownRight, Phone, BarChart3, Zap,
+  Plus, Edit2, UserPlus, PhoneCall, CalendarDays, Search
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
