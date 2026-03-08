@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { DashboardAiSummary } from '@/components/DashboardAiSummary';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
