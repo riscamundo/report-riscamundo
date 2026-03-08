@@ -63,7 +63,7 @@ const PLATFORMS: { id: Platform; label: string; color: string; icon: string; typ
 ];
 
 export default function ClientPortalPage() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isMaster } = useAuth();
   const [cliente, setCliente] = useState<ClienteData | null>(null);
   const [vendas, setVendas] = useState<VendaCliente[]>([]);
   const [marketing, setMarketing] = useState<MarketingReport[]>([]);
