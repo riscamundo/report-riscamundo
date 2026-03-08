@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Megaphone, Users, ShoppingCart, AlertTriangle,
-  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase
+  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase, Share2
 } from 'lucide-react';
 
 interface NavItem {
