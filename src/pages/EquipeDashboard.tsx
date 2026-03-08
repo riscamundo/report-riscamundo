@@ -191,7 +191,7 @@ export default function EquipeDashboard() {
               `Tarefas pendentes: ${tarefasPend}`,
               `Alertas: ${alerts.length}`,
               alerts.length > 0 ? `Detalhes alertas: ${alerts.map(a => a.message).join('; ')}` : null,
-              clientVendas.length > 0 ? `Vendas registradas: ${clientVendas.length}, valor total: R$ ${clientVendas.reduce((s, v) => s + v.valor_venda, 0).toFixed(2)}` : 'Nenhuma venda registrada',
+              vendas.length > 0 ? `Vendas registradas: ${vendas.length}, valor total: R$ ${vendas.reduce((s, v) => s + v.valor_venda, 0).toFixed(2)}` : 'Nenhuma venda registrada',
             ].filter(Boolean).join('\n');
           })()} />
         )}
