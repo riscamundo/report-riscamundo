@@ -567,7 +567,7 @@ export default function ExecutiveDashboard() {
                     <XAxis dataKey="mes" fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} />
                     <YAxis fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
                     <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmt(v)} />
-                    <Area type="monotone" dataKey="receita" stroke="hsl(217, 91%, 60%)" fill="url(#gradReceita)" strokeWidth={2.5} />
+                    <Area type="monotone" dataKey="receita" stroke="hsl(42, 70%, 55%)" fill="url(#gradReceita)" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : <div className="h-[240px] flex items-center justify-center text-sm text-muted-foreground">Sem dados de receita</div>}
