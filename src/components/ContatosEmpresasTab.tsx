@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,11 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import {
   Building2, UserPlus, Search, Plus, Edit2, Trash2, Globe, Phone, Mail,
-  Users, ChevronDown, ChevronUp
+  Users, ChevronDown, ChevronUp, Link2
 } from 'lucide-react';
 
 interface Empresa {
@@ -35,6 +35,138 @@ const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
 );
 
+/* ── Autocomplete Combobox ── */
+function ComboboxSearch({ items, value, onChange, placeholder, renderItem }: {
+  items: { id: string; label: string; sub?: string }[];
+  value: string | null;
+  onChange: (id: string | null) => void;
+  placeholder: string;
+  renderItem?: (item: { id: string; label: string; sub?: string }) => React.ReactNode;
+}) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = useMemo(() => {
+    if (!query.trim()) return items.slice(0, 20);
+    const q = query.toLowerCase();
+    return items.filter(i => i.label.toLowerCase().includes(q) || i.sub?.toLowerCase().includes(q)).slice(0, 20);
+  }, [items, query]);
+
+  const selected = items.find(i => i.id === value);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <Input
+        value={open ? query : (selected?.label || '')}
+        placeholder={placeholder}
+        onChange={e => { setQuery(e.target.value); setOpen(true); }}
+        onFocus={() => { setOpen(true); setQuery(''); }}
+        className="mt-1"
+        autoComplete="off"
+      />
+      {value && (
+        <button type="button" onClick={() => { onChange(null); setQuery(''); }} className="absolute right-2 top-1/2 -translate-y-1/2 mt-0.5 text-muted-foreground hover:text-foreground text-xs">✕</button>
+      )}
+      {open && (
+        <div className="absolute z-50 w-full mt-1 max-h-48 overflow-y-auto rounded-lg border bg-popover shadow-lg">
+          <button type="button" className="w-full text-left px-3 py-2 text-xs text-muted-foreground hover:bg-muted/50 transition-colors" onClick={() => { onChange(null); setOpen(false); setQuery(''); }}>
+            Nenhuma
+          </button>
+          {filtered.map(item => (
+            <button
+              key={item.id}
+              type="button"
+              className={`w-full text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors ${item.id === value ? 'bg-primary/10 text-primary font-medium' : ''}`}
+              onClick={() => { onChange(item.id); setOpen(false); setQuery(''); }}
+            >
+              {renderItem ? renderItem(item) : (
+                <div>
+                  <span className="font-medium">{item.label}</span>
+                  {item.sub && <span className="text-xs text-muted-foreground ml-2">{item.sub}</span>}
+                </div>
+              )}
+            </button>
+          ))}
+          {filtered.length === 0 && <div className="px-3 py-3 text-xs text-muted-foreground text-center">Nenhum resultado</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Quick-link existing contact to empresa ── */
+function LinkContatoToEmpresa({ empresaId, contatos, onLink }: { empresaId: string; contatos: Contato[]; onLink: () => void }) {
+  const [query, setQuery] = useState('');
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const unlinked = contatos.filter(c => !c.empresa_id || c.empresa_id !== empresaId);
+  const filtered = useMemo(() => {
+    if (!query.trim()) return unlinked.slice(0, 10);
+    const q = query.toLowerCase();
+    return unlinked.filter(c => c.nome.toLowerCase().includes(q) || c.telefone?.includes(q) || c.email?.toLowerCase().includes(q)).slice(0, 10);
+  }, [unlinked, query]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleLink = async (contatoId: string) => {
+    const { error } = await supabase.from('contatos_ativacao' as any).update({ empresa_id: empresaId }).eq('id', contatoId);
+    if (error) { toast.error('Erro ao vincular'); return; }
+    toast.success('Contato vinculado!');
+    setOpen(false);
+    setQuery('');
+    onLink();
+  };
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      {!open ? (
+        <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => setOpen(true)}>
+          <Link2 className="h-3 w-3" /> Vincular Existente
+        </Button>
+      ) : (
+        <div className="w-64">
+          <Input
+            autoFocus
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Buscar contato para vincular..."
+            className="h-8 text-xs"
+          />
+          <div className="absolute z-50 w-64 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-popover shadow-lg">
+            {filtered.map(c => (
+              <button
+                key={c.id}
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors"
+                onClick={() => handleLink(c.id)}
+              >
+                <span className="font-medium">{c.nome}</span>
+                <span className="text-xs text-muted-foreground ml-2">{c.telefone || c.email || ''}</span>
+              </button>
+            ))}
+            {filtered.length === 0 && <div className="px-3 py-3 text-xs text-muted-foreground text-center">Nenhum contato encontrado</div>}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ContatosEmpresasTab() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [contatos, setContatos] = useState<Contato[]>([]);
@@ -46,6 +178,7 @@ export function ContatosEmpresasTab() {
   const [editEmpresa, setEditEmpresa] = useState<Empresa | null>(null);
   const [editContato, setEditContato] = useState<Contato | null>(null);
   const [expandedEmpresa, setExpandedEmpresa] = useState<string | null>(null);
+  const [selectedEmpresaId, setSelectedEmpresaId] = useState<string | null>(null);
 
   const fetchAll = async () => {
     const [e, c] = await Promise.all([
@@ -58,6 +191,18 @@ export function ContatosEmpresasTab() {
   };
 
   useEffect(() => { fetchAll(); }, []);
+
+  // Sync selectedEmpresaId when dialog opens
+  useEffect(() => {
+    if (contatoOpen) {
+      setSelectedEmpresaId(editContato?.empresa_id || null);
+    }
+  }, [contatoOpen, editContato]);
+
+  const empresaItems = useMemo(() =>
+    empresas.map(e => ({ id: e.id, label: e.nome, sub: e.segmento || e.cidade || '' })),
+    [empresas]
+  );
 
   const handleSaveEmpresa = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -102,9 +247,8 @@ export function ContatosEmpresasTab() {
       proximo_contato: fd.get('proximo_contato') as string || null,
       status: fd.get('status') as string || 'pendente',
       observacoes: fd.get('observacoes') as string || null,
-      empresa_id: (fd.get('empresa_id') as string) || null,
+      empresa_id: selectedEmpresaId || null,
     };
-    if (data.empresa_id === 'none') data.empresa_id = null;
     if (editContato?.id) {
       const { error } = await supabase.from('contatos_ativacao' as any).update(data).eq('id', editContato.id);
       if (error) { toast.error('Erro ao atualizar contato'); return; }
@@ -138,20 +282,20 @@ export function ContatosEmpresasTab() {
   if (loading) return <div className="flex items-center justify-center h-64 text-muted-foreground animate-pulse text-sm">Carregando...</div>;
 
   const contatoDialog = (
-    <Dialog open={contatoOpen} onOpenChange={(o) => { setContatoOpen(o); if (!o) setEditContato(null); }}>
+    <Dialog open={contatoOpen} onOpenChange={(o) => { setContatoOpen(o); if (!o) { setEditContato(null); setSelectedEmpresaId(null); } }}>
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle>{editContato?.id ? 'Editar' : 'Novo'} Contato</DialogTitle></DialogHeader>
         <form onSubmit={handleSaveContato} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><Label>Nome *</Label><Input name="nome" defaultValue={editContato?.nome || ''} required className="mt-1" /></div>
-            <div><Label>Empresa</Label>
-              <Select name="empresa_id" defaultValue={editContato?.empresa_id || 'none'}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Nenhuma</SelectItem>
-                  {empresas.map(e => <SelectItem key={e.id} value={e.id}>{e.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+            <div>
+              <Label>Empresa</Label>
+              <ComboboxSearch
+                items={empresaItems}
+                value={selectedEmpresaId}
+                onChange={setSelectedEmpresaId}
+                placeholder="Buscar empresa..."
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -226,7 +370,7 @@ export function ContatosEmpresasTab() {
             <Input placeholder="Buscar empresa..." value={searchE} onChange={e => setSearchE(e.target.value)} className="pl-9" />
           </div>
           <Dialog open={empresaOpen} onOpenChange={(o) => { setEmpresaOpen(o); if (!o) setEditEmpresa(null); }}>
-            <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Nova Empresa</Button></DialogTrigger>
+            <Button size="sm" className="gap-1.5" onClick={() => { setEditEmpresa(null); setEmpresaOpen(true); }}><Plus className="h-3.5 w-3.5" /> Nova Empresa</Button>
             <DialogContent className="max-w-lg">
               <DialogHeader><DialogTitle>{editEmpresa ? 'Editar' : 'Nova'} Empresa</DialogTitle></DialogHeader>
               <form onSubmit={handleSaveEmpresa} className="space-y-4">
@@ -306,8 +450,9 @@ export function ContatosEmpresasTab() {
                       <div className="border-t px-4 pb-4 pt-3 bg-muted/5">
                         <div className="flex items-center gap-3 mb-3">
                           <p className="text-xs font-semibold text-muted-foreground">Contatos vinculados ({empContatos.length})</p>
+                          <LinkContatoToEmpresa empresaId={emp.id} contatos={contatos} onLink={fetchAll} />
                           <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => { setEditContato({ empresa_id: emp.id } as any); setContatoOpen(true); }}>
-                            <Plus className="h-3 w-3" /> Adicionar Contato
+                            <Plus className="h-3 w-3" /> Novo Contato
                           </Button>
                         </div>
                         {empContatos.length > 0 ? (
