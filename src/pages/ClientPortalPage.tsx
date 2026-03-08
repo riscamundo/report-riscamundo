@@ -1377,7 +1377,7 @@ export default function ClientPortalPage() {
           <p className="text-xs font-medium text-foreground">Alguma dúvida? 💬</p>
         </div>
         <a
-          href="https://wa.me/5500000000000"
+          href="https://wa.me/5511941646249?text=Ol%C3%A1%2C%20venho%20do%20REPORTS"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 bg-[hsl(142,70%,45%)] hover:bg-[hsl(142,70%,40%)] text-white px-5 py-3 rounded-2xl shadow-lg shadow-[hsl(142,70%,45%)]/30 transition-all hover:scale-105 hover:shadow-xl"
