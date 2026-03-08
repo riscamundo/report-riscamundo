@@ -47,14 +47,14 @@
     --warning: 38 92% 50%;
     --info: 217 91% 60%;
 
-    /* Sidebar — Rich slate blue */
-    --sidebar-background: 224 71% 4%;
-    --sidebar-foreground: 213 31% 65%;
+    /* Sidebar — Deep navy blue */
+    --sidebar-background: 220 40% 15%;
+    --sidebar-foreground: 215 20% 70%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 28% 12%;
-    --sidebar-accent-foreground: 210 40% 96%;
-    --sidebar-border: 215 28% 14%;
+    --sidebar-accent: 218 35% 22%;
+    --sidebar-accent-foreground: 210 30% 94%;
+    --sidebar-border: 218 30% 22%;
     --sidebar-ring: 217 91% 60%;
   }
 }
