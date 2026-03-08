@@ -245,6 +245,37 @@ export default function ExecutiveDashboard() {
 
   const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
 
+  // Tenant connections (hooks must be before early returns)
+  const [tenantConnections, setTenantConnections] = useState<any[]>([]);
+  useEffect(() => {
+    const fetchConnections = async () => {
+      const { data } = await supabase.from('tenant_connections').select('*, clientes(nome)').order('created_at');
+      setTenantConnections((data || []) as any[]);
+    };
+    fetchConnections();
+  }, []);
+
+  const connectionsContext = useMemo(() => {
+    if (tenantConnections.length === 0) {
+      return `Total de tenants/clientes: ${clientes.filter(c => c.status === 'ativo').length}\nNenhuma conexão de serviço configurada ainda (Google Business, Evolution API, WhatsApp, etc).`;
+    }
+    const byClient = new Map<string, any[]>();
+    tenantConnections.forEach((tc: any) => {
+      const nome = tc.clientes?.nome || 'Desconhecido';
+      if (!byClient.has(nome)) byClient.set(nome, []);
+      byClient.get(nome)!.push(tc);
+    });
+    const active = clientes.filter(c => c.status === 'ativo').length;
+    const lines: string[] = [`Total de tenants/clientes: ${active}`, `Total de conexões configuradas: ${tenantConnections.length}`];
+    byClient.forEach((conns, nome) => {
+      lines.push(`\nCliente: ${nome}`);
+      conns.forEach((c: any) => {
+        lines.push(`  - ${c.servico}: status=${c.status}, msgs enviadas=${c.mensagens_enviadas || 0}, msgs recebidas=${c.mensagens_recebidas || 0}, respostas pendentes=${c.respostas_pendentes || 0}${c.ultima_sincronizacao ? `, última sinc: ${new Date(c.ultima_sincronizacao).toLocaleDateString('pt-BR')}` : ''}`);
+      });
+    });
+    return lines.join('\n');
+  }, [tenantConnections, clientes]);
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -360,7 +391,7 @@ export default function ExecutiveDashboard() {
         </div>
 
         {/* ═══ RESUMO IA MAESTRO BI ═══ */}
-        <DashboardAiSummary metricsContext={aiMetricsContext} />
+        <DashboardAiSummary metricsContext={aiMetricsContext} connectionsContext={connectionsContext} />
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (

@@ -14,11 +14,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import type { FormaPagamento, StatusFunil } from '@/types';
 import { calcFaturamentoMes, calcTicketMedio, calcConversao, calcForecast, getLeadsPorEtapa } from '@/lib/metrics';
-import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2, Brain } from 'lucide-react';
+import { DollarSign, TrendingUp, Target, BarChart3, Plus, Search, GripVertical, Clock, Users, Building2, Brain, FileSpreadsheet } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ContatosEmpresasTab } from '@/components/ContatosEmpresasTab';
 import { LlmMaestroTab } from '@/components/LlmMaestroTab';
 import { EmpresaContatoSearch } from '@/components/EmpresaContatoSearch';
+import { SalesManagerTab } from '@/components/SalesManagerTab';
 
 const pagamentoLabels: Record<FormaPagamento, string> = {
   pix: 'PIX', cartao_credito: 'Cartão Crédito', cartao_debito: 'Cartão Débito', boleto: 'Boleto', financiamento: 'Financiamento'
@@ -162,6 +163,7 @@ export default function VendasPage() {
             <TabsTrigger value="funil" className="gap-1.5"><Users className="h-4 w-4" /> Funil de Vendas</TabsTrigger>
             <TabsTrigger value="contatos" className="gap-1.5"><Building2 className="h-4 w-4" /> Contatos & Empresas</TabsTrigger>
             <TabsTrigger value="llm" className="gap-1.5"><Brain className="h-4 w-4" /> LLM Maestro</TabsTrigger>
+            <TabsTrigger value="sales-manager" className="gap-1.5"><FileSpreadsheet className="h-4 w-4" /> Sales Manager</TabsTrigger>
           </TabsList>
 
           {/* ═══════ VENDAS TAB ═══════ */}
@@ -301,6 +303,11 @@ export default function VendasPage() {
           {/* ═══════ LLM MAESTRO TAB ═══════ */}
           <TabsContent value="llm" className="space-y-4">
             <LlmMaestroTab />
+          </TabsContent>
+
+          {/* ═══════ SALES MANAGER TAB ═══════ */}
+          <TabsContent value="sales-manager" className="space-y-4">
+            <SalesManagerTab />
           </TabsContent>
         </Tabs>
 

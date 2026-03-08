@@ -880,6 +880,45 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_uploads: {
+        Row: {
+          created_at: string
+          id: string
+          nome_arquivo: string
+          registros_processados: number | null
+          resultado: Json | null
+          status: string
+          tipo: string
+          total_registros: number | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome_arquivo: string
+          registros_processados?: number | null
+          resultado?: Json | null
+          status?: string
+          tipo?: string
+          total_registros?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome_arquivo?: string
+          registros_processados?: number | null
+          resultado?: Json | null
+          status?: string
+          tipo?: string
+          total_registros?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       seo_keywords: {
         Row: {
           cliente_id: string
@@ -1094,6 +1133,56 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tarefas_cliente_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenant_connections: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          id: string
+          mensagens_enviadas: number | null
+          mensagens_recebidas: number | null
+          observacoes: string | null
+          respostas_pendentes: number | null
+          servico: string
+          status: string
+          ultima_sincronizacao: string | null
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          id?: string
+          mensagens_enviadas?: number | null
+          mensagens_recebidas?: number | null
+          observacoes?: string | null
+          respostas_pendentes?: number | null
+          servico: string
+          status?: string
+          ultima_sincronizacao?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          id?: string
+          mensagens_enviadas?: number | null
+          mensagens_recebidas?: number | null
+          observacoes?: string | null
+          respostas_pendentes?: number | null
+          servico?: string
+          status?: string
+          ultima_sincronizacao?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_connections_cliente_id_fkey"
             columns: ["cliente_id"]
             isOneToOne: false
             referencedRelation: "clientes"
