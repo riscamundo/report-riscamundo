@@ -169,11 +169,36 @@ export default function EquipeDashboard() {
     <DashboardLayout>
       <AnimatedPage>
         {/* ═══ HEADER + SELETOR ═══ */}
+        {/* ═══ SAUDAÇÃO + RESUMO IA ═══ */}
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight font-display">
+            {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}{user?.user_metadata?.display_name ? `, ${user.user_metadata.display_name.split(' ')[0]}` : ''} 👋
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">Painel da Equipe · Visualização dos dados do cliente</p>
+        </div>
+
+        {selectedClienteId && !reportLoading && (
+          <DashboardAiSummary metricsContext={(() => {
+            const latest = clientMarketing.length > 0 ? clientMarketing[clientMarketing.length - 1] : null;
+            return [
+              `Cliente: ${clienteNome}`,
+              latest ? `Visitas no site: ${latest.visitas_site}, orgânicas: ${latest.visitas_organicas}, pagas: ${latest.visitas_pagas}` : null,
+              latest ? `Leads gerados: ${latest.leads_gerados}, qualificados: ${latest.leads_qualificados}` : null,
+              latest ? `Seguidores: ${latest.seguidores_total}, novos: ${latest.novos_seguidores}` : null,
+              latest ? `Engajamento: ${latest.engajamento_rate}%` : null,
+              `Palavras-chave no top 10: ${kwTop10} de ${clientKeywords.length}`,
+              `Anúncios ativos: ${totalAdsAtivos}`,
+              `Tarefas pendentes: ${tarefasPend}`,
+              `Alertas: ${alerts.length}`,
+              alerts.length > 0 ? `Detalhes alertas: ${alerts.map(a => a.message).join('; ')}` : null,
+              clientVendas.length > 0 ? `Vendas registradas: ${clientVendas.length}, valor total: R$ ${clientVendas.reduce((s, v) => s + v.valor_venda, 0).toFixed(2)}` : 'Nenhuma venda registrada',
+            ].filter(Boolean).join('\n');
+          })()} />
+        )}
+
+        {/* ═══ SELETOR DE CLIENTE ═══ */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight font-display">Painel da Equipe</h1>
-            <p className="text-sm text-muted-foreground mt-1">Visualização dos dados do cliente · Somente leitura</p>
-          </div>
+          <div />
           <Select value={selectedClienteId} onValueChange={setSelectedClienteId}>
             <SelectTrigger className="w-64 h-10">
               <SelectValue placeholder="Selecione um cliente..." />
