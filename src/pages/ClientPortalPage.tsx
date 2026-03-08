@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion } from 'framer-motion';
 import KeywordResearchAgent from '@/components/KeywordResearchAgent';
+import TaskAnalyzerAgent from '@/components/TaskAnalyzerAgent';
 import { toast } from 'sonner';
 import {
   User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
@@ -390,6 +391,9 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ TAREFAS TAB ═══════════ */}
             <TabsContent value="tarefas" className="space-y-6">
+              {isMaster && cliente && (
+                <TaskAnalyzerAgent tarefas={tarefas} clienteNome={cliente.nome} />
+              )}
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Suas Tarefas</h3>
                 <Button size="sm" className="gap-1.5" onClick={() => openCreateTarefa('Tarefas')}><Plus className="h-4 w-4" /> Nova Tarefa</Button>
