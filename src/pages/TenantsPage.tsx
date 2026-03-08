@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import {
   Briefcase, Search, Users, DollarSign, BarChart3, Target, TrendingUp,
   Globe, Megaphone, ListTodo, FileText, Printer, CalendarDays, Eye,
-  CheckCircle2, Clock, AlertTriangle, Wallet, Receipt, Lock, Unlock, Plus
+  CheckCircle2, Clock, AlertTriangle, Wallet, Receipt, Lock, Unlock, Plus, Edit2
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -33,6 +33,7 @@ interface TenantData {
   tarefas: any[];
   financeiro: any[];
   socialAccounts: any[];
+  procedimentos: any[];
 }
 
 export default function TenantsPage() {
@@ -49,6 +50,11 @@ export default function TenantsPage() {
   const [boletoDesc, setBoletoDesc] = useState('Mensalidade');
   const [boletoVenc, setBoletoVenc] = useState('');
   const [savingBoleto, setSavingBoleto] = useState(false);
+
+  // Procedimentos
+  const [showProcForm, setShowProcForm] = useState(false);
+  const [editProcId, setEditProcId] = useState<string | null>(null);
+  const [savingProc, setSavingProc] = useState(false);
 
   // Report period
   const [reportDays, setReportDays] = useState(30);
@@ -67,13 +73,14 @@ export default function TenantsPage() {
     setLoadingData(true);
     setBoletoValor(cliente.mensalidade_valor?.toString() || '0');
     const cid = cliente.id;
-    const [mkt, seo, ads, tasks, fin, social] = await Promise.all([
+    const [mkt, seo, ads, tasks, fin, social, procs] = await Promise.all([
       supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
       supabase.from('seo_keywords').select('*').eq('cliente_id', cid),
       supabase.from('anuncios').select('*').eq('cliente_id', cid),
       supabase.from('tarefas_cliente').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
       supabase.from('financeiro' as any).select('*').eq('cliente_id', cid).order('data_vencimento', { ascending: false }),
       supabase.from('social_media_accounts' as any).select('*').eq('cliente_id', cid),
+      supabase.from('procedimentos').select('*').eq('cliente_id', cid).order('created_at', { ascending: false }),
     ]);
     setTenantData({
       marketing: (mkt.data || []) as any[],
@@ -82,6 +89,7 @@ export default function TenantsPage() {
       tarefas: (tasks.data || []) as any[],
       financeiro: (fin.data || []) as unknown as any[],
       socialAccounts: (social.data || []) as unknown as any[],
+      procedimentos: (procs.data || []) as any[],
     });
     setLoadingData(false);
   };
@@ -118,8 +126,35 @@ export default function TenantsPage() {
     }
   };
 
-  const handlePrintReport = () => {
-    window.print();
+  const handlePrintReport = () => { window.print(); };
+
+  const handleSaveProc = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedClient) return;
+    setSavingProc(true);
+    const fd = new FormData(e.currentTarget);
+    const data = {
+      nome_procedimento: fd.get('nome') as string,
+      categoria: fd.get('categoria') as string,
+      ticket_medio: Number(fd.get('ticket')) || 0,
+      margem_estimada: Number(fd.get('margem')) || 0,
+      prioridade_vendas: fd.get('prioridade') as string || 'media',
+      status: (fd.get('status') as string) || 'ativo',
+      cliente_id: selectedClient.id,
+    };
+    if (editProcId) {
+      const { error } = await supabase.from('procedimentos').update(data).eq('id', editProcId);
+      if (error) toast.error('Erro ao atualizar procedimento');
+      else toast.success('Procedimento atualizado!');
+    } else {
+      const { error } = await supabase.from('procedimentos').insert(data);
+      if (error) toast.error('Erro ao criar procedimento');
+      else toast.success('Procedimento criado!');
+    }
+    setShowProcForm(false);
+    setEditProcId(null);
+    setSavingProc(false);
+    loadTenantData(selectedClient);
   };
 
   const filteredClientes = clientes.filter(c => {
@@ -224,6 +259,7 @@ export default function TenantsPage() {
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><ListTodo className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Tarefas</p><p className="text-xl font-bold">{tenantData.tarefas.length}</p></div></CardContent></Card></StaggerItem>
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><Globe className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Redes Sociais</p><p className="text-xl font-bold">{tenantData.socialAccounts.length}</p></div></CardContent></Card></StaggerItem>
                   <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><Wallet className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Cobranças</p><p className="text-xl font-bold">{tenantData.financeiro.length}</p></div></CardContent></Card></StaggerItem>
+                  <StaggerItem><Card><CardContent className="p-4"><div className="p-2 rounded-xl bg-primary/10 w-fit"><FileText className="h-4 w-4 text-primary" /></div><div className="mt-2"><p className="text-xs text-muted-foreground">Procedimentos</p><p className="text-xl font-bold">{tenantData.procedimentos.length}</p></div></CardContent></Card></StaggerItem>
                 </StaggerContainer>
 
                 {/* Marketing charts */}
@@ -315,6 +351,91 @@ export default function TenantsPage() {
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Procedimentos */}
+                <Card>
+                  <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Procedimentos</CardTitle>
+                    <Dialog open={showProcForm} onOpenChange={(o) => { setShowProcForm(o); if (!o) setEditProcId(null); }}>
+                      <DialogTrigger asChild><Button size="sm" variant="outline" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Novo</Button></DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader><DialogTitle>{editProcId ? 'Editar' : 'Novo'} Procedimento</DialogTitle></DialogHeader>
+                        <form onSubmit={handleSaveProc} className="space-y-4">
+                          <div><Label htmlFor="proc-nome">Nome</Label><Input id="proc-nome" name="nome" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.nome_procedimento : ''} required className="mt-1" /></div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div><Label>Categoria</Label>
+                              <Select name="categoria" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.categoria : 'facial'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="facial">Facial</SelectItem>
+                                  <SelectItem value="capilar">Capilar</SelectItem>
+                                  <SelectItem value="combo_premium">Combo Premium</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div><Label>Prioridade</Label>
+                              <Select name="prioridade" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.prioridade_vendas : 'media'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="alta">Alta</SelectItem>
+                                  <SelectItem value="media">Média</SelectItem>
+                                  <SelectItem value="baixa">Baixa</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div><Label htmlFor="proc-ticket">Ticket Médio (R$)</Label><Input id="proc-ticket" name="ticket" type="number" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.ticket_medio : ''} required className="mt-1" /></div>
+                            <div><Label htmlFor="proc-margem">Margem (%)</Label><Input id="proc-margem" name="margem" type="number" defaultValue={editProcId ? tenantData.procedimentos.find((p: any) => p.id === editProcId)?.margem_estimada : ''} required className="mt-1" /></div>
+                          </div>
+                          {editProcId && (
+                            <div><Label>Status</Label>
+                              <Select name="status" defaultValue={tenantData.procedimentos.find((p: any) => p.id === editProcId)?.status || 'ativo'}>
+                                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                                <SelectContent><SelectItem value="ativo">Ativo</SelectItem><SelectItem value="inativo">Inativo</SelectItem></SelectContent>
+                              </Select>
+                            </div>
+                          )}
+                          <Button type="submit" className="w-full" disabled={savingProc}>{savingProc ? 'Salvando...' : 'Salvar'}</Button>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {tenantData.procedimentos.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead><tr className="border-b bg-muted/30">
+                            <th className="text-left p-3 text-xs font-semibold text-muted-foreground">Nome</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Categoria</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Ticket Médio</th>
+                            <th className="text-right p-3 text-xs font-semibold text-muted-foreground">Margem</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Prioridade</th>
+                            <th className="text-center p-3 text-xs font-semibold text-muted-foreground">Status</th>
+                            <th className="p-3"></th>
+                          </tr></thead>
+                          <tbody>
+                            {tenantData.procedimentos.map((p: any) => (
+                              <tr key={p.id} className="border-b last:border-0 hover:bg-muted/20">
+                                <td className="p-3 font-medium">{p.nome_procedimento}</td>
+                                <td className="p-3 text-center"><Badge variant="outline" className="text-[10px]">{p.categoria}</Badge></td>
+                                <td className="p-3 text-right">R$ {p.ticket_medio?.toLocaleString('pt-BR')}</td>
+                                <td className="p-3 text-right">{p.margem_estimada}%</td>
+                                <td className="p-3 text-center"><Badge variant="outline" className="text-[10px]">{p.prioridade_vendas}</Badge></td>
+                                <td className="p-3 text-center">
+                                  <Badge variant="outline" className={`text-[10px] ${p.status === 'ativo' ? 'text-accent border-accent' : 'text-muted-foreground'}`}>{p.status}</Badge>
+                                </td>
+                                <td className="p-3"><Button variant="ghost" size="sm" onClick={() => { setEditProcId(p.id); setShowProcForm(true); }}><Edit2 className="h-3.5 w-3.5" /></Button></td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="p-8 text-center text-sm text-muted-foreground">Nenhum procedimento cadastrado para este cliente.</div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             )}
           </>
