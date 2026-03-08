@@ -60,7 +60,7 @@ export default function ClientPortalPage() {
       setLoading(true);
       const [clienteRes, vendasRes] = await Promise.all([
         supabase.from('clientes').select('*').eq('user_id', user.id).maybeSingle(),
-        supabase.from('vendas_cliente' as any).select('*'),
+        supabase.from('vendas_cliente' as any).select('*') as any,
       ]);
       setCliente(clienteRes.data as ClienteData | null);
       setVendas((vendasRes.data || []) as VendaCliente[]);
