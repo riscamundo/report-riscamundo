@@ -25,6 +25,7 @@ const allNavItems: NavItem[] = [
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },
   { title: 'SEO & Keywords', url: '/seo', icon: Search, masterOnly: true },
   { title: 'Tarefas Clientes', url: '/tarefas', icon: ListTodo, masterOnly: true },
+  { title: 'Tenants', url: '/tenants', icon: Briefcase, masterOnly: true },
   { title: 'Administração', url: '/admin', icon: Shield, masterOnly: true },
 ];
 
