@@ -76,6 +76,7 @@ export type Database = {
           status: string
           telefone: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           cidade?: string | null
@@ -91,6 +92,7 @@ export type Database = {
           status?: string
           telefone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           cidade?: string | null
@@ -106,6 +108,7 @@ export type Database = {
           status?: string
           telefone?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -356,7 +359,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vendas_cliente: {
+        Row: {
+          categoria: string | null
+          data_venda: string | null
+          forma_pagamento: string | null
+          id: string | null
+          nome_procedimento: string | null
+          status: string | null
+          valor_venda: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
@@ -376,7 +390,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "master" | "gestor" | "equipe"
+      app_role: "master" | "gestor" | "equipe" | "cliente"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -504,7 +518,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["master", "gestor", "equipe"],
+      app_role: ["master", "gestor", "equipe", "cliente"],
     },
   },
 } as const
