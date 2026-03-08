@@ -360,13 +360,14 @@ export default function ClientPortalPage() {
             <p className="text-muted-foreground text-sm mt-1">Acompanhe seus procedimentos, anúncios e resultados de marketing.</p>
           </div>
 
-          <Tabs defaultValue="procedimentos" className="space-y-6">
+          <Tabs defaultValue="tarefas" className="space-y-6">
             <TabsList className="flex-wrap">
-              <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
+              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
               <TabsTrigger value="anuncios" className="gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
               <TabsTrigger value="seo" className="gap-1.5"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
               <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
               <TabsTrigger value="dados" className="gap-1.5"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
+              <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
 
             {/* ═══════════ PROCEDIMENTOS TAB ═══════════ */}
