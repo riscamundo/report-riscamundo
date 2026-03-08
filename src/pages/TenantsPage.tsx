@@ -355,10 +355,10 @@ export default function TenantsPage() {
                   </Card>
                 )}
 
-                {/* Procedimentos */}
+                {/* Controle Vendas Clientes */}
                 <Card>
                   <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2"><FileText className="h-4 w-4 text-primary" /> Procedimentos</CardTitle>
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2"><ShoppingCart className="h-4 w-4 text-primary" /> Controle Vendas Clientes</CardTitle>
                     <Dialog open={showProcForm} onOpenChange={(o) => { setShowProcForm(o); if (!o) setEditProcId(null); }}>
                       <DialogTrigger asChild><Button size="sm" variant="outline" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Novo</Button></DialogTrigger>
                       <DialogContent>
