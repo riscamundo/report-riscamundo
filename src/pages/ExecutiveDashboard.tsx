@@ -255,6 +255,27 @@ export default function ExecutiveDashboard() {
     fetchConnections();
   }, []);
 
+  const connectionsContext = useMemo(() => {
+    if (tenantConnections.length === 0) {
+      return `Total de tenants/clientes: ${clientes.filter(c => c.status === 'ativo').length}\nNenhuma conexão de serviço configurada ainda (Google Business, Evolution API, WhatsApp, etc).`;
+    }
+    const byClient = new Map<string, any[]>();
+    tenantConnections.forEach((tc: any) => {
+      const nome = tc.clientes?.nome || 'Desconhecido';
+      if (!byClient.has(nome)) byClient.set(nome, []);
+      byClient.get(nome)!.push(tc);
+    });
+    const active = clientes.filter(c => c.status === 'ativo').length;
+    const lines: string[] = [`Total de tenants/clientes: ${active}`, `Total de conexões configuradas: ${tenantConnections.length}`];
+    byClient.forEach((conns, nome) => {
+      lines.push(`\nCliente: ${nome}`);
+      conns.forEach((c: any) => {
+        lines.push(`  - ${c.servico}: status=${c.status}, msgs enviadas=${c.mensagens_enviadas || 0}, msgs recebidas=${c.mensagens_recebidas || 0}, respostas pendentes=${c.respostas_pendentes || 0}${c.ultima_sincronizacao ? `, última sinc: ${new Date(c.ultima_sincronizacao).toLocaleDateString('pt-BR')}` : ''}`);
+      });
+    });
+    return lines.join('\n');
+  }, [tenantConnections, clientes]);
+
   if (loading) {
     return (
       <DashboardLayout>
