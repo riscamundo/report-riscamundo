@@ -575,8 +575,8 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Leads por Origem */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Leads por Origem</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Leads por Origem</CardTitle></CardHeader>
             <CardContent className="flex items-center justify-center">
               {leadsByOrigin.length > 0 ? (
                 <ResponsiveContainer width="100%" height={240}>
