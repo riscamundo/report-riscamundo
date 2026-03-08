@@ -319,6 +319,30 @@ export default function ExecutiveDashboard() {
     ? `Este mês você tem ${statusResumo.join(', ')}.`
     : 'Ainda não há dados registrados para este mês.';
 
+  // Build metrics context for AI summary
+  const aiMetricsContext = [
+    `Faturamento do mês: R$ ${faturamento.toFixed(2)}`,
+    `Investimento total em campanhas: R$ ${investimento.toFixed(2)}`,
+    `ROI: ${roi.toFixed(1)}%`,
+    `Ticket médio: R$ ${ticketMedio.toFixed(2)}`,
+    `Taxa de conversão: ${conversao.toFixed(1)}%`,
+    `Vendas fechadas no mês: ${vendasMes}`,
+    `Leads ativos no funil: ${leadsAtivos}`,
+    `Total de leads: ${leads.length}`,
+    `Clientes ativos: ${clientesAtivos}`,
+    `Clientes bloqueados: ${clientesBloqueados}`,
+    `Receita de mensalidades: R$ ${receitaMensalidades.toFixed(2)}`,
+    `Boletos vencidos: ${boletosVencidos.length} (R$ ${totalVencido.toFixed(2)})`,
+    `Boletos pendentes: ${boletosPendentes.length} (R$ ${totalReceber.toFixed(2)})`,
+    `Leads parados >24h: ${leadsParados.length}`,
+    `Alertas críticos: ${criticalAlerts.length}`,
+    `Procedimentos cadastrados: ${procedimentos.length}`,
+    `Campanhas ativas: ${campanhas.filter(c => c.status === 'ativo').length}`,
+    forecast ? `Forecast próximo mês: R$ ${forecast.toFixed(2)}` : null,
+    `Funil de leads: ${funilData.map(f => `${f.etapa}: ${f.count}`).join(', ')}`,
+    receitaProc.length > 0 ? `Receita por procedimento: ${receitaProc.map(r => `${r.nome}: R$ ${r.receita}`).join(', ')}` : null,
+  ].filter(Boolean).join('\n');
+
   return (
     <DashboardLayout>
       <AnimatedPage>
