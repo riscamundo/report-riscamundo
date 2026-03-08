@@ -297,8 +297,22 @@ export default function ClientPortalPage() {
       <AnimatedPage>
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
           <div>
-            <h2 className="text-2xl font-bold">Olá, {cliente?.nome || 'Cliente'} 👋</h2>
-            <p className="text-muted-foreground text-sm mt-1">Acompanhe seus resultados de marketing, anúncios e performance digital.</p>
+            <h2 className="text-2xl font-bold">
+              {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}, {cliente?.nome || 'Cliente'} 👋
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed max-w-xl">
+              {(() => {
+                const parts = [];
+                if (latestMkt) {
+                  if (latestMkt.visitas_site > 0) parts.push(`${latestMkt.visitas_site.toLocaleString('pt-BR')} visitas no site`);
+                  if (latestMkt.leads_gerados > 0) parts.push(`${latestMkt.leads_gerados} leads captados`);
+                }
+                const kwCount = seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length;
+                if (kwCount > 0) parts.push(`${kwCount} palavras no top 10`);
+                const positive = parts.length > 0 ? `Esse mês: ${parts.join(', ')}. ` : '';
+                return `${positive}Estamos cuidando de tudo para você! Conte conosco. — Equipe Riscamundo 🤝`;
+              })()}
+            </p>
           </div>
 
           {/* ═══════════ DASHBOARD SUMMARY ═══════════ */}
