@@ -14,6 +14,7 @@ import AlertasPage from "./pages/AlertasPage";
 import AdminPage from "./pages/AdminPage";
 import MarketingConfigPage from "./pages/MarketingConfigPage";
 import SeoConfigPage from "./pages/SeoConfigPage";
+import TarefasConfigPage from "./pages/TarefasConfigPage";
 import LoginPage from "./pages/LoginPage";
 import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
