@@ -59,13 +59,13 @@ export default function LoginPage() {
               transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.2 }}
               className="flex justify-center"
             >
-              <div className="p-4 rounded-2xl gold-gradient shadow-lg shadow-primary/20">
-                <Sparkles className="h-7 w-7 text-primary-foreground" />
+              <div className="p-4 rounded-2xl accent-gradient shadow-lg shadow-primary/20">
+                <Sparkles className="h-7 w-7 text-white" />
               </div>
             </motion.div>
             <div>
-              <h1 className="text-3xl font-display font-bold gold-text">Estética Premium</h1>
-              <p className="text-sm text-muted-foreground mt-1">CRM & Dashboard Executivo</p>
+              <h1 className="text-3xl font-bold accent-text">Clínica Sablier</h1>
+              <p className="text-sm text-muted-foreground mt-1">Dashboard Executivo</p>
             </div>
           </CardHeader>
           <CardContent className="pt-4">

@@ -12,7 +12,7 @@ import {
 import { DollarSign, TrendingUp, Target, CreditCard, Users, Award, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
-const COLORS = ['hsl(38, 70%, 50%)', 'hsl(200, 60%, 50%)', 'hsl(150, 50%, 45%)', 'hsl(280, 50%, 55%)', 'hsl(15, 70%, 55%)'];
+const COLORS = ['hsl(217, 91%, 60%)', 'hsl(160, 84%, 39%)', 'hsl(280, 50%, 55%)', 'hsl(38, 90%, 55%)', 'hsl(340, 65%, 55%)'];
 
 export default function ExecutiveDashboard() {
   const { procedimentos, campanhas, leads, vendas, loading } = useStoreContext();
@@ -110,11 +110,11 @@ export default function ExecutiveDashboard() {
                 {receitaProc.length > 0 ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={receitaProc.slice(0, 5)} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                      <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                      <YAxis type="category" dataKey="nome" width={120} stroke="hsl(220, 10%, 55%)" fontSize={11} />
-                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} />
-                      <Bar dataKey="receita" fill="hsl(38, 70%, 50%)" radius={[0, 4, 4, 0]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 30%, 18%)" />
+                      <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke="hsl(220, 15%, 55%)" fontSize={12} />
+                      <YAxis type="category" dataKey="nome" width={120} stroke="hsl(220, 15%, 55%)" fontSize={11} />
+                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} />
+                      <Bar dataKey="receita" fill="hsl(217, 91%, 60%)" radius={[0, 6, 6, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
@@ -132,7 +132,7 @@ export default function ExecutiveDashboard() {
                       <Pie data={receitaCanal} dataKey="receita" nameKey="canal" cx="50%" cy="50%" outerRadius={90} innerRadius={50} paddingAngle={3} label={({ canal, percent }) => `${canal} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={11}>
                         {receitaCanal.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
-                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} />
+                      <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 ) : (
@@ -147,11 +147,11 @@ export default function ExecutiveDashboard() {
                 {roiCampanha.some(r => r.roi > 0) ? (
                   <ResponsiveContainer width="100%" height={250}>
                     <BarChart data={roiCampanha}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 15%, 18%)" />
-                      <XAxis dataKey="nome" stroke="hsl(220, 10%, 55%)" fontSize={10} angle={-20} textAnchor="end" height={60} />
-                      <YAxis stroke="hsl(220, 10%, 55%)" fontSize={12} />
-                      <Tooltip formatter={(v: number) => `${v.toFixed(1)}x`} contentStyle={{ background: 'hsl(220, 18%, 10%)', border: '1px solid hsl(220, 15%, 18%)', borderRadius: '8px' }} />
-                      <Bar dataKey="roi" fill="hsl(200, 60%, 50%)" radius={[4, 4, 0, 0]} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 30%, 18%)" />
+                      <XAxis dataKey="nome" stroke="hsl(220, 15%, 55%)" fontSize={10} angle={-20} textAnchor="end" height={60} />
+                      <YAxis stroke="hsl(220, 15%, 55%)" fontSize={12} />
+                      <Tooltip formatter={(v: number) => `${v.toFixed(1)}x`} contentStyle={{ background: 'hsl(220, 40%, 13%)', border: '1px solid hsl(220, 30%, 18%)', borderRadius: '10px' }} />
+                      <Bar dataKey="roi" fill="hsl(160, 84%, 39%)" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
