@@ -574,14 +574,34 @@ export default function ClientPortalPage() {
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
               </div>
 
+              {/* Platform filter buttons */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={activePlatform === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setActivePlatform('all')}
+                  className="text-xs gap-1.5"
+                >
+                  <Layers className="h-3.5 w-3.5" /> Todas ({anuncios.length})
+                </Button>
+                {platformStats.map(p => (
+                  <Button
+                    key={p.id}
+                    variant={activePlatform === p.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setActivePlatform(activePlatform === p.id ? 'all' : p.id)}
+                    className="text-xs gap-1.5"
+                  >
+                    <span>{p.icon}</span> {p.label} ({p.count})
+                  </Button>
+                ))}
+              </div>
+
               {/* Platform summary cards */}
               <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {platformStats.map(p => (
                   <StaggerItem key={p.id}>
-                    <Card
-                      className={`cursor-pointer transition-all hover:shadow-md ${activePlatform === p.id ? 'ring-2 ring-primary shadow-md' : ''}`}
-                      onClick={() => setActivePlatform(p.id)}
-                    >
+                    <Card className="transition-all hover:shadow-md">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="text-lg">{p.icon}</span>
@@ -599,11 +619,15 @@ export default function ClientPortalPage() {
                 ))}
               </StaggerContainer>
 
-              {/* Active platform detail */}
+              {/* Ads list */}
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                    <span className="text-lg">{currentPlatformInfo.icon}</span> {currentPlatformInfo.label}
+                    {currentPlatformInfo ? (
+                      <><span className="text-lg">{currentPlatformInfo.icon}</span> {currentPlatformInfo.label}</>
+                    ) : (
+                      <><Layers className="h-4 w-4 text-primary" /> Todos os Anúncios</>
+                    )}
                     <Badge variant="outline" className="ml-auto">{currentPlatformAds.length} anúncios</Badge>
                   </CardTitle>
                 </CardHeader>
@@ -611,7 +635,7 @@ export default function ClientPortalPage() {
                   {currentPlatformAds.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
                       <Megaphone className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                      <p className="text-sm">Nenhum anúncio em {currentPlatformInfo.label} ainda.</p>
+                      <p className="text-sm">Nenhum anúncio {currentPlatformInfo ? `em ${currentPlatformInfo.label}` : ''} ainda.</p>
                       <p className="text-xs mt-1">Seus anúncios aparecerão aqui quando cadastrados.</p>
                     </div>
                   ) : (
