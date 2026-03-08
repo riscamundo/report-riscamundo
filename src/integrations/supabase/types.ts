@@ -233,6 +233,54 @@ export type Database = {
         }
         Relationships: []
       }
+      contatos_ativacao: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          email: string | null
+          id: string
+          motivo_inatividade: string | null
+          nome: string
+          observacoes: string | null
+          origem: string | null
+          proximo_contato: string | null
+          status: string
+          telefone: string | null
+          ultimo_contato: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          motivo_inatividade?: string | null
+          nome: string
+          observacoes?: string | null
+          origem?: string | null
+          proximo_contato?: string | null
+          status?: string
+          telefone?: string | null
+          ultimo_contato?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          motivo_inatividade?: string | null
+          nome?: string
+          observacoes?: string | null
+          origem?: string | null
+          proximo_contato?: string | null
+          status?: string
+          telefone?: string | null
+          ultimo_contato?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       equipe_members: {
         Row: {
           created_at: string

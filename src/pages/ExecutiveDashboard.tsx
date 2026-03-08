@@ -6,7 +6,14 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { KPICard, PageHeader } from '@/components/KPICard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
+import { toast } from 'sonner';
 import {
   calcFaturamentoMes, calcInvestimentoTotal, calcROI, calcTicketMedio,
   calcConversao, calcCombosPremium, getLeadsPorEtapa, getReceitaPorProcedimento,
@@ -15,7 +22,8 @@ import {
 import {
   DollarSign, TrendingUp, Target, CreditCard, Users, AlertTriangle,
   Clock, Briefcase, Wallet, ShieldAlert, UserX, Receipt,
-  ArrowUpRight, ArrowDownRight, Phone, BarChart3, Zap
+  ArrowUpRight, ArrowDownRight, Phone, BarChart3, Zap,
+  Plus, Edit2, UserPlus, PhoneCall, CalendarDays, Search
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -60,16 +68,23 @@ export default function ExecutiveDashboard() {
   const [clientes, setClientes] = useState<ClienteResumo[]>([]);
   const [financeiro, setFinanceiro] = useState<FinanceiroRow[]>([]);
   const [tarefasPendentes, setTarefasPendentes] = useState<TarefaPendente[]>([]);
+  const [contatos, setContatos] = useState<any[]>([]);
+  const [contatoOpen, setContatoOpen] = useState(false);
+  const [editContato, setEditContato] = useState<any | null>(null);
+  const [contatoSearch, setContatoSearch] = useState('');
+  const [contatoFilter, setContatoFilter] = useState('all');
 
   useEffect(() => {
     const fetchExtra = async () => {
-      const [cRes, fRes, tRes] = await Promise.all([
+      const [cRes, fRes, tRes, ctRes] = await Promise.all([
         supabase.from('clientes').select('id, nome, status, mensalidade_valor, acesso_liberado').order('nome'),
         supabase.from('financeiro' as any).select('id, cliente_id, valor, status, data_vencimento, descricao, tipo').order('data_vencimento', { ascending: false }).limit(200),
         supabase.from('tarefas_cliente').select('id, titulo, status, prioridade, updated_at, cliente_id').neq('status', 'pronta').order('updated_at', { ascending: true }).limit(20),
+        supabase.from('contatos_ativacao' as any).select('*').order('proximo_contato', { ascending: true }),
       ]);
       setClientes((cRes.data || []) as ClienteResumo[]);
       setFinanceiro((fRes.data || []) as unknown as FinanceiroRow[]);
+      setContatos((ctRes.data || []) as any[]);
 
       if (tRes.data && tRes.data.length > 0) {
         const clienteIds = [...new Set(tRes.data.map(t => t.cliente_id))];
@@ -84,7 +99,45 @@ export default function ExecutiveDashboard() {
     fetchExtra();
   }, []);
 
-  // KPIs
+  const refreshContatos = async () => {
+    const { data } = await supabase.from('contatos_ativacao' as any).select('*').order('proximo_contato', { ascending: true });
+    setContatos((data || []) as any[]);
+  };
+
+  const handleSaveContato = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const payload = {
+      nome: fd.get('nome') as string,
+      telefone: fd.get('telefone') as string || null,
+      email: fd.get('email') as string || null,
+      origem: fd.get('origem') as string || 'manual',
+      motivo_inatividade: fd.get('motivo') as string || null,
+      ultimo_contato: fd.get('ultimo_contato') as string || null,
+      proximo_contato: fd.get('proximo_contato') as string || null,
+      status: fd.get('status') as string || 'pendente',
+      observacoes: fd.get('observacoes') as string || null,
+    };
+    if (editContato) {
+      const { error } = await supabase.from('contatos_ativacao' as any).update(payload).eq('id', editContato.id);
+      if (error) { toast.error('Erro ao atualizar'); return; }
+      toast.success('Contato atualizado!');
+    } else {
+      const { error } = await supabase.from('contatos_ativacao' as any).insert(payload);
+      if (error) { toast.error('Erro ao criar'); return; }
+      toast.success('Contato adicionado!');
+    }
+    setContatoOpen(false);
+    setEditContato(null);
+    refreshContatos();
+  };
+
+  const handleContatoStatus = async (id: string, status: string) => {
+    await supabase.from('contatos_ativacao' as any).update({ status }).eq('id', id);
+    refreshContatos();
+  };
+
+
   const faturamento = calcFaturamentoMes(vendas);
   const investimento = calcInvestimentoTotal(campanhas);
   const roi = calcROI(vendas, campanhas);
@@ -331,6 +384,145 @@ export default function ExecutiveDashboard() {
             </CardContent>
           </Card>
         )}
+
+        {/* ═══ BASE DE CONTATOS PARA ATIVAÇÃO ═══ */}
+        <Card className="mb-6 border-border/60">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-primary" /> Contatos para Ativação
+              <Badge variant="outline" className="ml-2 text-[10px]">{contatos.length}</Badge>
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              <div className="relative w-48">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input placeholder="Buscar..." value={contatoSearch} onChange={e => setContatoSearch(e.target.value)} className="pl-8 h-8 text-xs" />
+              </div>
+              <Select value={contatoFilter} onValueChange={setContatoFilter}>
+                <SelectTrigger className="w-32 h-8 text-xs"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="pendente">Pendentes</SelectItem>
+                  <SelectItem value="contatado">Contatados</SelectItem>
+                  <SelectItem value="ativado">Ativados</SelectItem>
+                  <SelectItem value="descartado">Descartados</SelectItem>
+                </SelectContent>
+              </Select>
+              <Dialog open={contatoOpen} onOpenChange={(o) => { setContatoOpen(o); if (!o) setEditContato(null); }}>
+                <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Plus className="h-3.5 w-3.5" /> Novo Contato</Button></DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>{editContato ? 'Editar' : 'Novo'} Contato</DialogTitle></DialogHeader>
+                  <form onSubmit={handleSaveContato} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><Label>Nome *</Label><Input name="nome" defaultValue={editContato?.nome} required className="mt-1" /></div>
+                      <div><Label>Telefone</Label><Input name="telefone" defaultValue={editContato?.telefone} placeholder="(00) 00000-0000" className="mt-1" /></div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><Label>E-mail</Label><Input name="email" type="email" defaultValue={editContato?.email} className="mt-1" /></div>
+                      <div><Label>Origem</Label>
+                        <Select name="origem" defaultValue={editContato?.origem || 'manual'}>
+                          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="manual">Manual</SelectItem>
+                            <SelectItem value="indicacao">Indicação</SelectItem>
+                            <SelectItem value="ex_cliente">Ex-cliente</SelectItem>
+                            <SelectItem value="campanha">Campanha</SelectItem>
+                            <SelectItem value="rede_social">Rede Social</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div><Label>Motivo da Inatividade</Label><Input name="motivo" defaultValue={editContato?.motivo_inatividade} placeholder="Ex: não fechou por preço, desistiu do tratamento..." className="mt-1" /></div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div><Label>Último Contato</Label><Input name="ultimo_contato" type="date" defaultValue={editContato?.ultimo_contato} className="mt-1" /></div>
+                      <div><Label>Próximo Contato</Label><Input name="proximo_contato" type="date" defaultValue={editContato?.proximo_contato} className="mt-1" /></div>
+                      <div><Label>Status</Label>
+                        <Select name="status" defaultValue={editContato?.status || 'pendente'}>
+                          <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pendente">Pendente</SelectItem>
+                            <SelectItem value="contatado">Contatado</SelectItem>
+                            <SelectItem value="ativado">Ativado</SelectItem>
+                            <SelectItem value="descartado">Descartado</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div><Label>Observações</Label><Textarea name="observacoes" defaultValue={editContato?.observacoes} className="mt-1" rows={2} /></div>
+                    <Button type="submit" className="w-full">Salvar</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {(() => {
+              let filtered = contatos;
+              if (contatoFilter !== 'all') filtered = filtered.filter(c => c.status === contatoFilter);
+              if (contatoSearch.trim()) {
+                const q = contatoSearch.toLowerCase();
+                filtered = filtered.filter(c => c.nome?.toLowerCase().includes(q) || c.telefone?.includes(q) || c.email?.toLowerCase().includes(q));
+              }
+              const today = new Date().toISOString().slice(0, 10);
+              const pendentesHoje = filtered.filter(c => c.proximo_contato && c.proximo_contato <= today && c.status === 'pendente');
+              const outros = filtered.filter(c => !pendentesHoje.includes(c));
+
+              return filtered.length > 0 ? (
+                <div className="space-y-2">
+                  {pendentesHoje.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-xs font-semibold text-destructive mb-2 flex items-center gap-1"><PhoneCall className="h-3.5 w-3.5" /> Contatar hoje ({pendentesHoje.length})</p>
+                      {pendentesHoje.map(c => (
+                        <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-destructive/5 border border-destructive/10 mb-1.5">
+                          <div className="p-1.5 rounded-lg bg-destructive/10"><PhoneCall className="h-3.5 w-3.5 text-destructive" /></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{c.nome}</p>
+                            <p className="text-[11px] text-muted-foreground">{c.telefone || c.email || 'Sem contato'} · {c.motivo_inatividade || c.origem}</p>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Button variant="outline" size="sm" className="h-7 text-[10px] gap-1" onClick={() => handleContatoStatus(c.id, 'contatado')}>
+                              <PhoneCall className="h-3 w-3" /> Contatado
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-7" onClick={() => { setEditContato(c); setContatoOpen(true); }}>
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {outros.slice(0, 10).map(c => {
+                      const statusColor = c.status === 'ativado' ? 'text-accent border-accent' : c.status === 'contatado' ? 'text-primary border-primary' : c.status === 'descartado' ? 'text-muted-foreground' : 'text-warning border-warning';
+                      return (
+                        <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-lg border hover:bg-muted/20 transition-colors">
+                          <div className="p-1.5 rounded-lg bg-primary/10"><UserPlus className="h-3.5 w-3.5 text-primary" /></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{c.nome}</p>
+                            <p className="text-[11px] text-muted-foreground">{c.telefone || c.email || 'Sem contato'} · {c.motivo_inatividade || c.origem}</p>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Badge variant="outline" className={`text-[10px] ${statusColor}`}>{c.status}</Badge>
+                            {c.proximo_contato && (
+                              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5"><CalendarDays className="h-3 w-3" />{new Date(c.proximo_contato + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
+                            )}
+                            <Button variant="ghost" size="sm" className="h-7" onClick={() => { setEditContato(c); setContatoOpen(true); }}>
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {outros.length > 10 && <p className="text-xs text-muted-foreground text-center mt-2">+ {outros.length - 10} contatos</p>}
+                </div>
+              ) : (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  {contatos.length === 0 ? 'Nenhum contato cadastrado. Adicione contatos inativos para trabalhar a ativação.' : 'Nenhum contato encontrado com esse filtro.'}
+                </div>
+              );
+            })()}
+          </CardContent>
+        </Card>
 
         {/* ═══ GRÁFICOS ═══ */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
