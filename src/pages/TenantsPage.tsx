@@ -126,8 +126,35 @@ export default function TenantsPage() {
     }
   };
 
-  const handlePrintReport = () => {
-    window.print();
+  const handlePrintReport = () => { window.print(); };
+
+  const handleSaveProc = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedClient) return;
+    setSavingProc(true);
+    const fd = new FormData(e.currentTarget);
+    const data = {
+      nome_procedimento: fd.get('nome') as string,
+      categoria: fd.get('categoria') as string,
+      ticket_medio: Number(fd.get('ticket')) || 0,
+      margem_estimada: Number(fd.get('margem')) || 0,
+      prioridade_vendas: fd.get('prioridade') as string || 'media',
+      status: (fd.get('status') as string) || 'ativo',
+      cliente_id: selectedClient.id,
+    };
+    if (editProcId) {
+      const { error } = await supabase.from('procedimentos').update(data).eq('id', editProcId);
+      if (error) toast.error('Erro ao atualizar procedimento');
+      else toast.success('Procedimento atualizado!');
+    } else {
+      const { error } = await supabase.from('procedimentos').insert(data);
+      if (error) toast.error('Erro ao criar procedimento');
+      else toast.success('Procedimento criado!');
+    }
+    setShowProcForm(false);
+    setEditProcId(null);
+    setSavingProc(false);
+    loadTenantData(selectedClient);
   };
 
   const filteredClientes = clientes.filter(c => {
