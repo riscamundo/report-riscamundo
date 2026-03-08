@@ -112,7 +112,7 @@ export default function ClientPortalPage() {
         setSeoPages((pgRes.data || []) as SeoPage[]);
         setTarefas((tarefasRes.data || []) as TarefaCliente[]);
         setAnuncios((anunciosRes.data || []) as Anuncio[]);
-        setAdStudies((studiesRes.data || []) as AdStudy[]);
+        setAdStudies((studiesRes.data || []) as unknown as AdStudy[]);
       }
       setLoading(false);
     };
