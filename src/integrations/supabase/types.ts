@@ -521,6 +521,54 @@ export type Database = {
           },
         ]
       }
+      maestro_config: {
+        Row: {
+          id: string
+          system_prompt: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          system_prompt: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          system_prompt?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      maestro_conversations: {
+        Row: {
+          contexto: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          pergunta: string
+          resposta: string
+        }
+        Insert: {
+          contexto?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pergunta: string
+          resposta: string
+        }
+        Update: {
+          contexto?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          pergunta?: string
+          resposta?: string
+        }
+        Relationships: []
+      }
       marketing_reports: {
         Row: {
           cliente_id: string
