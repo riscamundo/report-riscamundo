@@ -388,9 +388,9 @@ export default function ExecutiveDashboard() {
         )}
 
         {/* ═══ BASE DE CONTATOS PARA ATIVAÇÃO ═══ */}
-        <Card className="mb-6 border-border/60">
+        <Card className="mb-8 executive-card">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
               <UserPlus className="h-4 w-4 text-primary" /> Contatos para Ativação
               <Badge variant="outline" className="ml-2 text-[10px]">{contatos.length}</Badge>
             </CardTitle>
