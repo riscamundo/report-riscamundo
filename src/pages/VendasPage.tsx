@@ -163,6 +163,7 @@ export default function VendasPage() {
             <TabsTrigger value="funil" className="gap-1.5"><Users className="h-4 w-4" /> Funil de Vendas</TabsTrigger>
             <TabsTrigger value="contatos" className="gap-1.5"><Building2 className="h-4 w-4" /> Contatos & Empresas</TabsTrigger>
             <TabsTrigger value="llm" className="gap-1.5"><Brain className="h-4 w-4" /> LLM Maestro</TabsTrigger>
+            <TabsTrigger value="sales-manager" className="gap-1.5"><FileSpreadsheet className="h-4 w-4" /> Sales Manager</TabsTrigger>
           </TabsList>
 
           {/* ═══════ VENDAS TAB ═══════ */}
