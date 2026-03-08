@@ -71,6 +71,10 @@ export default function ClientPortalPage() {
   const [tarefas, setTarefas] = useState<TarefaCliente[]>([]);
   const [anuncios, setAnuncios] = useState<Anuncio[]>([]);
   const [adStudies, setAdStudies] = useState<AdStudy[]>([]);
+  const [socialAccounts, setSocialAccounts] = useState<SocialMediaAccount[]>([]);
+  const [mybusiness, setMybusiness] = useState<MyBusinessProfile | null>(null);
+  const [competitors, setCompetitors] = useState<MyBusinessCompetitor[]>([]);
+  const [financeiro, setFinanceiro] = useState<FinanceiroRecord[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Dialogs
