@@ -73,7 +73,7 @@ export function AppSidebar() {
           <div className="space-y-2">
             <div className="px-2">
               <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-              <p className="text-xs text-primary font-medium">{isMaster ? '👑 Master' : '👤 Equipe'}</p>
+              <p className="text-xs text-primary font-medium">{isMaster ? '👑 Master' : isGestor ? '🏢 Gestor' : '👤 Equipe'}</p>
             </div>
             <button
               onClick={signOut}
