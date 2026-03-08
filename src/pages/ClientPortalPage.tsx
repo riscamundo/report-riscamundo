@@ -62,6 +62,33 @@ interface MarketingReport {
   observacoes: string | null;
 }
 
+interface SeoKeyword {
+  id: string;
+  palavra_chave: string;
+  posicao_atual: number | null;
+  posicao_anterior: number | null;
+  volume_busca: number;
+  url_rankeada: string | null;
+  dificuldade: string;
+  status: string;
+}
+
+interface SeoPage {
+  id: string;
+  url: string;
+  titulo: string;
+  visitas_mes: number;
+  visitas_mes_anterior: number;
+  posicao_media: number;
+  impressoes: number;
+  cliques: number;
+  ctr: number;
+  taxa_rejeicao: number;
+  tempo_medio_pagina: string | null;
+  status: string;
+  periodo_mes: string;
+}
+
 const statusConfig: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   fechado: { label: 'Concluído', color: 'text-accent', icon: CheckCircle2 },
   pendente: { label: 'Pendente', color: 'text-warning', icon: Clock },
