@@ -361,9 +361,9 @@ export default function ExecutiveDashboard() {
 
         {/* ═══ TAREFAS PENDENTES ═══ */}
         {tarefasPendentes.length > 0 && (
-          <Card className="mb-6 border-border/60">
+          <Card className="mb-8 executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Clock className="h-4 w-4 text-primary" /> Tarefas Pendentes de Clientes
                 <Badge variant="outline" className="ml-auto text-[10px]">{tarefasPendentes.length}</Badge>
               </CardTitle>
