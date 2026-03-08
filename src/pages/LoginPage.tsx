@@ -64,8 +64,19 @@ export default function LoginPage() {
               </div>
             </motion.div>
             <div>
-              <h1 className="text-3xl font-bold accent-text">REPORTS</h1>
-              <p className="text-sm text-muted-foreground mt-1">Dashboard Executivo</p>
+              <h1 className="text-2xl font-bold accent-text">Riscamundo Reports</h1>
+              <p className="text-sm text-muted-foreground mt-0.5">Dashboard Executivo</p>
+              <p className="text-xs text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
+                Portal exclusivo para nossos clientes VIP. Chega de planilhas, venha para a{' '}
+                <a
+                  href="https://maestro.riscamundo.com.br"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline transition-colors"
+                >
+                  Riscamundo
+                </a>
+              </p>
             </div>
           </CardHeader>
           <CardContent className="pt-4">
