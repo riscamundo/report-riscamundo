@@ -30,10 +30,10 @@ import {
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 
-const COLORS = ['hsl(217, 91%, 60%)', 'hsl(160, 84%, 39%)', 'hsl(262, 52%, 56%)', 'hsl(38, 92%, 50%)', 'hsl(340, 75%, 55%)', 'hsl(190, 80%, 45%)'];
-const tooltipStyle = { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.07)', fontSize: '13px' };
-const gridStroke = 'hsl(220, 14%, 93%)';
-const axisStroke = 'hsl(220, 9%, 46%)';
+const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
+const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
+const gridStroke = 'hsl(225, 12%, 18%)';
+const axisStroke = 'hsl(215, 10%, 40%)';
 
 interface ClienteResumo {
   id: string;
