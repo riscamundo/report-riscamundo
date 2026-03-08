@@ -477,6 +477,47 @@ export type Database = {
           },
         ]
       }
+      tarefas_cliente: {
+        Row: {
+          cliente_id: string
+          created_at: string
+          descricao: string | null
+          id: string
+          prioridade: string | null
+          status: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          cliente_id: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          prioridade?: string | null
+          status?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          cliente_id?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          prioridade?: string | null
+          status?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarefas_cliente_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string

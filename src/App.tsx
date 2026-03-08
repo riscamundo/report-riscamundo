@@ -14,6 +14,7 @@ import AlertasPage from "./pages/AlertasPage";
 import AdminPage from "./pages/AdminPage";
 import MarketingConfigPage from "./pages/MarketingConfigPage";
 import SeoConfigPage from "./pages/SeoConfigPage";
+import TarefasConfigPage from "./pages/TarefasConfigPage";
 import LoginPage from "./pages/LoginPage";
 import ClientPortalPage from "./pages/ClientPortalPage";
 import NotFound from "./pages/NotFound";
@@ -56,6 +57,7 @@ const AppRoutes = () => {
       <Route path="/alertas" element={<ProtectedRoute masterOnly><AlertasPage /></ProtectedRoute>} />
       <Route path="/marketing" element={<ProtectedRoute masterOnly><MarketingConfigPage /></ProtectedRoute>} />
       <Route path="/seo" element={<ProtectedRoute masterOnly><SeoConfigPage /></ProtectedRoute>} />
+      <Route path="/tarefas" element={<ProtectedRoute masterOnly><TarefasConfigPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute masterOnly><AdminPage /></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>
