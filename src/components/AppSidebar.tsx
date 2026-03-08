@@ -3,7 +3,7 @@ import { NavLink } from '@/components/NavLink';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import {
-  LayoutDashboard, Package, Megaphone, Users, ShoppingCart, AlertTriangle,
+  LayoutDashboard, Megaphone, Users, ShoppingCart, AlertTriangle,
   ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase
 } from 'lucide-react';
 
@@ -17,7 +17,7 @@ interface NavItem {
 
 const allNavItems: NavItem[] = [
   { title: 'Visão Executiva', url: '/', icon: LayoutDashboard },
-  { title: 'Procedimentos', url: '/procedimentos', icon: Package, masterOnly: true },
+  
   { title: 'Mídia & Performance', url: '/midia', icon: Megaphone, masterOnly: true },
   { title: 'Alertas', url: '/alertas', icon: AlertTriangle, masterOnly: true },
   { title: 'Marketing Digital', url: '/marketing', icon: BarChart3, masterOnly: true },

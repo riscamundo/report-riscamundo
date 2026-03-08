@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
-import ProcedimentosPage from "./pages/ProcedimentosPage";
+
 import MidiaPage from "./pages/MidiaPage";
 import FunilPage from "./pages/FunilPage";
 import VendasPage from "./pages/VendasPage";
@@ -51,7 +51,7 @@ const AppRoutes = () => {
       <Route path="/login" element={user ? (isCliente ? <Navigate to="/portal" replace /> : <Navigate to="/" replace />) : <LoginPage />} />
       <Route path="/portal" element={<ClientRoute><ClientPortalPage /></ClientRoute>} />
       <Route path="/" element={<ProtectedRoute><ExecutiveDashboard /></ProtectedRoute>} />
-      <Route path="/procedimentos" element={<ProtectedRoute masterOnly><ProcedimentosPage /></ProtectedRoute>} />
+      
       <Route path="/midia" element={<ProtectedRoute masterOnly><MidiaPage /></ProtectedRoute>} />
       <Route path="/funil" element={<ProtectedRoute><Navigate to="/vendas" replace /></ProtectedRoute>} />
       <Route path="/vendas" element={<ProtectedRoute masterOnly><VendasPage /></ProtectedRoute>} />
