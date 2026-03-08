@@ -392,36 +392,7 @@ export default function ClientPortalPage() {
             <TabsContent value="tarefas" className="space-y-6">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Suas Tarefas</h3>
-                <Dialog open={showNewTarefa} onOpenChange={setShowNewTarefa}>
-                  <DialogTrigger asChild>
-                    <Button size="sm" className="gap-1.5"><Plus className="h-4 w-4" /> Nova Tarefa</Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle className="flex items-center gap-2">
-                        Nova Tarefa
-                        {newTarefa.contexto && <Badge variant="outline" className="text-xs text-primary border-primary/40">{newTarefa.contexto}</Badge>}
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 pt-2">
-                      <div><Label>Título *</Label><Input value={newTarefa.titulo} onChange={e => setNewTarefa(p => ({ ...p, titulo: e.target.value }))} placeholder="Ex: Enviar material atualizado" /></div>
-                      <div><Label>Descrição</Label><Textarea value={newTarefa.descricao} onChange={e => setNewTarefa(p => ({ ...p, descricao: e.target.value }))} placeholder="Detalhes opcionais..." rows={3} /></div>
-                      <div><Label>Prioridade</Label>
-                        <Select value={newTarefa.prioridade} onValueChange={v => setNewTarefa(p => ({ ...p, prioridade: v }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="baixa">Baixa</SelectItem>
-                            <SelectItem value="media">Média</SelectItem>
-                            <SelectItem value="alta">Alta</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button onClick={handleSaveTarefa} disabled={savingTarefa || !newTarefa.titulo.trim()} className="w-full">
-                        {savingTarefa ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Salvando...</> : 'Criar Tarefa'}
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button size="sm" className="gap-1.5" onClick={() => openCreateTarefa('Tarefas')}><Plus className="h-4 w-4" /> Nova Tarefa</Button>
               </div>
 
               {tarefas.length === 0 ? (
