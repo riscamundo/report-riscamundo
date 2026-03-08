@@ -30,10 +30,10 @@ import {
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 
-const COLORS = ['hsl(217, 91%, 60%)', 'hsl(160, 84%, 39%)', 'hsl(262, 52%, 56%)', 'hsl(38, 92%, 50%)', 'hsl(340, 75%, 55%)', 'hsl(190, 80%, 45%)'];
-const tooltipStyle = { background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.07)', fontSize: '13px' };
-const gridStroke = 'hsl(220, 14%, 93%)';
-const axisStroke = 'hsl(220, 9%, 46%)';
+const COLORS = ['hsl(42, 70%, 55%)', 'hsl(160, 50%, 45%)', 'hsl(262, 40%, 55%)', 'hsl(200, 60%, 50%)', 'hsl(340, 55%, 55%)', 'hsl(180, 45%, 50%)'];
+const tooltipStyle = { background: 'hsl(225, 14%, 13%)', border: '1px solid hsl(225, 12%, 20%)', borderRadius: '10px', boxShadow: '0 8px 30px -8px rgb(0 0 0 / 0.5)', fontSize: '12px', color: 'hsl(210, 20%, 85%)' };
+const gridStroke = 'hsl(225, 12%, 18%)';
+const axisStroke = 'hsl(215, 10%, 40%)';
 
 interface ClienteResumo {
   id: string;
@@ -255,9 +255,9 @@ export default function ExecutiveDashboard() {
 
         {/* ═══ ALERTAS CRÍTICOS ═══ */}
         {criticalAlerts.length > 0 && (
-          <Card className="mb-6 border-destructive/20 bg-destructive/[0.02]">
+          <Card className="mb-8 border-destructive/15 bg-destructive/[0.03] executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <AlertTriangle className="h-4 w-4 text-destructive" /> Alertas Críticos
                 <Badge variant="destructive" className="ml-auto text-[10px]">{criticalAlerts.length}</Badge>
               </CardTitle>
@@ -278,14 +278,14 @@ export default function ExecutiveDashboard() {
         )}
 
         {/* ═══ KPIs CONSOLIDADOS ═══ */}
-        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
           <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
           <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
           <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
         </StaggerContainer>
 
-        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           <StaggerItem><KPICard title="Clientes Ativos" value={clientesAtivos.toString()} icon={Briefcase} /></StaggerItem>
           <StaggerItem><KPICard title="Mensalidades/Mês" value={fmt(receitaMensalidades)} icon={Receipt} /></StaggerItem>
           <StaggerItem><KPICard title="A Receber" value={fmt(totalReceber)} subtitle={`${boletosPendentes.length} pendentes`} icon={Wallet} /></StaggerItem>
@@ -293,11 +293,11 @@ export default function ExecutiveDashboard() {
         </StaggerContainer>
 
         {/* ═══ FINANCEIRO + LEADS PARADOS ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Boletos vencidos por cliente */}
-          <Card className="border-border/60">
+          <Card className="executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Wallet className="h-4 w-4 text-destructive" /> Inadimplência por Cliente
                 {clientesComVencidos.length > 0 && <Badge variant="destructive" className="ml-auto text-[10px]">{clientesComVencidos.length}</Badge>}
               </CardTitle>
@@ -323,9 +323,9 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Leads parados >24h */}
-          <Card className="border-border/60">
+          <Card className="executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Phone className="h-4 w-4 text-warning" /> Leads Sem Contato (&gt;24h)
                 {leadsParados.length > 0 && <Badge className="ml-auto text-[10px] bg-warning/20 text-warning border-0">{leadsParados.length}</Badge>}
               </CardTitle>
@@ -361,9 +361,9 @@ export default function ExecutiveDashboard() {
 
         {/* ═══ TAREFAS PENDENTES ═══ */}
         {tarefasPendentes.length > 0 && (
-          <Card className="mb-6 border-border/60">
+          <Card className="mb-8 executive-card">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
                 <Clock className="h-4 w-4 text-primary" /> Tarefas Pendentes de Clientes
                 <Badge variant="outline" className="ml-auto text-[10px]">{tarefasPendentes.length}</Badge>
               </CardTitle>
@@ -388,9 +388,9 @@ export default function ExecutiveDashboard() {
         )}
 
         {/* ═══ BASE DE CONTATOS PARA ATIVAÇÃO ═══ */}
-        <Card className="mb-6 border-border/60">
+        <Card className="mb-8 executive-card">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2 font-sans">
               <UserPlus className="h-4 w-4 text-primary" /> Contatos para Ativação
               <Badge variant="outline" className="ml-2 text-[10px]">{contatos.length}</Badge>
             </CardTitle>
@@ -554,20 +554,20 @@ export default function ExecutiveDashboard() {
         </Card>
 
         {/* ═══ GRÁFICOS ═══ */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Receita mensal */}
-          <Card className="lg:col-span-2 border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Receita Mensal</CardTitle></CardHeader>
+          <Card className="lg:col-span-2 executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita Mensal</CardTitle></CardHeader>
             <CardContent>
               {monthlyRevenue.length > 0 ? (
                 <ResponsiveContainer width="100%" height={240}>
                   <AreaChart data={monthlyRevenue}>
-                    <defs><linearGradient id="gradReceita" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.3}/><stop offset="95%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0}/></linearGradient></defs>
+                    <defs><linearGradient id="gradReceita" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(42, 70%, 55%)" stopOpacity={0.25}/><stop offset="95%" stopColor="hsl(42, 70%, 55%)" stopOpacity={0}/></linearGradient></defs>
                     <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
                     <XAxis dataKey="mes" fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} />
                     <YAxis fontSize={11} stroke={axisStroke} axisLine={false} tickLine={false} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
                     <Tooltip contentStyle={tooltipStyle} formatter={(v: number) => fmt(v)} />
-                    <Area type="monotone" dataKey="receita" stroke="hsl(217, 91%, 60%)" fill="url(#gradReceita)" strokeWidth={2.5} />
+                    <Area type="monotone" dataKey="receita" stroke="hsl(42, 70%, 55%)" fill="url(#gradReceita)" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : <div className="h-[240px] flex items-center justify-center text-sm text-muted-foreground">Sem dados de receita</div>}
@@ -575,8 +575,8 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Leads por Origem */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Leads por Origem</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Leads por Origem</CardTitle></CardHeader>
             <CardContent className="flex items-center justify-center">
               {leadsByOrigin.length > 0 ? (
                 <ResponsiveContainer width="100%" height={240}>
@@ -595,8 +595,8 @@ export default function ExecutiveDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Funil */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Funil de Vendas</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Funil de Vendas</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {funilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
@@ -622,8 +622,8 @@ export default function ExecutiveDashboard() {
           </Card>
 
           {/* Receita por Serviço */}
-          <Card className="border-border/60">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold">Receita por Serviço</CardTitle></CardHeader>
+          <Card className="executive-card">
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita por Serviço</CardTitle></CardHeader>
             <CardContent>
               {receitaProc.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
@@ -632,7 +632,7 @@ export default function ExecutiveDashboard() {
                     <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="nome" width={120} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <Tooltip formatter={(v: number) => fmt(v)} contentStyle={tooltipStyle} />
-                    <Bar dataKey="receita" fill="hsl(217, 91%, 60%)" radius={[0, 8, 8, 0]} barSize={20} />
+                    <Bar dataKey="receita" fill="hsl(42, 70%, 55%)" radius={[0, 6, 6, 0]} barSize={18} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : <div className="h-[250px] flex items-center justify-center text-sm text-muted-foreground">Sem vendas registradas</div>}
