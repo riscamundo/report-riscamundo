@@ -278,7 +278,7 @@ export default function ExecutiveDashboard() {
         )}
 
         {/* ═══ KPIs CONSOLIDADOS ═══ */}
-        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4 mb-6">
+        <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
           <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
           <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
           <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
