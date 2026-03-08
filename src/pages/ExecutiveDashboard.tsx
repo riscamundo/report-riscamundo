@@ -338,7 +338,7 @@ export default function ExecutiveDashboard() {
     `Alertas críticos: ${criticalAlerts.length}`,
     `Procedimentos cadastrados: ${procedimentos.length}`,
     `Campanhas ativas: ${campanhas.filter(c => c.status === 'ativo').length}`,
-    forecast ? `Forecast próximo mês: R$ ${forecast.toFixed(2)}` : null,
+    forecast && typeof forecast === 'number' ? `Forecast próximo mês: R$ ${forecast.toFixed(2)}` : forecast ? `Forecast: ${JSON.stringify(forecast)}` : null,
     `Funil de leads: ${funilData.map(f => `${f.etapa}: ${f.count}`).join(', ')}`,
     receitaProc.length > 0 ? `Receita por procedimento: ${receitaProc.map(r => `${r.nome}: R$ ${r.receita}`).join(', ')}` : null,
   ].filter(Boolean).join('\n');
