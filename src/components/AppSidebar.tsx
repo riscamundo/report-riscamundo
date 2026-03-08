@@ -40,7 +40,7 @@ export function AppSidebar() {
       <div className="p-5 flex items-center justify-between">
         {!collapsed && (
           <div className="flex flex-col items-start gap-2">
-            <img src={logoRiscamundo} alt="Riscamundo" className="h-6 brightness-0 invert opacity-80" />
+            <img src={logoRiscamundo} alt="Riscamundo" className="h-7 brightness-0 invert opacity-90" />
             <div>
               <h1 className="text-sm font-bold text-sidebar-accent-foreground tracking-tight">REPORTS</h1>
               <p className="text-[10px] text-sidebar-foreground/50 uppercase tracking-widest">Dashboard</p>
@@ -48,7 +48,7 @@ export function AppSidebar() {
           </div>
         )}
         {collapsed && (
-          <img src={logoRiscamundo} alt="Riscamundo" className="h-5 brightness-0 invert opacity-80 mx-auto" />
+          <img src={logoRiscamundo} alt="Riscamundo" className="h-6 brightness-0 invert opacity-90 mx-auto" />
         )}
         <button onClick={() => { setCollapsed(!collapsed); setMobileOpen(false); }} className="p-1.5 rounded-lg hover:bg-sidebar-accent text-sidebar-foreground/60 hover:text-sidebar-foreground transition-colors hidden md:block">
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
