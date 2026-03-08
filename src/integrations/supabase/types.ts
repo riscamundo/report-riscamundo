@@ -238,45 +238,116 @@ export type Database = {
           created_at: string
           created_by: string | null
           email: string | null
+          empresa_id: string | null
           id: string
           motivo_inatividade: string | null
           nome: string
           observacoes: string | null
           origem: string | null
           proximo_contato: string | null
+          site: string | null
           status: string
           telefone: string | null
           ultimo_contato: string | null
           updated_at: string
+          whatsapp: string | null
         }
         Insert: {
           created_at?: string
           created_by?: string | null
           email?: string | null
+          empresa_id?: string | null
           id?: string
           motivo_inatividade?: string | null
           nome: string
           observacoes?: string | null
           origem?: string | null
           proximo_contato?: string | null
+          site?: string | null
           status?: string
           telefone?: string | null
           ultimo_contato?: string | null
           updated_at?: string
+          whatsapp?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string | null
           email?: string | null
+          empresa_id?: string | null
           id?: string
           motivo_inatividade?: string | null
           nome?: string
           observacoes?: string | null
           origem?: string | null
           proximo_contato?: string | null
+          site?: string | null
           status?: string
           telefone?: string | null
           ultimo_contato?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contatos_ativacao_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas_ativacao"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      empresas_ativacao: {
+        Row: {
+          cidade: string | null
+          cnpj: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          segmento: string | null
+          site: string | null
+          status: string
+          telefone: string | null
+          updated_at: string
+        }
+        Insert: {
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          segmento?: string | null
+          site?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          segmento?: string | null
+          site?: string | null
+          status?: string
+          telefone?: string | null
           updated_at?: string
         }
         Relationships: []
