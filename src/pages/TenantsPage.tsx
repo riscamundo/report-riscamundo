@@ -206,6 +206,9 @@ export default function TenantsPage() {
                 </StaggerItem>
               ))}
             </StaggerContainer>
+
+            {/* Controle Vendas Clientes - Global Procedimentos */}
+            <ControleVendasClientes clientes={clientes} />
           </>
         ) : (
           <>
