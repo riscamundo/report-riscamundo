@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { PageHeader } from '@/components/KPICard';
@@ -72,6 +72,97 @@ const emptyPage = {
   status: 'ativo',
   periodo_mes: new Date().toISOString().slice(0, 7) + '-01',
 };
+
+// ═══ Word Cloud Component ═══
+function KeywordCloud({ keywords }: { keywords: SeoKeyword[] }) {
+  const cloudItems = useMemo(() => {
+    const maxVol = Math.max(...keywords.map(k => k.volume_busca || 1), 1);
+    const minVol = Math.min(...keywords.map(k => k.volume_busca || 1), 1);
+    const range = maxVol - minVol || 1;
+
+    // Shuffle for organic layout
+    const shuffled = [...keywords].sort(() => Math.random() - 0.5);
+
+    return shuffled.map(kw => {
+      const normalized = ((kw.volume_busca || 1) - minVol) / range; // 0..1
+      const fontSize = 0.7 + normalized * 1.8; // 0.7rem to 2.5rem
+      const opacity = 0.45 + normalized * 0.55; // 0.45 to 1
+
+      let colorClass = 'text-muted-foreground';
+      if (kw.posicao_atual && kw.posicao_atual <= 3) colorClass = 'text-accent';
+      else if (kw.posicao_atual && kw.posicao_atual <= 10) colorClass = 'text-primary';
+      else if (kw.dificuldade === 'facil') colorClass = 'text-success';
+      else if (kw.dificuldade === 'dificil') colorClass = 'text-destructive';
+      else colorClass = 'text-warning';
+
+      // Slight random rotation for organic feel
+      const rotation = (Math.random() - 0.5) * 8; // -4 to +4 degrees
+
+      return { ...kw, fontSize, opacity, colorClass, rotation };
+    });
+  }, [keywords]);
+
+  // Summary stats
+  const top3 = keywords.filter(k => k.posicao_atual && k.posicao_atual <= 3).length;
+  const top10 = keywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length;
+  const avgVolume = keywords.length > 0 ? Math.round(keywords.reduce((s, k) => s + (k.volume_busca || 0), 0) / keywords.length) : 0;
+  const improving = keywords.filter(k => k.posicao_anterior && k.posicao_atual && k.posicao_anterior > k.posicao_atual).length;
+
+  return (
+    <Card className="border-primary/10 bg-gradient-to-br from-primary/[0.02] to-transparent overflow-hidden">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-sans flex items-center gap-2">
+          <Hash className="h-4 w-4 text-primary" />
+          Visão Geral — Nuvem de Palavras
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* Stats row */}
+        <div className="flex flex-wrap gap-3 mb-4">
+          <div className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20">
+            <span className="text-[10px] uppercase tracking-wider text-accent font-bold">Top 3</span>
+            <span className="text-sm font-bold text-accent ml-2">{top3}</span>
+          </div>
+          <div className="px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20">
+            <span className="text-[10px] uppercase tracking-wider text-primary font-bold">Top 10</span>
+            <span className="text-sm font-bold text-primary ml-2">{top10}</span>
+          </div>
+          <div className="px-3 py-1.5 rounded-lg bg-success/10 border border-success/20">
+            <span className="text-[10px] uppercase tracking-wider text-success font-bold">Subindo</span>
+            <span className="text-sm font-bold text-success ml-2">{improving}</span>
+          </div>
+          <div className="px-3 py-1.5 rounded-lg bg-muted border border-border">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Vol. Médio</span>
+            <span className="text-sm font-bold text-foreground ml-2">{avgVolume.toLocaleString('pt-BR')}</span>
+          </div>
+        </div>
+
+        {/* Word cloud */}
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 py-6 px-2 min-h-[140px]">
+          {cloudItems.map((item) => (
+            <span
+              key={item.id}
+              className={`inline-block cursor-default transition-all duration-200 hover:scale-110 font-semibold ${item.colorClass}`}
+              style={{
+                fontSize: `${item.fontSize}rem`,
+                opacity: item.opacity,
+                transform: `rotate(${item.rotation}deg)`,
+                lineHeight: 1.2,
+              }}
+              title={`${item.palavra_chave} — Vol: ${(item.volume_busca || 0).toLocaleString('pt-BR')} | Pos: ${item.posicao_atual ? '#' + item.posicao_atual : '—'} | ${item.dificuldade}`}
+            >
+              {item.palavra_chave}
+            </span>
+          ))}
+        </div>
+
+        <p className="text-[10px] text-muted-foreground text-center mt-2">
+          Tamanho = volume de busca · Cor = posição (🟢 top3 · 🔵 top10 · 🟡 média · 🔴 difícil)
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function SeoConfigPage() {
   const { toast } = useToast();
@@ -242,6 +333,9 @@ export default function SeoConfigPage() {
             <div className="flex justify-end">
               <Button size="sm" onClick={() => openKw()}><Plus className="h-4 w-4 mr-1" /> Nova Palavra-Chave</Button>
             </div>
+
+            {/* ═══ WORD CLOUD VISUAL ═══ */}
+            {filteredKw.length > 0 && <KeywordCloud keywords={filteredKw} />}
 
             {filteredKw.length === 0 ? (
               <Card>
