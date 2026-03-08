@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import {
   Briefcase, Search, Users, DollarSign, BarChart3, Target, TrendingUp,
   Globe, Megaphone, ListTodo, FileText, Printer, CalendarDays, Eye,
-  CheckCircle2, Clock, AlertTriangle, Wallet, Receipt, Lock, Unlock, Plus, Edit2
+  CheckCircle2, Clock, AlertTriangle, Wallet, Receipt, Lock, Unlock, Plus, Edit2, ShoppingCart
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
