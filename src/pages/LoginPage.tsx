@@ -64,7 +64,7 @@ export default function LoginPage() {
               </div>
             </motion.div>
             <div>
-              <h1 className="text-3xl font-bold accent-text">Clínica Sablier</h1>
+              <h1 className="text-3xl font-bold accent-text">REPORTS</h1>
               <p className="text-sm text-muted-foreground mt-1">Dashboard Executivo</p>
             </div>
           </CardHeader>

@@ -71,7 +71,7 @@ export default function ExecutiveDashboard() {
 
         <PageHeader 
           title={isMaster ? "Dashboard Executivo" : isGestor ? "Visão da Equipe" : "Meu Dashboard"} 
-          subtitle={isMaster ? "Clínica Sablier · Performance consolidada" : isGestor ? "Dados da sua equipe" : "Seus leads e vendas"} 
+          subtitle={isMaster ? "REPORTS · Performance consolidada" : isGestor ? "Dados da sua equipe" : "Seus leads e vendas"} 
         />
 
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
@@ -89,7 +89,7 @@ export default function ExecutiveDashboard() {
               <div className="inline-flex p-5 rounded-2xl bg-primary/8 mb-5">
                 <Users className="h-10 w-10 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2 text-foreground">Bem-vindo ao Sablier!</h3>
+              <h3 className="text-lg font-semibold mb-2 text-foreground">Bem-vindo ao REPORTS!</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
                 Comece cadastrando procedimentos, criando campanhas e adicionando leads no funil para ver os gráficos e métricas.
               </p>
