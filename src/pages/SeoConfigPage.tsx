@@ -386,7 +386,15 @@ export default function SeoConfigPage() {
               </div>
               <div>
                 <Label>Palavra-Chave *</Label>
-                <Input value={kwForm.palavra_chave} onChange={e => setKwForm(p => ({ ...p, palavra_chave: e.target.value }))} required className="mt-1" placeholder="ex: harmonização facial SP" />
+                <div className="flex gap-2 mt-1">
+                  <Input value={kwForm.palavra_chave} onChange={e => setKwForm(p => ({ ...p, palavra_chave: e.target.value }))} required placeholder="ex: harmonização facial SP" className="flex-1" />
+                  {!editingKw && (
+                    <Button type="button" variant="outline" size="sm" onClick={estimateKeyword} disabled={estimating || !kwForm.palavra_chave.trim()} className="gap-1.5 shrink-0">
+                      {estimating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                      {estimating ? 'Estimando...' : 'Estimar com IA'}
+                    </Button>
+                  )}
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div>
