@@ -40,8 +40,8 @@ export function AppSidebar() {
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
           <div>
-            <h1 className="text-lg font-display font-bold gold-text">Estética</h1>
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Premium CRM</p>
+            <h1 className="text-lg font-bold accent-text">Sablier</h1>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Dashboard</p>
           </div>
         )}
         <button onClick={() => { setCollapsed(!collapsed); setMobileOpen(false); }} className="p-1.5 rounded-md hover:bg-sidebar-accent text-sidebar-foreground hidden md:block">
