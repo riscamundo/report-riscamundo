@@ -12,7 +12,8 @@ import {
   User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
-  Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon
+  Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
+  Search, ExternalLink, MoveUp, MoveDown, Minus, Link2
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
