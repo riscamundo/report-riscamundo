@@ -1024,6 +1024,7 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ MÍDIAS SOCIAIS TAB ═══════════ */}
             <TabsContent value="social" className="space-y-6">
+              <div className="flex justify-end"><CreateTaskButton contexto="Mídias Sociais" /></div>
               {socialAccounts.length === 0 ? (
                 <Card><CardContent className="p-12 text-center"><Share2 className="h-10 w-10 text-muted-foreground mx-auto mb-3 opacity-40" /><h3 className="text-sm font-semibold mb-1">Mídias Sociais</h3><p className="text-sm text-muted-foreground">Suas contas de mídias sociais aparecerão aqui quando cadastradas pela equipe.</p></CardContent></Card>
               ) : (
