@@ -3,10 +3,10 @@ import { AppSidebar } from '@/components/AppSidebar';
 import { NotificationsDropdown } from '@/components/NotificationsDropdown';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
-export function DashboardLayout({ children }: { children: ReactNode }) {
+export function DashboardLayout({ children, onEquipeTabChange }: { children: ReactNode; onEquipeTabChange?: (tab: string) => void }) {
   return (
     <div className="flex min-h-screen w-full">
-      <AppSidebar />
+      <AppSidebar onEquipeTabChange={onEquipeTabChange} />
       <main className="flex-1 min-w-0 overflow-auto">
         <div className="px-4 py-6 md:p-8 max-w-[1280px] mx-auto pt-16 md:pt-8">
           <div className="flex items-center gap-2 justify-end mb-4 md:mb-0 md:absolute md:top-4 md:right-8 z-30">
