@@ -193,6 +193,7 @@ export default function EquipeDashboard() {
               <TabsList className="inline-flex h-auto gap-0.5 bg-transparent p-0 border-b border-border/40 w-full min-w-max">
                 {[
                   { value: 'visao', icon: LayoutDashboard, label: 'Visão Executiva' },
+                  { value: 'vendas', icon: ShoppingCart, label: 'Vendas' },
                   { value: 'marketing', icon: BarChart3, label: 'Marketing Digital' },
                   { value: 'social', icon: Share2, label: 'Social Media' },
                   { value: 'anuncios', icon: Megaphone, label: 'Anúncios' },
