@@ -87,14 +87,7 @@ export default function ClientPortalPage() {
   const [newTarefa, setNewTarefa] = useState({ titulo: '', descricao: '', prioridade: 'media' });
   const [savingTarefa, setSavingTarefa] = useState(false);
 
-  // New anuncio form
-  const [newAnuncio, setNewAnuncio] = useState({ plataforma: 'google' as Platform, tipo_anuncio: '', titulo: '', descricao: '', investimento: '', data_inicio: '', data_fim: '', url_destino: '' });
-  const [savingAnuncio, setSavingAnuncio] = useState(false);
-
-  // AI generator
-  const [aiForm, setAiForm] = useState({ segmento: '', produto: '', objetivo: 'Conversão' });
-  const [aiResult, setAiResult] = useState('');
-  const [aiLoading, setAiLoading] = useState(false);
+  // Anuncio form removed — clients only view ads
 
   useEffect(() => {
     if (!user) return;
