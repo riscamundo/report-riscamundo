@@ -345,16 +345,16 @@ export default function ClientPortalPage() {
           )}
 
           <Tabs defaultValue="marketing" className="space-y-6">
-            <TabsList className="flex-wrap">
-              <TabsTrigger value="marketing" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Marketing Digital</TabsTrigger>
-              <TabsTrigger value="anuncios" className="gap-1.5"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
-              <TabsTrigger value="seo" className="gap-1.5"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
-              <TabsTrigger value="social" className="gap-1.5"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
-              <TabsTrigger value="mybusiness" className="gap-1.5"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
-              <TabsTrigger value="tarefas" className="gap-1.5"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
-              <TabsTrigger value="financeiro" className="gap-1.5"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
-              <TabsTrigger value="dados" className="gap-1.5"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
-              <TabsTrigger value="procedimentos" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
+            <TabsList className="flex-wrap h-auto gap-1 bg-card/80 backdrop-blur-sm border border-border/50 p-1.5 rounded-2xl shadow-sm">
+              <TabsTrigger value="marketing" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><BarChart3 className="h-3.5 w-3.5" /> Marketing</TabsTrigger>
+              <TabsTrigger value="anuncios" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Megaphone className="h-3.5 w-3.5" /> Anúncios</TabsTrigger>
+              <TabsTrigger value="seo" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Search className="h-3.5 w-3.5" /> SEO</TabsTrigger>
+              <TabsTrigger value="social" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Share2 className="h-3.5 w-3.5" /> Mídias Sociais</TabsTrigger>
+              <TabsTrigger value="mybusiness" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Store className="h-3.5 w-3.5" /> MyBusiness</TabsTrigger>
+              <TabsTrigger value="tarefas" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><ListTodo className="h-3.5 w-3.5" /> Tarefas</TabsTrigger>
+              <TabsTrigger value="financeiro" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><Wallet className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
+              <TabsTrigger value="dados" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><User className="h-3.5 w-3.5" /> Meus Dados</TabsTrigger>
+              <TabsTrigger value="procedimentos" className="gap-1.5 rounded-xl px-4 py-2.5 text-xs font-medium tracking-wide transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/25 data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:bg-muted/60"><ShoppingBag className="h-3.5 w-3.5" /> Procedimentos</TabsTrigger>
             </TabsList>
 
             {/* ═══════════ TAREFAS TAB ═══════════ */}
