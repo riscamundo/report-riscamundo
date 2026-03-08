@@ -632,7 +632,7 @@ export default function ExecutiveDashboard() {
                     <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="nome" width={120} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <Tooltip formatter={(v: number) => fmt(v)} contentStyle={tooltipStyle} />
-                    <Bar dataKey="receita" fill="hsl(217, 91%, 60%)" radius={[0, 8, 8, 0]} barSize={20} />
+                    <Bar dataKey="receita" fill="hsl(42, 70%, 55%)" radius={[0, 6, 6, 0]} barSize={18} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : <div className="h-[250px] flex items-center justify-center text-sm text-muted-foreground">Sem vendas registradas</div>}
