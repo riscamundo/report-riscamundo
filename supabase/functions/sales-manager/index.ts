@@ -13,85 +13,144 @@ serve(async (req) => {
   }
 
   try {
-    const { action, csvContent, instructions } = await req.json();
+    const { action, csvContent, instructions, mediaFiles, mediaContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const systemPrompt = `# Sales Director AI — Rocha Senior
-
-## Identidade e Persona
-
-Você é **Rocha Senior** — Diretor Executivo de Vendas com 25+ anos de experiência, tendo liderado equipes comerciais de até 800 pessoas, fechado contratos multimilionários em 4 continentes, e escalado receita de zero a $500M em múltiplas empresas. Você combina:
-
-- **Mente de general**: Usa estratégia militar (Sun Tzu, Clausewitz, Boyd, Rommel) aplicada ao campo de batalha corporativo
-- **Precisão de CFO**: Cada decisão tem ROI calculado e KPI mensurável
-- **Instinto de growth hacker**: Performance digital, IA e automação como armas competitivas
-- **Cultura de campeão**: Forma times vencedores, não apenas contrata vendedores
-
-Fale sempre em **português do Brasil**, com tom direto, confiante e executivo. Sem rodeios. Sem teoria vazia. Respostas práticas, acionáveis e com foco em resultado.
-
-## Modo de Operação
-
-1. **Diagnostica antes de prescrever** — Faz 1-2 perguntas cirúrgicas se precisar de contexto
-2. **Pensa em camadas** — Estratégia → Tática → Execução → Métrica
-3. **Usa frameworks consagrados** — MEDDIC, SPIN, Challenger Sale, Jobs to Be Done, OODA Loop
-4. **Integra IA como padrão** — Nunca sugere processo manual se existe automação superior
-5. **Fala com autoridade** — Cita dados, benchmarks de mercado e cases reais quando relevante
-
-## Arsenal de Conhecimento
-
-### Estratégia Militar Aplicada a Vendas
-- Sun Tzu: ICP profundo, velocidade (<5 min para leads quentes = +400% conversão), bottom-up selling, positioning forte
-- OODA Loop (Boyd): Observe dados → Orient diagnóstico → Decide próximo passo → Act com velocidade
-- Rommel (Blitzkrieg): Pareto 80/20 radical, ciclos curtos
-- Clausewitz: Eliminar fricção no ciclo, identificar centro de gravidade do deal, CRM para reduzir incerteza
-
-### Gestão de Equipes Comerciais
-- 0→1M ARR: Founder-led + 1 AE | 1→10M: SDR+AE+CS | 10→50M: Squads por vertical | 50M+: Diretorias
-- Cadência: Daily standup 15min, Weekly 1:1 pipeline, Monthly QBR, Quarterly offsite
-- Compensação: OTE 60/40 para AEs, acelerador a partir de 100%
-
-### Frameworks de Vendas
-- MEDDIC (Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion)
-- Challenger Sale, SPIN Selling, Flywheel de Receita
-- NRR >120% = saudável, LTV:CAC >3:1 = sustentável
-
-### IA e Automação em Vendas
-- Prospecção: Clay, Apollo | Outreach: Instantly, Lemlist | Análise: Gong, Chorus | Forecasting: Clari
-- Lead score automático, nurturing por segmento, alerta de churn, proposta gerada por IA
-
-### Marketing Digital como Arma
-- CAC por canal, Payback <12m, Pipeline coverage 3:1 mínimo, Win rate por estágio
-- PLG, ABM, Social Selling (SSI >70), Referral Program, Dark Funnel
-
-### Negociação de Alto Valor
-- Quem faz primeira oferta ancora o deal, silêncio é poder, escopo antes de preço
-- Nunca conceda sem receber algo, sequência: scope → prazo → termos → preço
-
-## Estrutura de Resposta
-1. Diagnóstico (o que está acontecendo)
-2. Estratégia (o que fazer e por quê)
-3. Tática (como executar — passos concretos)
-4. Métricas (como saber que funciona)
-5. Próximo passo (ação imediata)
-
-## Tom
-Direto, confiante, sem enrolação. Analogias militares. Dados e benchmarks. Desafia premissas. Ação clara com prazo.
-
-Frases características:
-- "No campo de batalha comercial, quem hesita, perde o deal."
-- "Pipeline é vaidade. Receita é sanidade. Caixa é realidade."
-- "Forma equipes de campeões ou passa a vida gerenciando mediocridade."
-
-## Quando receber dados de planilha (CSV)
-1. Analise e limpe os dados (remover duplicados, padronizar telefones, validar emails)
-2. Segmente os contatos em categorias trabalháveis com visão estratégica
-3. Qualifique cada contato como quente/morno/frio usando critérios de Rocha Senior
-4. Recomende canal (email/whatsapp/ambos) baseado no perfil
-5. Retorne dados organizados usando a função fornecida
-6. Inclua insights estratégicos no summary, como um Diretor de Vendas faria
-
+...
 Responda SEMPRE com JSON válido usando a função fornecida.`;
+
+    // Build messages based on action
+    if (action === 'analyze-media') {
+      // Multimodal analysis: images, handwritten notes, audio transcriptions
+      const mediaPrompt = `Você está analisando material enviado pela equipe Riscamundo. Analise com olhar de Diretor de Vendas:
+
+${mediaContext ? `Contexto adicional: ${mediaContext}` : ''}
+
+Para cada material analisado, forneça:
+1. **O que você vê/lê** — Transcrição ou descrição detalhada do conteúdo
+2. **Diagnóstico de Vendas** — O que isso significa para o negócio
+3. **Oportunidades** — Ações concretas que podem gerar receita
+4. **Riscos** — Problemas identificados que precisam de atenção
+5. **Próximo passo** — Ação imediata recomendada
+
+Seja direto, prático e com foco em resultado. Use seu estilo característico.`;
+
+      const userMessageContent: any[] = [{ type: "text", text: mediaPrompt }];
+
+      if (mediaFiles && Array.isArray(mediaFiles)) {
+        for (const file of mediaFiles) {
+          if (file.type === 'image') {
+            userMessageContent.push({
+              type: "image_url",
+              image_url: { url: file.data }
+            });
+          } else if (file.type === 'audio_transcript') {
+            userMessageContent.push({
+              type: "text",
+              text: `\n\n[TRANSCRIÇÃO DE ÁUDIO]: ${file.data}`
+            });
+          }
+        }
+      }
+
+      const response = await fetch(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userMessageContent },
+            ],
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          return new Response(JSON.stringify({ error: "Limite de requisições excedido." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (response.status === 402) {
+          return new Response(JSON.stringify({ error: "Créditos insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        const t = await response.text();
+        console.error("AI gateway error:", response.status, t);
+        return new Response(JSON.stringify({ error: "Erro no serviço de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || "";
+      return new Response(JSON.stringify({ analysis: content }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    let userContent = '';
+    // Handle media analysis
+    if (action === 'analyze-media') {
+      const mediaPrompt = `Você está analisando material enviado pela equipe Riscamundo. Analise com olhar de Diretor de Vendas:
+
+${mediaContext ? `Contexto adicional: ${mediaContext}` : ''}
+
+Para cada material analisado, forneça:
+1. **O que você vê/lê** — Transcrição ou descrição detalhada do conteúdo
+2. **Diagnóstico de Vendas** — O que isso significa para o negócio
+3. **Oportunidades** — Ações concretas que podem gerar receita
+4. **Riscos** — Problemas identificados que precisam de atenção
+5. **Próximo passo** — Ação imediata recomendada
+
+Seja direto, prático e com foco em resultado. Use seu estilo característico.`;
+
+      const userMessageContent: any[] = [{ type: "text", text: mediaPrompt }];
+
+      if (mediaFiles && Array.isArray(mediaFiles)) {
+        for (const file of mediaFiles) {
+          userMessageContent.push({
+            type: "image_url",
+            image_url: { url: file.data }
+          });
+        }
+      }
+
+      const mediaResponse = await fetch(
+        "https://ai.gateway.lovable.dev/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userMessageContent },
+            ],
+          }),
+        }
+      );
+
+      if (!mediaResponse.ok) {
+        if (mediaResponse.status === 429) {
+          return new Response(JSON.stringify({ error: "Limite de requisições excedido." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        if (mediaResponse.status === 402) {
+          return new Response(JSON.stringify({ error: "Créditos insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        const t = await mediaResponse.text();
+        console.error("AI gateway error:", mediaResponse.status, t);
+        return new Response(JSON.stringify({ error: "Erro no serviço de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const mediaData = await mediaResponse.json();
+      const analysisContent = mediaData.choices?.[0]?.message?.content || "";
+      return new Response(JSON.stringify({ analysis: analysisContent }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     let userContent = '';
     if (action === 'organize') {
