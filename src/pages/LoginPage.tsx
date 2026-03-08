@@ -64,8 +64,8 @@ export default function LoginPage() {
               </div>
             </motion.div>
             <div>
-              <h1 className="text-2xl font-bold accent-text">Riscamundo Reports</h1>
-              <p className="text-sm text-muted-foreground mt-0.5">Dashboard Executivo</p>
+              <h1 className="text-2xl font-bold accent-text" style={{ fontFamily: "'DM Serif Display', serif" }}>Riscamundo Reports</h1>
+              <p className="text-sm text-muted-foreground mt-0.5" style={{ fontFamily: "'DM Sans', sans-serif" }}>Dashboard Executivo</p>
               <p className="text-xs text-muted-foreground mt-3 leading-relaxed max-w-xs mx-auto">
                 Portal exclusivo para nossos clientes VIP. Chega de planilhas, venha para a{' '}
                 <a
