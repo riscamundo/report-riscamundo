@@ -499,6 +499,60 @@ export default function ClientPortalPage() {
 
             {/* ═══════════ ANÚNCIOS TAB ═══════════ */}
             <TabsContent value="anuncios" className="space-y-6">
+              {/* ── Análise Geral ── */}
+              {anuncios.length > 0 && (() => {
+                const totalInvest = anuncios.reduce((s, a) => s + a.investimento, 0);
+                const totalCusto = anuncios.reduce((s, a) => s + a.custo_total, 0);
+                const totalImp = anuncios.reduce((s, a) => s + a.impressoes, 0);
+                const totalCliq = anuncios.reduce((s, a) => s + a.cliques, 0);
+                const totalConv = anuncios.reduce((s, a) => s + a.conversoes, 0);
+                const ctrGeral = totalImp > 0 ? ((totalCliq / totalImp) * 100).toFixed(2) : '0.00';
+                const cpcGeral = totalCliq > 0 ? (totalCusto / totalCliq).toFixed(2) : '—';
+                const cpaGeral = totalConv > 0 ? (totalCusto / totalConv).toFixed(2) : '—';
+                return (
+                  <Card className="bg-gradient-to-br from-primary/5 via-card to-accent/5 border-primary/20">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-primary" /> Análise Geral — Todas as Plataformas
+                        <Badge className="ml-auto bg-primary/10 text-primary border-0 text-[10px]">{anuncios.length} anúncios</Badge>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Investimento</p>
+                          <p className="text-lg font-bold text-primary">R$ {totalInvest.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Custo Total</p>
+                          <p className="text-lg font-bold">R$ {totalCusto.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Impressões</p>
+                          <p className="text-lg font-bold">{totalImp.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Cliques</p>
+                          <p className="text-lg font-bold">{totalCliq.toLocaleString('pt-BR')}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">CTR</p>
+                          <p className="text-lg font-bold">{ctrGeral}%</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">CPC Médio</p>
+                          <p className="text-lg font-bold">{cpcGeral !== '—' ? `R$ ${cpcGeral}` : '—'}</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-card/80 border border-border/50">
+                          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Conversões</p>
+                          <p className="text-lg font-bold text-accent">{totalConv}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <h3 className="text-lg font-semibold">Anúncios por Plataforma</h3>
               </div>
