@@ -303,18 +303,6 @@ export default function ClientPortalPage() {
             <p className="text-muted-foreground text-sm mt-1">Acompanhe seus resultados de marketing, anúncios e performance digital.</p>
           </div>
 
-          {/* ═══ RESUMO IA MAESTRO BI ═══ */}
-          <DashboardAiSummary metricsContext={[
-            `Cliente: ${cliente?.nome || ''}`,
-            latestMkt ? `Visitas ao site: ${latestMkt.visitas_site}, orgânicas: ${latestMkt.visitas_organicas}, pagas: ${latestMkt.visitas_pagas}` : null,
-            latestMkt ? `Leads gerados: ${latestMkt.leads_gerados}, qualificados: ${latestMkt.leads_qualificados}` : null,
-            latestMkt ? `Seguidores: ${latestMkt.seguidores_total}, novos: ${latestMkt.novos_seguidores}, engajamento: ${latestMkt.engajamento_rate}%` : null,
-            `Palavras-chave no top 10: ${seoKeywords.filter(k => k.posicao_atual && k.posicao_atual <= 10).length} de ${seoKeywords.length}`,
-            `Anúncios ativos: ${anuncios.filter(a => a.status === 'ativo').length}`,
-            `Tarefas pendentes: ${tarefas.filter(t => t.status !== 'pronta').length}`,
-            vendas.length > 0 ? `Vendas: ${vendas.length}, total: R$ ${vendas.reduce((s, v) => s + v.valor_venda, 0).toFixed(2)}` : 'Nenhuma venda registrada',
-          ].filter(Boolean).join('\n')} />
-
           {/* ═══════════ DASHBOARD SUMMARY ═══════════ */}
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             <StaggerItem><MktKPI label="Visitas ao Site" value={latestMkt?.visitas_site?.toLocaleString('pt-BR') || '0'} icon={Globe} delta={prevMkt ? calcDelta(latestMkt!.visitas_site, prevMkt.visitas_site) : undefined} /></StaggerItem>
