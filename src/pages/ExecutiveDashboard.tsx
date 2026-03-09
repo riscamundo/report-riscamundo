@@ -802,9 +802,9 @@ export default function ExecutiveDashboard() {
           <Card className="executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita por Serviço</CardTitle></CardHeader>
             <CardContent>
-              {receitaProc.length > 0 ? (
+              {filteredReceitaProc.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={receitaProc.slice(0, 6)} layout="vertical" margin={{ left: 0, right: 16 }}>
+                  <BarChart data={filteredReceitaProc.slice(0, 6)} layout="vertical" margin={{ left: 0, right: 16 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
                     <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="nome" width={120} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
