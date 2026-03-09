@@ -681,11 +681,25 @@ export default function ExecutiveDashboard() {
         {/* ╚══════════════════════════════════════════════════════╝ */}
         <SectionDivider title="Vendas & Performance dos Clientes" subtitle="Faturamento, leads, funil e receita dos serviços prestados" icon={BarChart3} />
 
+        <div className="mb-6">
+          <Select value={selectedVendasClienteId} onValueChange={setSelectedVendasClienteId}>
+            <SelectTrigger className="w-72 h-10">
+              <SelectValue placeholder="Todos os clientes" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os clientes</SelectItem>
+              {clientes.filter(c => c.status === 'ativo').map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
-          <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
-          <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
-          <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
+          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(filteredFaturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
+          <StaggerItem><KPICard title="Receita Projetada" value={fmt(filteredForecast.receitaProjetadaMensal)} subtitle={`${filteredForecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
+          <StaggerItem><KPICard title="ROI Atual" value={`${filteredRoi.toFixed(1)}x`} icon={Target} trend={filteredRoi >= 8 ? 'up' : 'down'} variant={filteredRoi >= 8 ? 'success' : 'default'} /></StaggerItem>
+          <StaggerItem><KPICard title="Conversão" value={`${filteredConversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
         </StaggerContainer>
 
         {/* Leads parados */}
