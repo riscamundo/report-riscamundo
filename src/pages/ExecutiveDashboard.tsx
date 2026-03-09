@@ -79,6 +79,7 @@ export default function ExecutiveDashboard() {
   const [editContato, setEditContato] = useState<any | null>(null);
   const [contatoSearch, setContatoSearch] = useState('');
   const [contatoFilter, setContatoFilter] = useState('all');
+  const [selectedVendasClienteId, setSelectedVendasClienteId] = useState<string>('all');
 
   // ─── Client Reports State ───
   const [selectedClienteId, setSelectedClienteId] = useState<string>('');
@@ -194,6 +195,26 @@ export default function ExecutiveDashboard() {
   const funilData = getLeadsPorEtapa(leads);
   const receitaProc = getReceitaPorProcedimento(vendas, procedimentos);
 
+  // ─── Filtered vendas/leads for "Vendas & Performance" section ───
+  const filteredVendas = useMemo(() => {
+    if (selectedVendasClienteId === 'all') return vendas;
+    const clienteProcIds = procedimentos.filter(p => p.cliente_id === selectedVendasClienteId).map(p => p.id);
+    return vendas.filter(v => v.procedimento_vendido && clienteProcIds.includes(v.procedimento_vendido));
+  }, [vendas, procedimentos, selectedVendasClienteId]);
+
+  const filteredLeads = useMemo(() => {
+    if (selectedVendasClienteId === 'all') return leads;
+    const clienteProcIds = procedimentos.filter(p => p.cliente_id === selectedVendasClienteId).map(p => p.id);
+    return leads.filter(l => l.procedimento_interesse && clienteProcIds.includes(l.procedimento_interesse));
+  }, [leads, procedimentos, selectedVendasClienteId]);
+
+  const filteredFaturamento = calcFaturamentoMes(filteredVendas);
+  const filteredRoi = calcROI(filteredVendas, campanhas);
+  const filteredConversao = calcConversao(filteredLeads, filteredVendas);
+  const filteredForecast = calcForecast(filteredLeads, filteredVendas, procedimentos);
+  const filteredFunilData = getLeadsPorEtapa(filteredLeads);
+  const filteredReceitaProc = getReceitaPorProcedimento(filteredVendas, procedimentos);
+
   const clientesAtivos = clientes.filter(c => c.status === 'ativo').length;
   const clientesBloqueados = clientes.filter(c => !c.acesso_liberado).length;
 
@@ -212,7 +233,7 @@ export default function ExecutiveDashboard() {
   // Monthly revenue trend
   const monthlyRevenue = useMemo(() => {
     const map: Record<string, number> = {};
-    vendas.filter(v => v.status === 'fechado').forEach(v => {
+    filteredVendas.filter(v => v.status === 'fechado').forEach(v => {
       const m = v.data_venda.slice(0, 7);
       map[m] = (map[m] || 0) + v.valor_venda;
     });
@@ -220,12 +241,12 @@ export default function ExecutiveDashboard() {
       mes: new Date(m + '-01T00:00:00').toLocaleDateString('pt-BR', { month: 'short' }),
       receita: v,
     }));
-  }, [vendas]);
+  }, [filteredVendas]);
 
   // Leads by origin
   const leadsByOrigin = useMemo(() => {
     const map: Record<string, number> = {};
-    leads.forEach(l => { const o = l.origem || 'Direto'; map[o] = (map[o] || 0) + 1; });
+    filteredLeads.forEach(l => { const o = l.origem || 'Direto'; map[o] = (map[o] || 0) + 1; });
     return Object.entries(map).map(([k, v]) => ({ nome: k, count: v }));
   }, [leads]);
 
@@ -660,11 +681,25 @@ export default function ExecutiveDashboard() {
         {/* ╚══════════════════════════════════════════════════════╝ */}
         <SectionDivider title="Vendas & Performance dos Clientes" subtitle="Faturamento, leads, funil e receita dos serviços prestados" icon={BarChart3} />
 
+        <div className="mb-6">
+          <Select value={selectedVendasClienteId} onValueChange={setSelectedVendasClienteId}>
+            <SelectTrigger className="w-72 h-10">
+              <SelectValue placeholder="Todos os clientes" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os clientes</SelectItem>
+              {clientes.filter(c => c.status === 'ativo').map(c => (
+                <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
-          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(faturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
-          <StaggerItem><KPICard title="Receita Projetada" value={fmt(forecast.receitaProjetadaMensal)} subtitle={`${forecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
-          <StaggerItem><KPICard title="ROI Atual" value={`${roi.toFixed(1)}x`} icon={Target} trend={roi >= 8 ? 'up' : 'down'} variant={roi >= 8 ? 'success' : 'default'} /></StaggerItem>
-          <StaggerItem><KPICard title="Conversão" value={`${conversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
+          <StaggerItem><KPICard title="Faturamento Mês" value={fmt(filteredFaturamento)} icon={DollarSign} variant="primary" /></StaggerItem>
+          <StaggerItem><KPICard title="Receita Projetada" value={fmt(filteredForecast.receitaProjetadaMensal)} subtitle={`${filteredForecast.leadsAtivos} leads ativos`} icon={TrendingUp} /></StaggerItem>
+          <StaggerItem><KPICard title="ROI Atual" value={`${filteredRoi.toFixed(1)}x`} icon={Target} trend={filteredRoi >= 8 ? 'up' : 'down'} variant={filteredRoi >= 8 ? 'success' : 'default'} /></StaggerItem>
+          <StaggerItem><KPICard title="Conversão" value={`${filteredConversao.toFixed(1)}%`} icon={Users} variant="success" /></StaggerItem>
         </StaggerContainer>
 
         {/* Leads parados */}
@@ -742,8 +777,8 @@ export default function ExecutiveDashboard() {
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Funil de Vendas</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {funilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
-                  const maxCount = Math.max(...funilData.map(x => x.count), 1);
+                {filteredFunilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
+                  const maxCount = Math.max(...filteredFunilData.map(x => x.count), 1);
                   const width = (f.count / maxCount) * 100;
                   return (
                     <div key={f.etapa}>
@@ -757,8 +792,8 @@ export default function ExecutiveDashboard() {
                     </div>
                   );
                 })}
-                {funilData.find(f => f.etapa === 'perdido')?.count ? (
-                  <p className="text-xs text-muted-foreground text-right">{funilData.find(f => f.etapa === 'perdido')!.count} perdido(s)</p>
+                {filteredFunilData.find(f => f.etapa === 'perdido')?.count ? (
+                  <p className="text-xs text-muted-foreground text-right">{filteredFunilData.find(f => f.etapa === 'perdido')!.count} perdido(s)</p>
                 ) : null}
               </div>
             </CardContent>
@@ -767,9 +802,9 @@ export default function ExecutiveDashboard() {
           <Card className="executive-card">
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Receita por Serviço</CardTitle></CardHeader>
             <CardContent>
-              {receitaProc.length > 0 ? (
+              {filteredReceitaProc.length > 0 ? (
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={receitaProc.slice(0, 6)} layout="vertical" margin={{ left: 0, right: 16 }}>
+                  <BarChart data={filteredReceitaProc.slice(0, 6)} layout="vertical" margin={{ left: 0, right: 16 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
                     <XAxis type="number" tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
                     <YAxis type="category" dataKey="nome" width={120} stroke={axisStroke} fontSize={11} axisLine={false} tickLine={false} />
