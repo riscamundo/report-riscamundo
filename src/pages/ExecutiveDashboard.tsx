@@ -233,7 +233,7 @@ export default function ExecutiveDashboard() {
   // Monthly revenue trend
   const monthlyRevenue = useMemo(() => {
     const map: Record<string, number> = {};
-    vendas.filter(v => v.status === 'fechado').forEach(v => {
+    filteredVendas.filter(v => v.status === 'fechado').forEach(v => {
       const m = v.data_venda.slice(0, 7);
       map[m] = (map[m] || 0) + v.valor_venda;
     });
@@ -241,12 +241,12 @@ export default function ExecutiveDashboard() {
       mes: new Date(m + '-01T00:00:00').toLocaleDateString('pt-BR', { month: 'short' }),
       receita: v,
     }));
-  }, [vendas]);
+  }, [filteredVendas]);
 
   // Leads by origin
   const leadsByOrigin = useMemo(() => {
     const map: Record<string, number> = {};
-    leads.forEach(l => { const o = l.origem || 'Direto'; map[o] = (map[o] || 0) + 1; });
+    filteredLeads.forEach(l => { const o = l.origem || 'Direto'; map[o] = (map[o] || 0) + 1; });
     return Object.entries(map).map(([k, v]) => ({ nome: k, count: v }));
   }, [leads]);
 
