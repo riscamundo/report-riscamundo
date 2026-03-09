@@ -195,7 +195,26 @@ export default function ExecutiveDashboard() {
   const funilData = getLeadsPorEtapa(leads);
   const receitaProc = getReceitaPorProcedimento(vendas, procedimentos);
 
-  const clientesAtivos = clientes.filter(c => c.status === 'ativo').length;
+  // ─── Filtered vendas/leads for "Vendas & Performance" section ───
+  const filteredVendas = useMemo(() => {
+    if (selectedVendasClienteId === 'all') return vendas;
+    const clienteProcIds = procedimentos.filter(p => p.cliente_id === selectedVendasClienteId).map(p => p.id);
+    return vendas.filter(v => v.procedimento_vendido && clienteProcIds.includes(v.procedimento_vendido));
+  }, [vendas, procedimentos, selectedVendasClienteId]);
+
+  const filteredLeads = useMemo(() => {
+    if (selectedVendasClienteId === 'all') return leads;
+    const clienteProcIds = procedimentos.filter(p => p.cliente_id === selectedVendasClienteId).map(p => p.id);
+    return leads.filter(l => l.procedimento_interesse && clienteProcIds.includes(l.procedimento_interesse));
+  }, [leads, procedimentos, selectedVendasClienteId]);
+
+  const filteredFaturamento = calcFaturamentoMes(filteredVendas);
+  const filteredRoi = calcROI(filteredVendas, campanhas);
+  const filteredConversao = calcConversao(filteredLeads, filteredVendas);
+  const filteredForecast = calcForecast(filteredLeads, filteredVendas, procedimentos);
+  const filteredFunilData = getLeadsPorEtapa(filteredLeads);
+  const filteredReceitaProc = getReceitaPorProcedimento(filteredVendas, procedimentos);
+
   const clientesBloqueados = clientes.filter(c => !c.acesso_liberado).length;
 
   // Financial alerts
