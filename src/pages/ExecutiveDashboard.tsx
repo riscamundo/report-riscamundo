@@ -777,8 +777,8 @@ export default function ExecutiveDashboard() {
             <CardHeader className="pb-2"><CardTitle className="text-sm font-semibold font-sans">Funil de Vendas</CardTitle></CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {funilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
-                  const maxCount = Math.max(...funilData.map(x => x.count), 1);
+                {filteredFunilData.filter(f => f.etapa !== 'perdido').map((f, i) => {
+                  const maxCount = Math.max(...filteredFunilData.map(x => x.count), 1);
                   const width = (f.count / maxCount) * 100;
                   return (
                     <div key={f.etapa}>
@@ -792,8 +792,8 @@ export default function ExecutiveDashboard() {
                     </div>
                   );
                 })}
-                {funilData.find(f => f.etapa === 'perdido')?.count ? (
-                  <p className="text-xs text-muted-foreground text-right">{funilData.find(f => f.etapa === 'perdido')!.count} perdido(s)</p>
+                {filteredFunilData.find(f => f.etapa === 'perdido')?.count ? (
+                  <p className="text-xs text-muted-foreground text-right">{filteredFunilData.find(f => f.etapa === 'perdido')!.count} perdido(s)</p>
                 ) : null}
               </div>
             </CardContent>
