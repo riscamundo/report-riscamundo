@@ -215,6 +215,7 @@ export default function ExecutiveDashboard() {
   const filteredFunilData = getLeadsPorEtapa(filteredLeads);
   const filteredReceitaProc = getReceitaPorProcedimento(filteredVendas, procedimentos);
 
+  const clientesAtivos = clientes.filter(c => c.status === 'ativo').length;
   const clientesBloqueados = clientes.filter(c => !c.acesso_liberado).length;
 
   // Financial alerts
