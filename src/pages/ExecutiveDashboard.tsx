@@ -79,6 +79,7 @@ export default function ExecutiveDashboard() {
   const [editContato, setEditContato] = useState<any | null>(null);
   const [contatoSearch, setContatoSearch] = useState('');
   const [contatoFilter, setContatoFilter] = useState('all');
+  const [selectedVendasClienteId, setSelectedVendasClienteId] = useState<string>('all');
 
   // ─── Client Reports State ───
   const [selectedClienteId, setSelectedClienteId] = useState<string>('');
