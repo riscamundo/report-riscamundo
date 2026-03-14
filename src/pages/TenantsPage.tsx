@@ -165,26 +165,34 @@ export default function TenantsPage() {
     setLoadingData(false);
   };
 
-  const handleEmitBoleto = async () => {
+  const handleGerarCobranca = async () => {
     if (!selectedClient) return;
-    setSavingBoleto(true);
-    const venc = boletoVenc || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    setSavingCobranca(true);
+    const venc = cobrancaVenc || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const metodoLabels: Record<string, string> = {
+      boleto: 'Boleto Bancário',
+      pix: 'PIX',
+      cartao_credito: 'Cartão de Crédito',
+      cartao_debito: 'Cartão de Débito',
+      transferencia: 'Transferência Bancária',
+    };
     const { error } = await supabase.from('financeiro' as any).insert({
       cliente_id: selectedClient.id,
       tipo: 'mensalidade',
-      descricao: boletoDesc,
-      valor: parseFloat(boletoValor) || 0,
+      descricao: cobrancaDesc,
+      valor: parseFloat(cobrancaValor) || 0,
       data_vencimento: venc,
       status: 'pendente',
-      numero_boleto: `BOL-${Date.now().toString(36).toUpperCase()}`,
+      metodo_pagamento: metodoLabels[cobrancaMetodo] || cobrancaMetodo,
+      numero_boleto: cobrancaMetodo === 'boleto' ? `BOL-${Date.now().toString(36).toUpperCase()}` : null,
     } as any);
-    if (error) { toast.error('Erro ao emitir boleto'); console.error(error); }
+    if (error) { toast.error('Erro ao gerar cobrança'); console.error(error); }
     else {
-      toast.success('Boleto emitido!');
-      setShowBoleto(false);
+      toast.success('Cobrança gerada com sucesso!');
+      setShowCobranca(false);
       loadTenantData(selectedClient);
     }
-    setSavingBoleto(false);
+    setSavingCobranca(false);
   };
 
   const handleToggleAccess = async (cliente: Cliente) => {
