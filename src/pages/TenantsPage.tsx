@@ -300,16 +300,29 @@ export default function TenantsPage() {
               <Button variant={selectedClient.acesso_liberado ? 'destructive' : 'default'} size="sm" onClick={() => handleToggleAccess(selectedClient)}>
                 {selectedClient.acesso_liberado ? <><Lock className="h-4 w-4 mr-1" /> Bloquear Acesso</> : <><Unlock className="h-4 w-4 mr-1" /> Liberar Acesso</>}
               </Button>
-              <Dialog open={showBoleto} onOpenChange={setShowBoleto}>
-                <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Receipt className="h-4 w-4" /> Emitir Boleto</Button></DialogTrigger>
+              <Dialog open={showCobranca} onOpenChange={setShowCobranca}>
+                <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Receipt className="h-4 w-4" /> Gerar Cobrança</Button></DialogTrigger>
                 <DialogContent>
-                  <DialogHeader><DialogTitle>Emitir Boleto</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>Gerar Cobrança</DialogTitle></DialogHeader>
                   <div className="space-y-4 pt-2">
-                    <div><Label>Descrição</Label><Input value={boletoDesc} onChange={e => setBoletoDesc(e.target.value)} /></div>
-                    <div><Label>Valor (R$)</Label><Input type="number" value={boletoValor} onChange={e => setBoletoValor(e.target.value)} /></div>
-                    <div><Label>Vencimento</Label><Input type="date" value={boletoVenc} onChange={e => setBoletoVenc(e.target.value)} /></div>
-                    <Button onClick={handleEmitBoleto} disabled={savingBoleto} className="w-full">
-                      {savingBoleto ? 'Emitindo...' : 'Emitir Boleto'}
+                    <div>
+                      <Label>Forma de Pagamento</Label>
+                      <Select value={cobrancaMetodo} onValueChange={setCobrancaMetodo}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="boleto">Boleto Bancário</SelectItem>
+                          <SelectItem value="pix">PIX</SelectItem>
+                          <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
+                          <SelectItem value="cartao_debito">Cartão de Débito</SelectItem>
+                          <SelectItem value="transferencia">Transferência Bancária</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label>Descrição</Label><Input value={cobrancaDesc} onChange={e => setCobrancaDesc(e.target.value)} className="mt-1" /></div>
+                    <div><Label>Valor (R$)</Label><Input type="number" value={cobrancaValor} onChange={e => setCobrancaValor(e.target.value)} className="mt-1" /></div>
+                    <div><Label>Vencimento</Label><Input type="date" value={cobrancaVenc} onChange={e => setCobrancaVenc(e.target.value)} className="mt-1" /></div>
+                    <Button onClick={handleGerarCobranca} disabled={savingCobranca} className="w-full">
+                      {savingCobranca ? 'Gerando...' : 'Gerar Cobrança'}
                     </Button>
                   </div>
                 </DialogContent>
