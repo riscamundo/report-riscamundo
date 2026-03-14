@@ -115,11 +115,12 @@ export default function TenantsPage() {
   const [loading, setLoading] = useState(true);
 
   // Financeiro
-  const [showBoleto, setShowBoleto] = useState(false);
-  const [boletoValor, setBoletoValor] = useState('');
-  const [boletoDesc, setBoletoDesc] = useState('Mensalidade');
-  const [boletoVenc, setBoletoVenc] = useState('');
-  const [savingBoleto, setSavingBoleto] = useState(false);
+  const [showCobranca, setShowCobranca] = useState(false);
+  const [cobrancaValor, setCobrancaValor] = useState('');
+  const [cobrancaDesc, setCobrancaDesc] = useState('Mensalidade');
+  const [cobrancaVenc, setCobrancaVenc] = useState('');
+  const [cobrancaMetodo, setCobrancaMetodo] = useState('boleto');
+  const [savingCobranca, setSavingCobranca] = useState(false);
 
   // Procedimentos
   const [showProcForm, setShowProcForm] = useState(false);
@@ -141,7 +142,7 @@ export default function TenantsPage() {
   const loadTenantData = async (cliente: Cliente) => {
     setSelectedClient(cliente);
     setLoadingData(true);
-    setBoletoValor(cliente.mensalidade_valor?.toString() || '0');
+    setCobrancaValor(cliente.mensalidade_valor?.toString() || '0');
     const cid = cliente.id;
     const [mkt, seo, ads, tasks, fin, social, procs] = await Promise.all([
       supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
@@ -164,26 +165,34 @@ export default function TenantsPage() {
     setLoadingData(false);
   };
 
-  const handleEmitBoleto = async () => {
+  const handleGerarCobranca = async () => {
     if (!selectedClient) return;
-    setSavingBoleto(true);
-    const venc = boletoVenc || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    setSavingCobranca(true);
+    const venc = cobrancaVenc || new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+    const metodoLabels: Record<string, string> = {
+      boleto: 'Boleto Bancário',
+      pix: 'PIX',
+      cartao_credito: 'Cartão de Crédito',
+      cartao_debito: 'Cartão de Débito',
+      transferencia: 'Transferência Bancária',
+    };
     const { error } = await supabase.from('financeiro' as any).insert({
       cliente_id: selectedClient.id,
       tipo: 'mensalidade',
-      descricao: boletoDesc,
-      valor: parseFloat(boletoValor) || 0,
+      descricao: cobrancaDesc,
+      valor: parseFloat(cobrancaValor) || 0,
       data_vencimento: venc,
       status: 'pendente',
-      numero_boleto: `BOL-${Date.now().toString(36).toUpperCase()}`,
+      metodo_pagamento: metodoLabels[cobrancaMetodo] || cobrancaMetodo,
+      numero_boleto: cobrancaMetodo === 'boleto' ? `BOL-${Date.now().toString(36).toUpperCase()}` : null,
     } as any);
-    if (error) { toast.error('Erro ao emitir boleto'); console.error(error); }
+    if (error) { toast.error('Erro ao gerar cobrança'); console.error(error); }
     else {
-      toast.success('Boleto emitido!');
-      setShowBoleto(false);
+      toast.success('Cobrança gerada com sucesso!');
+      setShowCobranca(false);
       loadTenantData(selectedClient);
     }
-    setSavingBoleto(false);
+    setSavingCobranca(false);
   };
 
   const handleToggleAccess = async (cliente: Cliente) => {
@@ -291,16 +300,29 @@ export default function TenantsPage() {
               <Button variant={selectedClient.acesso_liberado ? 'destructive' : 'default'} size="sm" onClick={() => handleToggleAccess(selectedClient)}>
                 {selectedClient.acesso_liberado ? <><Lock className="h-4 w-4 mr-1" /> Bloquear Acesso</> : <><Unlock className="h-4 w-4 mr-1" /> Liberar Acesso</>}
               </Button>
-              <Dialog open={showBoleto} onOpenChange={setShowBoleto}>
-                <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Receipt className="h-4 w-4" /> Emitir Boleto</Button></DialogTrigger>
+              <Dialog open={showCobranca} onOpenChange={setShowCobranca}>
+                <DialogTrigger asChild><Button size="sm" className="gap-1.5"><Receipt className="h-4 w-4" /> Gerar Cobrança</Button></DialogTrigger>
                 <DialogContent>
-                  <DialogHeader><DialogTitle>Emitir Boleto</DialogTitle></DialogHeader>
+                  <DialogHeader><DialogTitle>Gerar Cobrança</DialogTitle></DialogHeader>
                   <div className="space-y-4 pt-2">
-                    <div><Label>Descrição</Label><Input value={boletoDesc} onChange={e => setBoletoDesc(e.target.value)} /></div>
-                    <div><Label>Valor (R$)</Label><Input type="number" value={boletoValor} onChange={e => setBoletoValor(e.target.value)} /></div>
-                    <div><Label>Vencimento</Label><Input type="date" value={boletoVenc} onChange={e => setBoletoVenc(e.target.value)} /></div>
-                    <Button onClick={handleEmitBoleto} disabled={savingBoleto} className="w-full">
-                      {savingBoleto ? 'Emitindo...' : 'Emitir Boleto'}
+                    <div>
+                      <Label>Forma de Pagamento</Label>
+                      <Select value={cobrancaMetodo} onValueChange={setCobrancaMetodo}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="boleto">Boleto Bancário</SelectItem>
+                          <SelectItem value="pix">PIX</SelectItem>
+                          <SelectItem value="cartao_credito">Cartão de Crédito</SelectItem>
+                          <SelectItem value="cartao_debito">Cartão de Débito</SelectItem>
+                          <SelectItem value="transferencia">Transferência Bancária</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div><Label>Descrição</Label><Input value={cobrancaDesc} onChange={e => setCobrancaDesc(e.target.value)} className="mt-1" /></div>
+                    <div><Label>Valor (R$)</Label><Input type="number" value={cobrancaValor} onChange={e => setCobrancaValor(e.target.value)} className="mt-1" /></div>
+                    <div><Label>Vencimento</Label><Input type="date" value={cobrancaVenc} onChange={e => setCobrancaVenc(e.target.value)} className="mt-1" /></div>
+                    <Button onClick={handleGerarCobranca} disabled={savingCobranca} className="w-full">
+                      {savingCobranca ? 'Gerando...' : 'Gerar Cobrança'}
                     </Button>
                   </div>
                 </DialogContent>
