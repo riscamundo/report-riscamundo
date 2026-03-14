@@ -142,7 +142,7 @@ export default function TenantsPage() {
   const loadTenantData = async (cliente: Cliente) => {
     setSelectedClient(cliente);
     setLoadingData(true);
-    setBoletoValor(cliente.mensalidade_valor?.toString() || '0');
+    setCobrancaValor(cliente.mensalidade_valor?.toString() || '0');
     const cid = cliente.id;
     const [mkt, seo, ads, tasks, fin, social, procs] = await Promise.all([
       supabase.from('marketing_reports').select('*').eq('cliente_id', cid).order('periodo_mes', { ascending: true }),
