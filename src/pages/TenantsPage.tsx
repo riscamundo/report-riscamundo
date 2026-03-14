@@ -115,11 +115,12 @@ export default function TenantsPage() {
   const [loading, setLoading] = useState(true);
 
   // Financeiro
-  const [showBoleto, setShowBoleto] = useState(false);
-  const [boletoValor, setBoletoValor] = useState('');
-  const [boletoDesc, setBoletoDesc] = useState('Mensalidade');
-  const [boletoVenc, setBoletoVenc] = useState('');
-  const [savingBoleto, setSavingBoleto] = useState(false);
+  const [showCobranca, setShowCobranca] = useState(false);
+  const [cobrancaValor, setCobrancaValor] = useState('');
+  const [cobrancaDesc, setCobrancaDesc] = useState('Mensalidade');
+  const [cobrancaVenc, setCobrancaVenc] = useState('');
+  const [cobrancaMetodo, setCobrancaMetodo] = useState('boleto');
+  const [savingCobranca, setSavingCobranca] = useState(false);
 
   // Procedimentos
   const [showProcForm, setShowProcForm] = useState(false);
