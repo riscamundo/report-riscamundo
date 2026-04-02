@@ -52,7 +52,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
       if (data?.suggestions) setSuggestions(data.suggestions);
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao conectar com o Maestro BI');
+      toast.error('Erro ao conectar com o Agente Riscamundo');
     } finally {
       setLoading(false);
       setHasLoaded(true);
