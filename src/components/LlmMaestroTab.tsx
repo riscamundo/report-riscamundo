@@ -125,7 +125,7 @@ export function LlmMaestroTab() {
                 <Brain className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground">
                   {conversations.length === 0
-                    ? 'Nenhuma conversa arquivada ainda. As conversas com o Maestro BI serão salvas aqui automaticamente.'
+                    ? 'Nenhuma conversa arquivada ainda. As conversas com o Agente Riscamundo serão salvas aqui automaticamente.'
                     : 'Nenhum resultado encontrado.'}
                 </p>
               </CardContent>
