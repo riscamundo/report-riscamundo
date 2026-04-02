@@ -80,7 +80,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
       const { error } = await supabase.from('tarefas_cliente').insert({
         cliente_id: clienteId,
         titulo: suggestion.title,
-        descricao: `Sugestão gerada pelo Maestro BI para ${clienteNome}`,
+        descricao: `Sugestão gerada pelo Agente Riscamundo para ${clienteNome}`,
         prioridade: suggestion.priority,
         status: 'esperando',
       });
