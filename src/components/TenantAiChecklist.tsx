@@ -112,7 +112,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Maestro BI — Resumo de {clienteNome}
+                Agente Riscamundo — Resumo de {clienteNome}
               </span>
               <Button
                 variant="ghost"

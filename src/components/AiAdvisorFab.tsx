@@ -3,54 +3,39 @@ import { X, Send, Trash2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-advisor`;
-const WHATSAPP_NUMBER = '5511941646249';
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
-
-// WhatsApp SVG icon
-function WhatsAppIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
 
 export function AiAdvisorFab() {
-  const { isMaster } = useAuth();
-
-  // Non-master users: WhatsApp button
-  if (!isMaster) {
-    return (
-      <motion.a
-        href={WHATSAPP_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/30 flex items-center justify-center hover:shadow-xl hover:shadow-[#25D366]/40 transition-shadow"
-      >
-        <WhatsAppIcon className="h-7 w-7" />
-      </motion.a>
-    );
-  }
-
-  // Master: Maestro BI chat
-  return <MaestroBIChat />;
+  return <AgenteRiscamundoChat />;
 }
 
-function MaestroBIChat() {
+function AgenteRiscamundoChat() {
+  const { isMaster, user, isCliente } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [clienteId, setClienteId] = useState<string | null>(null);
+
+  // Load cliente_id for non-master users
+  useEffect(() => {
+    if (!user || isMaster) return;
+    const loadCliente = async () => {
+      const { data } = await supabase
+        .from('clientes')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (data) setClienteId(data.id);
+    };
+    loadCliente();
+  }, [user, isMaster]);
 
   const scrollToBottom = useCallback(() => {
     if (scrollRef.current) {
@@ -90,7 +75,11 @@ function MaestroBIChat() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify({ messages: [...messages, userMsg] }),
+        body: JSON.stringify({
+          messages: [...messages, userMsg],
+          isMaster,
+          clienteId: isMaster ? null : clienteId,
+        }),
       });
 
       if (!resp.ok || !resp.body) {
@@ -170,7 +159,7 @@ function MaestroBIChat() {
       }
     } catch (e) {
       console.error('AI Advisor error:', e);
-      upsertAssistant('❌ Erro ao conectar com o Maestro BI. Tente novamente.');
+      upsertAssistant('❌ Erro ao conectar com o Agente Riscamundo. Tente novamente.');
     }
 
     setIsLoading(false);
@@ -179,6 +168,22 @@ function MaestroBIChat() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
   };
+
+  const subtitle = isMaster
+    ? 'Visão geral de todos os tenants'
+    : 'Seu assistente exclusivo';
+
+  const welcomeText = isMaster
+    ? 'Agente com visão 360° de todos os tenants. Pergunte sobre alertas, performance, urgências ou qualquer dado consolidado.'
+    : 'Seu assistente de marketing e crescimento. Pergunte sobre campanhas, SEO, vendas ou qualquer dado do seu portal.';
+
+  const placeholderText = isMaster
+    ? 'Pergunte ao Agente Riscamundo...'
+    : 'Pergunte sobre seus dados...';
+
+  const quickQuestions = isMaster
+    ? ['Quais tenants precisam de atenção urgente?', 'Resumo geral de performance', 'Alertas e pendências críticas']
+    : ['Como está meu SEO este mês?', 'Resumo das minhas campanhas', 'Quais tarefas estão pendentes?'];
 
   return (
     <>
@@ -213,8 +218,8 @@ function MaestroBIChat() {
                   <Sparkles className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">Maestro BI</h3>
-                  <p className="text-[10px] text-muted-foreground">Advisor de Marketing & Growth</p>
+                  <h3 className="text-sm font-semibold text-foreground">Agente Riscamundo</h3>
+                  <p className="text-[10px] text-muted-foreground">{subtitle}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
@@ -233,12 +238,12 @@ function MaestroBIChat() {
                   <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4">
                     <Sparkles className="h-8 w-8 text-primary" />
                   </div>
-                  <h4 className="text-sm font-semibold text-foreground mb-1">Maestro BI</h4>
+                  <h4 className="text-sm font-semibold text-foreground mb-1">Agente Riscamundo</h4>
                   <p className="text-xs text-muted-foreground max-w-[280px]">
-                    Seu advisor de marketing e crescimento. Pergunte sobre campanhas, ROI, funil de vendas, SEO ou qualquer dado do portal.
+                    {welcomeText}
                   </p>
                   <div className="mt-4 grid grid-cols-1 gap-2 w-full max-w-[300px]">
-                    {['Analise o desempenho das campanhas', 'Como reduzir o CAC?', 'Quais procedimentos priorizar?'].map(q => (
+                    {quickQuestions.map(q => (
                       <button key={q} onClick={() => setInput(q)} className="text-left text-[11px] px-3 py-2 rounded-xl border border-border/50 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
                         {q}
                       </button>
@@ -279,7 +284,7 @@ function MaestroBIChat() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Pergunte ao Maestro BI..."
+                  placeholder={placeholderText}
                   rows={1}
                   className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground resize-none outline-none max-h-24 min-h-[24px]"
                   style={{ height: 'auto' }}
