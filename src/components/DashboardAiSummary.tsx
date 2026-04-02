@@ -35,7 +35,7 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
 
       if (error) {
         console.error('Summary error:', error);
-        toast.error('Não foi possível gerar o resumo do Maestro BI');
+        toast.error('Não foi possível gerar o resumo do Agente Riscamundo');
         return;
       }
 
