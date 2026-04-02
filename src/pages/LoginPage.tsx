@@ -147,15 +147,6 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-            <div className="mt-5 text-center">
-              <button
-                type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                {isSignUp ? 'Já tenho conta — Entrar' : 'Criar nova conta'}
-              </button>
-            </div>
           </CardContent>
         </Card>
       </motion.div>
