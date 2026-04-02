@@ -52,7 +52,7 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
       }
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao conectar com o Maestro BI');
+      toast.error('Erro ao conectar com o Agente Riscamundo');
     } finally {
       setLoading(false);
       setHasLoaded(true);
