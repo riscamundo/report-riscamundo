@@ -44,7 +44,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
 
       if (error) {
         console.error('Summary error:', error);
-        toast.error('Não foi possível gerar o resumo do Maestro BI');
+        toast.error('Não foi possível gerar o resumo do Agente Riscamundo');
         return;
       }
 
