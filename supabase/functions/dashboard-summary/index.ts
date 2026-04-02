@@ -22,7 +22,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Load custom system prompt
-    let basePrompt = "Você é o Maestro BI, consultor estratégico de marketing digital e vendas.";
+    let basePrompt = "Você é o Agente Riscamundo, consultor estratégico de marketing digital e vendas.";
     const { data: configData } = await supabase
       .from("maestro_config")
       .select("system_prompt")

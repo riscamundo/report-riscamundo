@@ -35,7 +35,7 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
 
       if (error) {
         console.error('Summary error:', error);
-        toast.error('Não foi possível gerar o resumo do Maestro BI');
+        toast.error('Não foi possível gerar o resumo do Agente Riscamundo');
         return;
       }
 
@@ -52,7 +52,7 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
       }
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao conectar com o Maestro BI');
+      toast.error('Erro ao conectar com o Agente Riscamundo');
     } finally {
       setLoading(false);
       setHasLoaded(true);
@@ -81,7 +81,7 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">Maestro BI — Resumo do Mês</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-primary">Agente Riscamundo — Resumo do Mês</span>
               <Button
                 variant="ghost"
                 size="icon"

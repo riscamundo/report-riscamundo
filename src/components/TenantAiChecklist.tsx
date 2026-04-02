@@ -44,7 +44,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
 
       if (error) {
         console.error('Summary error:', error);
-        toast.error('Não foi possível gerar o resumo do Maestro BI');
+        toast.error('Não foi possível gerar o resumo do Agente Riscamundo');
         return;
       }
 
@@ -52,7 +52,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
       if (data?.suggestions) setSuggestions(data.suggestions);
     } catch (e) {
       console.error(e);
-      toast.error('Erro ao conectar com o Maestro BI');
+      toast.error('Erro ao conectar com o Agente Riscamundo');
     } finally {
       setLoading(false);
       setHasLoaded(true);
@@ -80,7 +80,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
       const { error } = await supabase.from('tarefas_cliente').insert({
         cliente_id: clienteId,
         titulo: suggestion.title,
-        descricao: `Sugestão gerada pelo Maestro BI para ${clienteNome}`,
+        descricao: `Sugestão gerada pelo Agente Riscamundo para ${clienteNome}`,
         prioridade: suggestion.priority,
         status: 'esperando',
       });
@@ -112,7 +112,7 @@ export function TenantAiChecklist({ metricsContext, clienteId, clienteNome }: Te
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Maestro BI — Resumo de {clienteNome}
+                Agente Riscamundo — Resumo de {clienteNome}
               </span>
               <Button
                 variant="ghost"
