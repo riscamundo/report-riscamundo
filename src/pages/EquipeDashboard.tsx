@@ -5,10 +5,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedPage, StaggerContainer, StaggerItem } from '@/components/AnimatedPage';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area, Legend, PieChart, Pie, Cell
@@ -18,7 +24,7 @@ import {
   AlertTriangle, Clock, TrendingUp, ArrowUpRight,
   Zap, Hash, Link2, ExternalLink, MoveUp, MoveDown, Minus, Star, MapPin,
   Phone, Eye, Activity, Percent, ListTodo, FileText, PhoneCall,
-  CheckCircle2, Loader2, LayoutDashboard, ShoppingCart, DollarSign
+  CheckCircle2, Loader2, LayoutDashboard, ShoppingCart, DollarSign, Plus
 } from 'lucide-react';
 
 // ─── Types ───
@@ -44,10 +50,14 @@ const axisStroke = 'hsl(215, 10%, 40%)';
 
 export default function EquipeDashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [clientes, setClientes] = useState<ClienteResumo[]>([]);
   const [selectedClienteId, setSelectedClienteId] = useState<string>('');
   const [activeTab, setActiveTab] = useState('visao');
+  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
+  const [savingTask, setSavingTask] = useState(false);
+  const [newTask, setNewTask] = useState({ titulo: '', descricao: '', prioridade: 'media' });
 
   // Listen for sidebar tab changes
   useEffect(() => {
@@ -122,6 +132,30 @@ export default function EquipeDashboard() {
   }, [selectedClienteId, fetchClientData]);
 
   const clienteNome = useMemo(() => clientes.find(c => c.id === selectedClienteId)?.nome || '', [clientes, selectedClienteId]);
+
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedClienteId || !newTask.titulo.trim()) return;
+    setSavingTask(true);
+    const { error } = await supabase.from('tarefas_cliente').insert({
+      cliente_id: selectedClienteId,
+      titulo: newTask.titulo.trim(),
+      descricao: newTask.descricao.trim() || null,
+      prioridade: newTask.prioridade,
+      status: 'esperando',
+    });
+
+    if (error) {
+      toast({ title: 'Erro ao criar tarefa', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Tarefa criada com sucesso!' });
+      setIsTaskDialogOpen(false);
+      setNewTask({ titulo: '', descricao: '', prioridade: 'media' });
+      fetchClientData(selectedClienteId);
+    }
+
+    setSavingTask(false);
+  };
 
   const calcDelta = (cur: number, prev: number) => prev === 0 ? (cur > 0 ? 100 : 0) : ((cur - prev) / prev) * 100;
   const fmtMonth = (d: string) => new Date(d + 'T00:00:00').toLocaleDateString('pt-BR', { month: 'short' });
@@ -774,6 +808,16 @@ export default function EquipeDashboard() {
 
             {/* ══════ TAREFAS ══════ */}
             <TabsContent value="tarefas" className="space-y-6">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold">Tarefas de {clienteNome}</h3>
+                  <p className="text-sm text-muted-foreground">Crie e acompanhe tarefas deste cliente.</p>
+                </div>
+                <Button size="sm" className="gap-2" onClick={() => setIsTaskDialogOpen(true)}>
+                  <Plus className="h-4 w-4" /> Criar Tarefa
+                </Button>
+              </div>
+
               {clientTarefas.length === 0 ? (
                 <Card><CardContent className="p-12 text-center text-sm text-muted-foreground">Nenhuma tarefa cadastrada para {clienteNome}.</CardContent></Card>
               ) : (
@@ -809,6 +853,38 @@ export default function EquipeDashboard() {
                   </Card>
                 </>
               )}
+
+              <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
+                <DialogContent className="bg-card max-w-lg">
+                  <DialogHeader>
+                    <DialogTitle>Criar tarefa para {clienteNome}</DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleCreateTask} className="space-y-4">
+                    <div>
+                      <Label>Título *</Label>
+                      <Input value={newTask.titulo} onChange={e => setNewTask(prev => ({ ...prev, titulo: e.target.value }))} required className="mt-1" placeholder="Ex: Revisar landing page" />
+                    </div>
+                    <div>
+                      <Label>Descrição</Label>
+                      <Textarea value={newTask.descricao} onChange={e => setNewTask(prev => ({ ...prev, descricao: e.target.value }))} rows={3} className="mt-1" placeholder="Detalhes da tarefa..." />
+                    </div>
+                    <div>
+                      <Label>Prioridade</Label>
+                      <Select value={newTask.prioridade} onValueChange={value => setNewTask(prev => ({ ...prev, prioridade: value }))}>
+                        <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alta">Alta</SelectItem>
+                          <SelectItem value="media">Média</SelectItem>
+                          <SelectItem value="baixa">Baixa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button type="submit" className="w-full" disabled={savingTask}>
+                      {savingTask ? 'Criando...' : 'Criar Tarefa'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </TabsContent>
           </Tabs>
         )}
