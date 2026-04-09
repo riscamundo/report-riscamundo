@@ -120,15 +120,17 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
             ) : techSummary ? (
               <div className="space-y-4">
                 {/* Parágrafo 1: Técnico */}
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-card/50 border border-border/40">
-                  <Wifi className="h-4 w-4 text-info shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-info mb-1">Conexões & Tenants</p>
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90">
-                      <ReactMarkdown>{techSummary}</ReactMarkdown>
+                {isMaster && (
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-card/50 border border-border/40">
+                    <Wifi className="h-4 w-4 text-info shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-info mb-1">Conexões & Tenants</p>
+                      <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90">
+                        <ReactMarkdown>{techSummary}</ReactMarkdown>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Parágrafo 2: Vendas */}
                 {salesSummary && (
