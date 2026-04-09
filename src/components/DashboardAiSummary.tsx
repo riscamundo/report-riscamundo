@@ -87,20 +87,29 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-primary">Agente Riscamundo — Resumo do Mês</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 ml-auto shrink-0"
-                onClick={fetchSummary}
-                disabled={loading}
-                title="Atualizar resumo"
-              >
-                {loading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-                )}
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-auto shrink-0"
+                  onClick={fetchSummary}
+                  disabled={loading}
+                  title="Atualizar resumo"
+                >
+                  {loading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 shrink-0"
+                  onClick={() => setVisible(false)}
+                  title="Fechar resumo"
+                >
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
             </div>
 
             {loading && !techSummary ? (
