@@ -10,6 +10,8 @@ type Msg = { role: 'user' | 'assistant'; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-advisor`;
 
 export function AiAdvisorFab() {
+  const { isMaster } = useAuth();
+  if (!isMaster) return null;
   return <AgenteRiscamundoChat />;
 }
 
