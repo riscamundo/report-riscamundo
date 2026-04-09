@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, RefreshCw, Loader2, Wifi, TrendingUp } from 'lucide-react';
+import { Sparkles, RefreshCw, Loader2, Wifi, TrendingUp, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Suggestion {
   title: string;
@@ -19,6 +20,8 @@ interface DashboardAiSummaryProps {
 }
 
 export function DashboardAiSummary({ metricsContext, connectionsContext }: DashboardAiSummaryProps) {
+  const { isMaster } = useAuth();
+  const [visible, setVisible] = useState(true);
   const [techSummary, setTechSummary] = useState<string>('');
   const [salesSummary, setSalesSummary] = useState<string>('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
