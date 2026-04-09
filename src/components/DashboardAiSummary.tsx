@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, RefreshCw, Loader2, Wifi, TrendingUp } from 'lucide-react';
+import { Sparkles, RefreshCw, Loader2, Wifi, TrendingUp, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Suggestion {
   title: string;
@@ -19,6 +20,8 @@ interface DashboardAiSummaryProps {
 }
 
 export function DashboardAiSummary({ metricsContext, connectionsContext }: DashboardAiSummaryProps) {
+  const { isMaster } = useAuth();
+  const [visible, setVisible] = useState(true);
   const [techSummary, setTechSummary] = useState<string>('');
   const [salesSummary, setSalesSummary] = useState<string>('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -71,6 +74,8 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
     baixa: 'bg-muted text-muted-foreground border-border',
   };
 
+  if (!visible) return null;
+
   return (
     <Card className="mb-8 border-primary/15 bg-gradient-to-br from-primary/[0.04] to-transparent executive-card overflow-hidden relative">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
@@ -82,20 +87,29 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xs font-bold uppercase tracking-wider text-primary">Agente Riscamundo — Resumo do Mês</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 ml-auto shrink-0"
-                onClick={fetchSummary}
-                disabled={loading}
-                title="Atualizar resumo"
-              >
-                {loading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-                )}
-              </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 ml-auto shrink-0"
+                  onClick={fetchSummary}
+                  disabled={loading}
+                  title="Atualizar resumo"
+                >
+                  {loading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 shrink-0"
+                  onClick={() => setVisible(false)}
+                  title="Fechar resumo"
+                >
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </Button>
             </div>
 
             {loading && !techSummary ? (
@@ -106,15 +120,17 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
             ) : techSummary ? (
               <div className="space-y-4">
                 {/* Parágrafo 1: Técnico */}
-                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-card/50 border border-border/40">
-                  <Wifi className="h-4 w-4 text-info shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-info mb-1">Conexões & Tenants</p>
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90">
-                      <ReactMarkdown>{techSummary}</ReactMarkdown>
+                {isMaster && (
+                  <div className="flex items-start gap-2.5 p-3 rounded-lg bg-card/50 border border-border/40">
+                    <Wifi className="h-4 w-4 text-info shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-info mb-1">Conexões & Tenants</p>
+                      <div className="prose prose-sm dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/90">
+                        <ReactMarkdown>{techSummary}</ReactMarkdown>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Parágrafo 2: Vendas */}
                 {salesSummary && (
