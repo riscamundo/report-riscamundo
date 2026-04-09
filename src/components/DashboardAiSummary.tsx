@@ -74,6 +74,8 @@ export function DashboardAiSummary({ metricsContext, connectionsContext }: Dashb
     baixa: 'bg-muted text-muted-foreground border-border',
   };
 
+  if (!visible) return null;
+
   return (
     <Card className="mb-8 border-primary/15 bg-gradient-to-br from-primary/[0.04] to-transparent executive-card overflow-hidden relative">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
