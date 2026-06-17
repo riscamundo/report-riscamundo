@@ -316,7 +316,7 @@ export default function ClientPortalPage() {
             <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
           </StaggerContainer>
 
-          <Tabs defaultValue="marketing" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
               <TabsList className="inline-flex h-auto gap-0.5 bg-transparent p-0 border-b border-border/40 w-full min-w-max">
                 {[
