@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,9 +17,8 @@ import { motion } from 'framer-motion';
 import KeywordResearchAgent from '@/components/KeywordResearchAgent';
 import TaskAnalyzerAgent from '@/components/TaskAnalyzerAgent';
 import { toast } from 'sonner';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import {
-  User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
+  User, ShoppingBag, CreditCard, Clock, CheckCircle2, AlertCircle,
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
   Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
@@ -82,8 +82,9 @@ export default function ClientPortalPage() {
 
   // Dialogs
   const [showNewTarefa, setShowNewTarefa] = useState(false);
-  
-  
+
+  // Active tab controlled by sidebar
+  const [activeTab, setActiveTab] = useState('marketing');
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
@@ -91,6 +92,13 @@ export default function ClientPortalPage() {
   const [savingTarefa, setSavingTarefa] = useState(false);
 
   // Anuncio form removed — clients only view ads
+
+  // Listen for sidebar tab changes
+  useEffect(() => {
+    const handler = (e: CustomEvent) => setActiveTab(e.detail);
+    window.addEventListener('cliente-tab-change', handler as EventListener);
+    return () => window.removeEventListener('cliente-tab-change', handler as EventListener);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -275,27 +283,9 @@ export default function ClientPortalPage() {
   const currentPlatformInfo = activePlatform === 'all' ? null : PLATFORMS.find(p => p.id === activePlatform)!;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10"><User className="h-5 w-5 text-primary" /></div>
-            <div>
-              <h1 className="text-sm font-bold tracking-wide">RISCAMUNDO</h1>
-              <p className="text-xs text-muted-foreground">Portal do Cliente</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">{cliente?.nome || user?.email}</span>
-            <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout>
       <AnimatedPage>
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
           <div>
             <h2 className="text-2xl font-bold">
               {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}, {cliente?.nome || 'Cliente'} 👋
@@ -325,7 +315,7 @@ export default function ClientPortalPage() {
             <StaggerItem><MktKPI label="Tarefas Pendentes" value={tarefas.filter(t => t.status !== 'pronta').length.toString()} icon={ListTodo} /></StaggerItem>
           </StaggerContainer>
 
-          <Tabs defaultValue="marketing" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0 pb-1">
               <TabsList className="inline-flex h-auto gap-0.5 bg-transparent p-0 border-b border-border/40 w-full min-w-max">
                 {[
@@ -1428,6 +1418,6 @@ export default function ClientPortalPage() {
           <span className="text-sm font-semibold">Chame por aqui</span>
         </a>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
