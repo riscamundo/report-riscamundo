@@ -17,9 +17,8 @@ import { motion } from 'framer-motion';
 import KeywordResearchAgent from '@/components/KeywordResearchAgent';
 import TaskAnalyzerAgent from '@/components/TaskAnalyzerAgent';
 import { toast } from 'sonner';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import {
-  User, ShoppingBag, CreditCard, Clock, LogOut, CheckCircle2, AlertCircle,
+  User, ShoppingBag, CreditCard, Clock, CheckCircle2, AlertCircle,
   CalendarDays, DollarSign, FileText, TrendingUp, Globe, MousePointerClick,
   MessageSquare, Target, BarChart3, Users, Eye, ArrowUpRight, ArrowDownRight,
   Megaphone, Layers, Hash, Percent, Zap, PieChart as PieChartIcon,
