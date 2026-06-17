@@ -284,27 +284,9 @@ export default function ClientPortalPage() {
   const currentPlatformInfo = activePlatform === 'all' ? null : PLATFORMS.find(p => p.id === activePlatform)!;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/10"><User className="h-5 w-5 text-primary" /></div>
-            <div>
-              <h1 className="text-sm font-bold tracking-wide">RISCAMUNDO</h1>
-              <p className="text-xs text-muted-foreground">Portal do Cliente</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground hidden sm:block">{cliente?.nome || user?.email}</span>
-            <ThemeToggle />
-            <Button variant="ghost" size="sm" onClick={signOut}><LogOut className="h-4 w-4" /></Button>
-          </div>
-        </div>
-      </header>
-
+    <DashboardLayout>
       <AnimatedPage>
-        <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
           <div>
             <h2 className="text-2xl font-bold">
               {(() => { const h = new Date().getHours(); return h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite'; })()}, {cliente?.nome || 'Cliente'} 👋
