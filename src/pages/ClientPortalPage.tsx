@@ -83,8 +83,9 @@ export default function ClientPortalPage() {
 
   // Dialogs
   const [showNewTarefa, setShowNewTarefa] = useState(false);
-  
-  
+
+  // Active tab controlled by sidebar
+  const [activeTab, setActiveTab] = useState('marketing');
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
   // New tarefa form
@@ -92,6 +93,13 @@ export default function ClientPortalPage() {
   const [savingTarefa, setSavingTarefa] = useState(false);
 
   // Anuncio form removed — clients only view ads
+
+  // Listen for sidebar tab changes
+  useEffect(() => {
+    const handler = (e: CustomEvent) => setActiveTab(e.detail);
+    window.addEventListener('cliente-tab-change', handler as EventListener);
+    return () => window.removeEventListener('cliente-tab-change', handler as EventListener);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
