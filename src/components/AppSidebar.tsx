@@ -5,7 +5,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard, Megaphone, Users, ShoppingCart, AlertTriangle,
-  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase, Share2
+  ChevronLeft, ChevronRight, Shield, LogOut, Menu, X, BarChart3, Search, ListTodo, Briefcase, Share2,
+  Globe, Store, Wallet, User, ShoppingBag
 } from 'lucide-react';
 
 interface NavItem {
@@ -45,11 +46,31 @@ const equipeTabItems: EquipeTabItem[] = [
   { title: 'Tarefas', tab: 'tarefas', icon: ListTodo },
 ];
 
-export function AppSidebar({ onEquipeTabChange }: { onEquipeTabChange?: (tab: string) => void }) {
-  const { isMaster, isGestor, role, user, signOut } = useAuth();
+// Cliente sidebar items map to tabs on ClientPortalPage
+interface ClienteTabItem {
+  title: string;
+  tab: string;
+  icon: typeof LayoutDashboard;
+}
+
+const clienteTabItems: ClienteTabItem[] = [
+  { title: 'Marketing', tab: 'marketing', icon: BarChart3 },
+  { title: 'Anúncios', tab: 'anuncios', icon: Megaphone },
+  { title: 'SEO', tab: 'seo', icon: Search },
+  { title: 'Mídias Sociais', tab: 'social', icon: Share2 },
+  { title: 'MyBusiness', tab: 'mybusiness', icon: Store },
+  { title: 'Tarefas', tab: 'tarefas', icon: ListTodo },
+  { title: 'Financeiro', tab: 'financeiro', icon: Wallet },
+  { title: 'Meus Dados', tab: 'dados', icon: User },
+  { title: 'Procedimentos', tab: 'procedimentos', icon: ShoppingBag },
+];
+
+export function AppSidebar({ onEquipeTabChange, onClienteTabChange }: { onEquipeTabChange?: (tab: string) => void; onClienteTabChange?: (tab: string) => void }) {
+  const { isMaster, isGestor, isCliente, role, user, signOut } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeEquipeTab, setActiveEquipeTab] = useState('visao');
+  const [activeClienteTab, setActiveClienteTab] = useState('marketing');
   const location = useLocation();
 
   const isMasterUser = isMaster;
