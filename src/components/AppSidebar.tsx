@@ -122,6 +122,29 @@ export function AppSidebar({ onEquipeTabChange, onClienteTabChange }: { onEquipe
               {!collapsed && <span>{item.title}</span>}
             </NavLink>
           ))
+        ) : isCliente ? (
+          // Cliente: tab buttons that control ClientPortalPage tabs
+          clienteTabItems.map(item => {
+            const isActive = activeClienteTab === item.tab;
+            return (
+              <button
+                key={item.tab}
+                onClick={() => {
+                  setActiveClienteTab(item.tab);
+                  onClienteTabChange?.(item.tab);
+                  setMobileOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 ${
+                  isActive
+                    ? 'bg-primary/15 text-primary font-semibold shadow-sm'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+                }`}
+              >
+                <item.icon className="h-[18px] w-[18px] shrink-0" />
+                {!collapsed && <span>{item.title}</span>}
+              </button>
+            );
+          })
         ) : (
           // Equipe: tab buttons that control EquipeDashboard tabs
           equipeTabItems.map(item => {
