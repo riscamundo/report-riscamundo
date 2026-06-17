@@ -1419,6 +1419,6 @@ export default function ClientPortalPage() {
           <span className="text-sm font-semibold">Chame por aqui</span>
         </a>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
